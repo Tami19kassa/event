@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { getSession } from "@/lib/auth";
 
@@ -13,7 +13,7 @@ const ALLOWED_MIME_TYPES = [
   "video/webm",
 ];
 
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB limit
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -31,36 +31,61 @@ export async function POST(req: NextRequest) {
 
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: `File type "${file.type}" not supported. Allowed: JPG, PNG, WEBP, SVG, MP4, WebM.` },
+        { error: `File type "${file.type}" not supported. Allowed: JPG, PNG, WEBP, SVG.` },
         { status: 400 }
       );
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json(
-        { error: "File exceeds 25MB limit." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "File exceeds 15MB limit." }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const safeName = file.name
-      .toLowerCase()
-      .replace(/[^a-z0-9.-]/g, "_")
-      .replace(/_+/g, "_");
-    const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 6)}-${safeName}`;
-    const uploadPath = path.join(process.cwd(), "public", "uploads", uniqueName);
+    // If running on Vercel or serverless (read-only filesystem) or if file is an image <= 5MB,
+    // Base64 Data URL provides 100% persistence across ephemeral containers with 0 storage config.
+    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    const mime = file.type || "image/png";
 
-    await writeFile(uploadPath, buffer);
+    if (isServerless || file.size <= 4 * 1024 * 1024) {
+      const base64Url = `data:${mime};base64,${buffer.toString("base64")}`;
+      return NextResponse.json({
+        url: base64Url,
+        name: file.name,
+        size: file.size,
+        type: mime,
+      });
+    }
 
-    return NextResponse.json({
-      url: `/uploads/${uniqueName}`,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    });
+    // Local filesystem storage fallback for larger video/media
+    try {
+      const safeName = file.name
+        .toLowerCase()
+        .replace(/[^a-z0-9.-]/g, "_")
+        .replace(/_+/g, "_");
+      const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 6)}-${safeName}`;
+      const uploadsDir = path.join(process.cwd(), "public", "uploads");
+
+      await mkdir(uploadsDir, { recursive: true });
+      await writeFile(path.join(uploadsDir, uniqueName), buffer);
+
+      return NextResponse.json({
+        url: `/uploads/${uniqueName}`,
+        name: file.name,
+        size: file.size,
+        type: mime,
+      });
+    } catch {
+      // In case local write fails (e.g. read-only volume), fallback to Base64
+      const fallbackUrl = `data:${mime};base64,${buffer.toString("base64")}`;
+      return NextResponse.json({
+        url: fallbackUrl,
+        name: file.name,
+        size: file.size,
+        type: mime,
+      });
+    }
   } catch (err: any) {
     console.error("Upload handler error:", err);
     return NextResponse.json(

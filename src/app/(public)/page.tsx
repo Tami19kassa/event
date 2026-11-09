@@ -5,6 +5,7 @@ import { SponsorsMarquee } from "@/components/home/SponsorsMarquee";
 import { StatsSection } from "@/components/home/StatsSection";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { FeaturedEventsSection } from "@/components/home/FeaturedEventsSection";
+import { EventCalendarSection } from "@/components/home/calendar/EventCalendarSection";
 
 export default async function HomePage() {
   const [featured, allEvents, categories, expoSlides, sponsors, scrollInterval] =
@@ -25,6 +26,7 @@ export default async function HomePage() {
       <SponsorsMarquee sponsors={sponsors} />
       <StatsSection />
       <CategoriesSection categories={categories} />
+      <EventCalendarSection events={allEvents} />
       <FeaturedEventsSection featured={featured} upcoming={upcoming} />
     </div>
   );

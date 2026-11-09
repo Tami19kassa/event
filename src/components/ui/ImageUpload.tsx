@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, Link as LinkIcon, X, Check, Loader2, Image as ImageIcon } from "lucide-react";
+import { Upload, Link as LinkIcon, X, Loader2 } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -10,13 +10,62 @@ interface ImageUploadProps {
   placeholder?: string;
 }
 
+// Client-side image optimization to keep uploads lightweight (< 50KB)
+async function optimizeImage(file: File): Promise<File | Blob> {
+  if (!file.type.startsWith("image/") || file.type.includes("svg")) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX_DIM = 600;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(file);
+
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob && blob.size < file.size) {
+              resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" }));
+            } else {
+              resolve(file);
+            }
+          },
+          "image/webp",
+          0.85
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
 export function ImageUpload({
   value,
   onChange,
   label = "Upload Image",
   placeholder = "https://images.unsplash.com/...",
 }: ImageUploadProps) {
-  const [tab, setTab] = useState<"upload" | "url">(value?.startsWith("/uploads") ? "upload" : "upload");
+  const [tab, setTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -29,8 +78,9 @@ export function ImageUpload({
     setUploading(true);
 
     try {
+      const processedFile = await optimizeImage(file);
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", processedFile);
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -98,13 +148,13 @@ export function ImageUpload({
             {uploading ? (
               <div className="flex items-center gap-2 text-indigo-600 text-xs font-semibold py-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Uploading local image...
+                Optimizing & uploading...
               </div>
             ) : (
               <>
                 <Upload className="w-5 h-5 text-indigo-600" />
-                <span className="text-xs font-bold text-slate-700">Choose image from your computer</span>
-                <span className="text-[10px] text-slate-400">PNG, JPG, WEBP, SVG up to 25MB</span>
+                <span className="text-xs font-bold text-slate-700">Choose logo/image from your device</span>
+                <span className="text-[10px] text-slate-400">PNG, JPG, WEBP, SVG auto-optimized</span>
               </>
             )}
           </label>
@@ -129,7 +179,7 @@ export function ImageUpload({
           <img
             src={value}
             alt="Preview"
-            className="h-20 w-32 object-cover rounded-xl border border-slate-200 shadow-2xs"
+            className="h-20 w-32 object-contain bg-white rounded-xl border border-slate-200 p-1 shadow-2xs"
           />
           <button
             type="button"
