@@ -1,138 +1,9 @@
 import { prisma } from "./prisma";
+import { HeroSlide, SponsorItem } from "./expo-types";
+import { defaultExpoSlides, defaultSponsors } from "./expo-defaults";
 
-export type HeroSlide = {
-  id: string;
-  title: string;
-  titleHighlight?: string;
-  subtitle: string;
-  badgeText: string;
-  category: string;
-  datesText: string;
-  venueText: string;
-  mediaType: "image" | "video";
-  videoUrl?: string;
-  posterUrl: string;
-  visitorCtaText: string;
-  visitorCtaLink: string;
-  exhibitorCtaText: string;
-  exhibitorCtaLink: string;
-  isActive: boolean;
-};
-
-export type SponsorItem = {
-  id: string;
-  name: string;
-  logoText: string;
-  logoUrl?: string;
-  tier: "STRATEGIC" | "PLATINUM" | "GOLD" | "MEDIA";
-  websiteUrl?: string;
-};
-
-export const defaultExpoSlides: HeroSlide[] = [
-  {
-    id: "slide-privexpo-2026",
-    title: "PRIVEXPO 2026 B2B Trade & FMCG Expo",
-    titleHighlight: "B2B Trade",
-    subtitle:
-      "Connecting regional manufacturers and contract producers with 750+ verified retail chain buyers, e-commerce distributors, and FMCG importers.",
-    badgeText: "B2B Trade Meeting & Matchmaking",
-    category: "Trade Show",
-    datesText: "Nov 4–5, 2026",
-    venueText: "Millennium Hall, Addis Ababa",
-    mediaType: "video",
-    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    posterUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1600",
-    visitorCtaText: "Get Trade Buyer Pass",
-    visitorCtaLink: "/discover?category=business",
-    exhibitorCtaText: "Book Exhibition Booth",
-    exhibitorCtaLink: "#exhibit",
-    isActive: true,
-  },
-  {
-    id: "slide-tech-summit-2026",
-    title: "Addis AI & Cloud Innovation Expo 2026",
-    titleHighlight: "Innovation Expo",
-    subtitle:
-      "East Africa's flagship technology exhibition gathering 350+ software enterprise exhibitors, tech founders, and digital leaders.",
-    badgeText: "Enterprise Technology Summit",
-    category: "Technology",
-    datesText: "Dec 10–12, 2026",
-    venueText: "Skylight Convention Center",
-    mediaType: "image",
-    posterUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1600",
-    visitorCtaText: "Explore Keynotes & Passes",
-    visitorCtaLink: "/discover?category=technology",
-    exhibitorCtaText: "Reserve Startup Stand",
-    exhibitorCtaLink: "#exhibit",
-    isActive: true,
-  },
-  {
-    id: "slide-agro-food-2027",
-    title: "Ethiopia Agro-Manufacturing & Packaging Expo",
-    titleHighlight: "Manufacturing",
-    subtitle:
-      "The premier B2B sourcing platform for agricultural processing machinery, packaging materials, and international food exports.",
-    badgeText: "International Industry Expo",
-    category: "Manufacturing",
-    datesText: "Jan 18–20, 2027",
-    venueText: "Friendship Expo Center, Addis Ababa",
-    mediaType: "image",
-    posterUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600",
-    visitorCtaText: "Register as Buyer",
-    visitorCtaLink: "/discover",
-    exhibitorCtaText: "Apply for Shell Scheme",
-    exhibitorCtaLink: "#exhibit",
-    isActive: true,
-  },
-];
-
-export const defaultSponsors: SponsorItem[] = [
-  {
-    id: "sp-ethio-telecom",
-    name: "Ethio Telecom",
-    logoText: "Ethio Telecom",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Ethio_telecom_logo.png/640px-Ethio_telecom_logo.png",
-    tier: "STRATEGIC",
-    websiteUrl: "https://www.ethiotelecom.et",
-  },
-  {
-    id: "sp-cbe",
-    name: "Commercial Bank of Ethiopia",
-    logoText: "Commercial Bank of Ethiopia",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Commercial_Bank_of_Ethiopia_logo.png/640px-Commercial_Bank_of_Ethiopia_logo.png",
-    tier: "STRATEGIC",
-    websiteUrl: "https://www.combanketh.et",
-  },
-  {
-    id: "sp-ethiopian-airlines",
-    name: "Ethiopian Airlines",
-    logoText: "Ethiopian Airlines",
-    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Ethiopian_Airlines_Logo.svg/640px-Ethiopian_Airlines_Logo.svg.png",
-    tier: "PLATINUM",
-    websiteUrl: "https://www.ethiopianairlines.com",
-  },
-  {
-    id: "sp-chamber",
-    name: "Addis Ababa Chamber of Commerce",
-    logoText: "Addis Chamber",
-    tier: "PLATINUM",
-    websiteUrl: "https://addischamber.com",
-  },
-  {
-    id: "sp-tradeshow-intel",
-    name: "TradeShow Intelligence",
-    logoText: "TradeShow Intel",
-    tier: "MEDIA",
-    websiteUrl: "https://tradeshowintel.com",
-  },
-  {
-    id: "sp-eurasia-b2b",
-    name: "Eurasia Trade Network",
-    logoText: "Eurasia B2B",
-    tier: "MEDIA",
-    websiteUrl: "https://privexpo.com",
-  },
-];
+export * from "./expo-types";
+export * from "./expo-defaults";
 
 export async function getExpoSlides(): Promise<HeroSlide[]> {
   try {
@@ -143,6 +14,11 @@ export async function getExpoSlides(): Promise<HeroSlide[]> {
     }
   } catch {}
   return defaultExpoSlides;
+}
+
+export async function getExpoSlideById(id: string): Promise<HeroSlide | null> {
+  const slides = await getExpoSlides();
+  return slides.find((s) => s.id === id) || null;
 }
 
 export async function saveExpoSlides(slides: HeroSlide[]): Promise<HeroSlide[]> {

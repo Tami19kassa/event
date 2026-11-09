@@ -67,11 +67,24 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
       </div>
 
       <div>
-        <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Overview Description</label>
+        <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Brief Tagline (Hero)</label>
         <textarea
           rows={2}
           value={slide.subtitle}
           onChange={(e) => onChange("subtitle", e.target.value)}
+          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:ring-2 focus:ring-indigo-600"
+        />
+      </div>
+
+      <div>
+        <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+          Detailed Description & Highlights (For Dedicated Expo Page)
+        </label>
+        <textarea
+          rows={4}
+          value={slide.detailedDescription || ""}
+          onChange={(e) => onChange("detailedDescription", e.target.value)}
+          placeholder="In-depth overview, key pavilions, exhibition profile..."
           className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:ring-2 focus:ring-indigo-600"
         />
       </div>
