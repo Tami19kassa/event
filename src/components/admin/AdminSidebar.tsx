@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   CreditCard,
   Layers,
+  Building2,
   X,
 } from "lucide-react";
 import clsx from "clsx";
@@ -35,6 +36,7 @@ const mainNavItems: NavItem[] = [
 
 const settingsNavItems: NavItem[] = [
   { href: "/admin/settings", label: "Branding & Theme", icon: Palette, exact: true },
+  { href: "/admin/settings/expo", label: "Expo & Hero Slider", icon: Building2, exact: true },
   { href: "/admin/settings/payments", label: "Payment Gateways", icon: CreditCard, exact: true },
   { href: "/admin/settings/cookies", label: "Cookies", icon: Cookie, exact: true },
 ];
