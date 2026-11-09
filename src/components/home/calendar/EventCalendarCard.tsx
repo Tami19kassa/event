@@ -2,7 +2,7 @@
 
 import { Event } from "@/types/event";
 import { calculateDaysLeft, formatEventDateBlock } from "@/lib/date-utils";
-import { MapPin, Clock, ArrowRight, Ticket, Users } from "lucide-react";
+import { MapPin, Clock, ArrowRight, Users } from "lucide-react";
 
 interface Props {
   event: Event;
@@ -13,7 +13,6 @@ export function EventCalendarCard({ event, onSelect }: Props) {
   const dateInfo = formatEventDateBlock(event.startDate);
   const countdown = calculateDaysLeft(event.startDate);
 
-  // Lowest ticket price or free
   const minPrice =
     event.ticketTiers && event.ticketTiers.length > 0
       ? Math.min(...event.ticketTiers.map((t) => t.price))
@@ -22,22 +21,34 @@ export function EventCalendarCard({ event, onSelect }: Props) {
   return (
     <div
       onClick={() => onSelect(event)}
-      className="group bg-white rounded-2xl border border-slate-200/90 hover:border-indigo-400/80 p-4 sm:p-5 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden"
+      className="group bg-white rounded-2xl border border-slate-200/90 hover:border-slate-400/80 p-4 sm:p-5 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden"
     >
       {/* Accent left highlight on hover */}
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div
+        style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
+        className="absolute left-0 top-0 bottom-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      />
 
       {/* Left Date Block + Info */}
       <div className="flex items-start gap-4 w-full sm:w-auto">
         {/* Modern Date Calendar Box */}
-        <div className="shrink-0 flex flex-col items-center justify-center w-14 h-16 sm:w-16 sm:h-18 rounded-2xl bg-indigo-50/80 border border-indigo-100 text-center shadow-2xs group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-200">
-          <span className="text-[10px] font-black tracking-wider uppercase text-indigo-600 group-hover:text-indigo-100">
+        <div
+          style={{
+            backgroundColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.08)",
+            borderColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.2)",
+          }}
+          className="shrink-0 flex flex-col items-center justify-center w-14 h-16 sm:w-16 sm:h-18 rounded-2xl border text-center shadow-2xs group-hover:brightness-95 transition-all duration-200"
+        >
+          <span
+            style={{ color: "var(--color-primary, #4F46E5)" }}
+            className="text-[10px] font-black tracking-wider uppercase"
+          >
             {dateInfo.month}
           </span>
-          <span className="text-xl sm:text-2xl font-black text-slate-900 group-hover:text-white leading-tight">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
             {dateInfo.day}
           </span>
-          <span className="text-[9px] font-semibold text-slate-500 group-hover:text-indigo-200">
+          <span className="text-[9px] font-semibold text-slate-500">
             {dateInfo.weekday}
           </span>
         </div>
@@ -45,9 +56,7 @@ export function EventCalendarCard({ event, onSelect }: Props) {
         {/* Event Details */}
         <div className="space-y-1.5 flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${countdown.colorClass}`}
-            >
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${countdown.colorClass}`}>
               {countdown.label}
             </span>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
@@ -60,13 +69,19 @@ export function EventCalendarCard({ event, onSelect }: Props) {
             )}
           </div>
 
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+          <h3
+            style={{ color: undefined }}
+            className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
+          >
             {event.title}
           </h3>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
             <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
+              <MapPin
+                style={{ color: "var(--color-primary, #4F46E5)" }}
+                className="w-3.5 h-3.5 shrink-0"
+              />
               <span className="truncate max-w-[200px] sm:max-w-[260px]">
                 {event.location.name || event.location.city}
               </span>
@@ -98,7 +113,8 @@ export function EventCalendarCard({ event, onSelect }: Props) {
 
         <button
           type="button"
-          className="px-4 py-2 rounded-xl bg-slate-900 group-hover:bg-indigo-600 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+          style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
+          className="px-4 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:brightness-110 active:scale-95"
         >
           <span>Take Place</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Event } from "@/types/event";
-import { Loader2, CheckCircle2, Ticket, ShieldCheck, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle2, Ticket, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
@@ -49,7 +49,6 @@ export function EventCalendarBookingForm({ event }: Props) {
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to reserve tickets");
-
       setOrder(data.order);
     } catch (err: any) {
       setError(err.message || "Reservation failed");
@@ -66,26 +65,22 @@ export function EventCalendarBookingForm({ event }: Props) {
         </div>
         <h4 className="text-xl font-black text-slate-900">Spot Reserved Successfully!</h4>
         <p className="text-xs text-slate-600 max-w-sm mx-auto">
-          Your pass has been generated. Order reference:{" "}
-          <span className="font-mono font-bold text-indigo-600">{order.orderNumber}</span>. Confirmation sent to {email}.
+          Pass reference: <span className="font-mono font-bold text-slate-900">{order.orderNumber}</span>. Confirmation sent to {email}.
         </p>
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left text-xs space-y-1 max-w-sm mx-auto">
-          <div className="flex justify-between text-slate-500">
-            <span>Event</span>
-            <span className="font-bold text-slate-800">{event.title}</span>
-          </div>
           <div className="flex justify-between text-slate-500">
             <span>Pass Type</span>
             <span className="font-bold text-slate-800">{selectedTier?.name} ({quantity}x)</span>
           </div>
           <div className="flex justify-between text-slate-500">
-            <span>Total Paid</span>
+            <span>Total</span>
             <span className="font-bold text-slate-800">{totalPrice === 0 ? "Free Pass" : `ETB ${totalPrice}`}</span>
           </div>
         </div>
         <Link
           href={`/events/${event.slug}`}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-indigo-600 text-white font-bold text-xs rounded-xl hover:bg-indigo-700 transition"
+          style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-white font-bold text-xs rounded-xl hover:brightness-110 transition"
         >
           <span>View Event Details</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -95,32 +90,32 @@ export function EventCalendarBookingForm({ event }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
+    <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-3.5">
       {error && <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">{error}</div>}
 
       {/* Ticket Tier Selection */}
       {event.ticketTiers && event.ticketTiers.length > 0 && (
         <div className="space-y-1.5">
-          <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
-            Select Pass / Ticket Tier
-          </label>
+          <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">Select Pass Tier</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {event.ticketTiers.map((tier) => (
               <button
                 key={tier.id}
                 type="button"
                 onClick={() => setSelectedTierId(tier.id)}
-                className={`p-3 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
-                  selectedTierId === tier.id
-                    ? "border-indigo-600 bg-indigo-50/50 ring-1 ring-indigo-500"
-                    : "border-slate-200 hover:border-slate-300 bg-white"
+                style={{
+                  borderColor: selectedTierId === tier.id ? "var(--color-primary, #4F46E5)" : undefined,
+                  backgroundColor: selectedTierId === tier.id ? "rgba(var(--color-primary-rgb, 79, 70, 229), 0.06)" : undefined,
+                }}
+                className={`p-2.5 rounded-xl border text-left transition flex items-center justify-between cursor-pointer ${
+                  selectedTierId === tier.id ? "ring-1 ring-[var(--color-primary)]" : "border-slate-200 bg-white"
                 }`}
               >
                 <div>
                   <div className="text-xs font-bold text-slate-900">{tier.name}</div>
                   <div className="text-[10px] text-slate-500">{tier.remaining} remaining</div>
                 </div>
-                <span className="text-xs font-black text-indigo-600">
+                <span style={{ color: "var(--color-primary, #4F46E5)" }} className="text-xs font-black">
                   {tier.price === 0 ? "Free" : `ETB ${tier.price}`}
                 </span>
               </button>
@@ -129,17 +124,17 @@ export function EventCalendarBookingForm({ event }: Props) {
         </div>
       )}
 
-      {/* Quantity & Attendee info */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Attendee Details */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         <div>
           <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">Full Name *</label>
           <input
             required
             type="text"
-            placeholder="e.g. Abebe Bekele"
+            placeholder="Abebe Bekele"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
           />
         </div>
         <div>
@@ -150,24 +145,24 @@ export function EventCalendarBookingForm({ event }: Props) {
             placeholder="09... / +251..."
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
           />
         </div>
       </div>
 
       <div>
-        <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">Email for Pass & Barcode *</label>
+        <label className="text-[11px] font-bold text-slate-700 uppercase block mb-1">Email for Pass *</label>
         <input
           required
           type="email"
           placeholder="attendee@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+          className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)] outline-none"
         />
       </div>
 
-      {/* Payment Method (if not free) */}
+      {/* Payment Method */}
       {totalPrice > 0 && (
         <div className="space-y-1.5">
           <label className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">Payment Option</label>
@@ -177,10 +172,12 @@ export function EventCalendarBookingForm({ event }: Props) {
                 key={m}
                 type="button"
                 onClick={() => setPaymentMethod(m)}
+                style={{
+                  backgroundColor: paymentMethod === m ? "var(--color-primary, #4F46E5)" : undefined,
+                  borderColor: paymentMethod === m ? "var(--color-primary, #4F46E5)" : undefined,
+                }}
                 className={`py-2 px-1 text-center rounded-xl text-[11px] font-bold border transition cursor-pointer ${
-                  paymentMethod === m
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
-                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                  paymentMethod === m ? "text-white shadow-2xs" : "bg-slate-50 text-slate-700 border-slate-200"
                 }`}
               >
                 {m === "TELEBIRR" ? "Telebirr" : m === "CBE" ? "CBE Bank" : "Pay at Gate"}
@@ -194,7 +191,8 @@ export function EventCalendarBookingForm({ event }: Props) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
+        className="w-full py-3 text-white font-bold text-sm rounded-xl shadow-md transition hover:brightness-110 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
       >
         {loading ? (
           <>
@@ -204,9 +202,7 @@ export function EventCalendarBookingForm({ event }: Props) {
         ) : (
           <>
             <Ticket className="w-4 h-4" />
-            <span>
-              {totalPrice === 0 ? "Confirm Free Registration" : `Confirm & Take Place (ETB ${totalPrice.toLocaleString()})`}
-            </span>
+            <span>{totalPrice === 0 ? "Confirm Free Entry Pass" : `Confirm & Take Place (ETB ${totalPrice.toLocaleString()})`}</span>
           </>
         )}
       </button>

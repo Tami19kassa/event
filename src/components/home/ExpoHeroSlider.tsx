@@ -1,18 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Calendar,
-  MapPin,
-  Building2,
-  Ticket,
-  Pause,
-  Play,
-  ArrowRight,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, MapPin, ArrowRight } from "lucide-react";
 import { HeroSlide } from "@/lib/expo-settings";
 import { extractYouTubeId, buildYouTubeBackgroundUrl } from "@/lib/youtube";
 import { ExhibitorInquiryModal } from "./ExhibitorInquiryModal";
@@ -27,61 +17,99 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [inquiryModalOpen, setInquiryModalOpen] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  const slideCount = activeSlides.length;
   const current = activeSlides[index] || activeSlides[0];
 
+  const nextSlide = useCallback(() => {
+    if (slideCount <= 1) return;
+    setIndex((prev) => (prev + 1) % slideCount);
+  }, [slideCount]);
+
+  const prevSlide = useCallback(() => {
+    if (slideCount <= 1) return;
+    setIndex((prev) => (prev - 1 + slideCount) % slideCount);
+  }, [slideCount]);
+
+  // Reliable Autoplay timer with auto-reset on slide change
   useEffect(() => {
-    if (isPaused || activeSlides.length <= 1) return;
-    const ms = Math.max(3, intervalSeconds) * 1000;
-    timerRef.current = setInterval(() => {
-      setIndex((prev) => (prev + 1) % activeSlides.length);
-    }, ms);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isPaused, activeSlides.length, index, intervalSeconds]);
+    if (isPaused || slideCount <= 1) return;
+    const duration = Math.max(3, intervalSeconds) * 1000;
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % slideCount);
+    }, duration);
+
+    return () => clearInterval(timer);
+  }, [isPaused, slideCount, index, intervalSeconds]);
+
+  // Touch Swipe Handlers for mobile navigation
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    setIsPaused(true);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsPaused(false);
+    if (!touchStartRef.current) return;
+    const deltaX = touchStartRef.current.x - e.changedTouches[0].clientX;
+    const deltaY = touchStartRef.current.y - e.changedTouches[0].clientY;
+
+    // Horizontal swipe threshold
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (deltaX > 0) nextSlide();
+      else prevSlide();
+    }
+    touchStartRef.current = null;
+  };
 
   if (!current) return null;
-
   const youtubeId = current.mediaType === "video" && current.videoUrl ? extractYouTubeId(current.videoUrl) : null;
 
   return (
     <>
       <section
-        onMouseEnter={() => setIsPaused(true)}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => {
+          if (typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches) {
+            setIsPaused(true);
+          }
+        }}
         onMouseLeave={() => setIsPaused(false)}
-        className="relative bg-slate-950 text-white overflow-hidden min-h-[580px] md:min-h-[640px] flex items-center"
+        className="relative bg-slate-950 text-white overflow-hidden min-h-[540px] md:min-h-[600px] flex items-center select-none"
       >
-        {/* Background Layer: Image Poster */}
+        {/* Background Poster */}
         <div
-          className="absolute inset-0 bg-cover bg-center opacity-30 transition-all duration-1000 scale-105"
+          className="absolute inset-0 bg-cover bg-center opacity-30 transition-all duration-700 scale-105"
           style={{ backgroundImage: `url('${current.posterUrl}')` }}
         />
 
-        {/* Video Loop (if active) */}
+        {/* Video Loop */}
         {current.mediaType === "video" && youtubeId && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <iframe
               src={buildYouTubeBackgroundUrl(youtubeId)}
-              title="Expo Background Stream"
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-full min-h-full object-cover opacity-60 scale-[1.3] pointer-events-none"
+              title="Expo Background"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-full min-h-full object-cover opacity-50 scale-[1.3] pointer-events-none border-0"
               tabIndex={-1}
-              style={{ border: 0 }}
             />
           </div>
         )}
 
         {/* Vignette Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-950/40 pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/50 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/40 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-transparent pointer-events-none" />
 
         {/* Content Container */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20 w-full z-10">
-          <div className="max-w-3xl">
-            {/* Top Badge & Date Info */}
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30 backdrop-blur-md">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 w-full z-10">
+          <div className="max-w-2xl">
+            {/* Top Badges */}
+            <div className="flex flex-wrap items-center gap-2 mb-3.5">
+              <span
+                style={{ borderColor: "var(--color-primary, #4F46E5)" }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white text-xs font-bold border backdrop-blur-md"
+              >
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                 {current.badgeText}
               </span>
@@ -96,86 +124,78 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
             </div>
 
             {/* Headline */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight mb-4 leading-[1.1] transition-all">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight mb-3 leading-[1.15] text-white">
               {current.title}
             </h1>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-base md:text-lg text-slate-300 mb-8 leading-relaxed max-w-2xl">
+            <p className="text-xs sm:text-sm md:text-base text-slate-300 mb-6 leading-relaxed max-w-xl line-clamp-3">
               {current.subtitle}
             </p>
 
-            {/* Dual B2B Conversion Actions */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 max-w-lg mb-8">
+            {/* Sleek, Non-AI Dual Action Group */}
+            <div className="flex flex-row items-center gap-2.5 sm:gap-4 max-w-md mb-8">
               <Link
                 href={current.visitorCtaLink}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-sm shadow-lg active:scale-95"
+                style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
+                className="flex-1 sm:flex-initial text-white font-bold px-5 py-3 rounded-xl transition shadow-lg hover:brightness-110 active:scale-95 flex items-center justify-center gap-2 text-xs sm:text-sm text-center"
               >
-                <Ticket className="w-4 h-4" />
-                {current.visitorCtaText}
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <span>{current.visitorCtaText}</span>
+                <ArrowRight className="w-3.5 h-3.5 shrink-0" />
               </Link>
               <button
                 type="button"
                 onClick={() => setInquiryModalOpen(true)}
-                className="bg-white/10 hover:bg-white/20 text-white font-bold px-6 py-3.5 rounded-xl border border-white/20 transition flex items-center justify-center gap-2 text-sm backdrop-blur-md cursor-pointer active:scale-95"
+                className="flex-1 sm:flex-initial bg-white/10 hover:bg-white/20 text-white font-bold px-5 py-3 rounded-xl border border-white/20 transition backdrop-blur-md cursor-pointer active:scale-95 text-xs sm:text-sm text-center"
               >
-                <Building2 className="w-4 h-4 text-amber-300" />
-                {current.exhibitorCtaText}
+                <span>{current.exhibitorCtaText}</span>
               </button>
             </div>
 
-            {/* Slide Quick-Selector Pills */}
-            <div className="flex items-center gap-2 pt-4 border-t border-white/10">
-              <span className="text-xs text-slate-400 font-semibold mr-1">Featured Expos:</span>
-              <div className="flex items-center gap-2 flex-wrap">
+            {/* Story-Style Segmented Navigation & Indicators */}
+            <div className="flex items-center justify-between gap-4 pt-3 border-t border-white/10">
+              {/* Slide Category Pills & Segment Bars */}
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
                 {activeSlides.map((slide, sIdx) => (
                   <button
                     key={slide.id}
                     onClick={() => setIndex(sIdx)}
-                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                    className={`relative py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                       sIdx === index
-                        ? "bg-white text-slate-900 shadow-md scale-105"
-                        : "bg-white/10 hover:bg-white/20 text-slate-300 border border-white/10"
+                        ? "bg-white text-slate-950 shadow-md scale-105"
+                        : "bg-white/10 text-slate-300 hover:bg-white/20"
                     }`}
                   >
-                    {slide.category || `Expo ${sIdx + 1}`}
+                    <span>{slide.category || `Expo ${sIdx + 1}`}</span>
                   </button>
                 ))}
               </div>
 
-              {/* Pause / Play Control */}
-              <button
-                onClick={() => setIsPaused(!isPaused)}
-                aria-label={isPaused ? "Resume autoplay" : "Pause autoplay"}
-                className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 ml-auto transition"
-              >
-                {isPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
-              </button>
+              {/* Prev / Next Chevrons (Available on both Mobile & Desktop) */}
+              {slideCount > 1 && (
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    onClick={prevSlide}
+                    aria-label="Previous slide"
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 active:scale-90 text-white flex items-center justify-center transition border border-white/10 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    aria-label="Next slide"
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/25 active:scale-90 text-white flex items-center justify-center transition border border-white/10 cursor-pointer"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Carousel Prev/Next Buttons */}
-        {activeSlides.length > 1 && (
-          <div className="hidden md:flex absolute bottom-8 right-8 items-center gap-2 z-20">
-            <button
-              onClick={() => setIndex((prev) => (prev - 1 + activeSlides.length) % activeSlides.length)}
-              className="p-3 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md transition cursor-pointer"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setIndex((prev) => (prev + 1) % activeSlides.length)}
-              className="p-3 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-white/20 backdrop-blur-md transition cursor-pointer"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        )}
       </section>
 
-      {/* Exhibitor Booth Modal */}
+      {/* Exhibitor Modal */}
       <ExhibitorInquiryModal
         expoTitle={current.title}
         isOpen={inquiryModalOpen}

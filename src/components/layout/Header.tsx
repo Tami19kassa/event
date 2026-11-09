@@ -57,7 +57,7 @@ export function Header({
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Brand Logo & Name */}
           <Link href="/" className="shrink-0">
-            <BrandLogo siteName={siteName} logoUrl={logoUrl} />
+            <BrandLogo siteName={siteName} logoUrl={logoUrl} showSubtitle={false} />
           </Link>
 
           {/* Centered Desktop Nav */}

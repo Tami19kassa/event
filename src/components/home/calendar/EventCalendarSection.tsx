@@ -17,7 +17,6 @@ export function EventCalendarSection({ events }: Props) {
   const [selectedMonth, setSelectedMonth] = useState("ALL");
   const [activeModalEvent, setActiveModalEvent] = useState<Event | null>(null);
 
-  // Extract available categories & months
   const categories = useMemo(() => {
     const set = new Set(events.map((e) => e.category).filter(Boolean));
     return ["ALL", ...Array.from(set)];
@@ -34,7 +33,6 @@ export function EventCalendarSection({ events }: Props) {
     return ["ALL", ...Array.from(set)];
   }, [events]);
 
-  // Filter and sort events chronologically
   const filteredEvents = useMemo(() => {
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -63,13 +61,20 @@ export function EventCalendarSection({ events }: Props) {
   }, [events, search, selectedCategory, selectedMonth]);
 
   return (
-    <section className="py-14 md:py-20 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/80 border-t border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+    <section className="py-12 md:py-18 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/80 border-t border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-7">
         {/* Section Header */}
         <ScrollReveal variant="fade-up" durationMs={500}>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100/80 text-indigo-700 text-xs font-black uppercase tracking-wider mb-2">
+              <div
+                style={{
+                  backgroundColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.08)",
+                  borderColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.2)",
+                  color: "var(--color-primary, #4F46E5)",
+                }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-black uppercase tracking-wider mb-2"
+              >
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Live Event & Expo Calendar</span>
               </div>
@@ -81,7 +86,6 @@ export function EventCalendarSection({ events }: Props) {
               </p>
             </div>
 
-            {/* Event Count Pill */}
             <div className="shrink-0 flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3.5 py-1.5 rounded-full shadow-2xs self-start md:self-auto">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span>{filteredEvents.length} events scheduled</span>
@@ -92,7 +96,6 @@ export function EventCalendarSection({ events }: Props) {
         {/* Filter Bar */}
         <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs space-y-3">
           <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search Input */}
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -100,7 +103,7 @@ export function EventCalendarSection({ events }: Props) {
                 placeholder="Search event name, venue (e.g. Millennium Hall)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
 
@@ -110,9 +113,12 @@ export function EventCalendarSection({ events }: Props) {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
+                  style={{
+                    backgroundColor: selectedCategory === cat ? "var(--color-primary, #4F46E5)" : undefined,
+                  }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
                     selectedCategory === cat
-                      ? "bg-indigo-600 text-white shadow-2xs"
+                      ? "text-white shadow-2xs"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                   }`}
                 >
@@ -145,7 +151,7 @@ export function EventCalendarSection({ events }: Props) {
           )}
         </div>
 
-        {/* Calendar Event Cards List */}
+        {/* Calendar Event Cards */}
         {filteredEvents.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-8 space-y-2">
             <CalendarIcon className="w-10 h-10 text-slate-300 mx-auto" />
@@ -157,7 +163,8 @@ export function EventCalendarSection({ events }: Props) {
                 setSelectedCategory("ALL");
                 setSelectedMonth("ALL");
               }}
-              className="text-xs text-indigo-600 font-bold hover:underline pt-2 cursor-pointer"
+              style={{ color: "var(--color-primary, #4F46E5)" }}
+              className="text-xs font-bold hover:underline pt-2 cursor-pointer"
             >
               Reset Filters
             </button>
@@ -175,7 +182,7 @@ export function EventCalendarSection({ events }: Props) {
         )}
       </div>
 
-      {/* Quick Take Place & Details Modal */}
+      {/* Quick Take Place Modal */}
       <EventCalendarQuickModal
         event={activeModalEvent}
         onClose={() => setActiveModalEvent(null)}

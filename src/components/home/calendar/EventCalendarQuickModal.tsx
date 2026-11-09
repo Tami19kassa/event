@@ -69,11 +69,11 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 mt-2">
             <span className="flex items-center gap-1 font-medium">
-              <Calendar className="w-3.5 h-3.5 text-indigo-600" />
+              <Calendar style={{ color: "var(--color-primary, #4F46E5)" }} className="w-3.5 h-3.5" />
               <span>{dateInfo.month} {dateInfo.day}, {dateInfo.year} ({dateInfo.time})</span>
             </span>
             <span className="flex items-center gap-1 font-medium">
-              <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+              <MapPin style={{ color: "var(--color-primary, #4F46E5)" }} className="w-3.5 h-3.5" />
               <span className="truncate max-w-[200px]">{event.location.name || event.location.city}</span>
             </span>
           </div>
@@ -82,21 +82,25 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
           <div className="flex gap-2 mt-4 border-b border-slate-100">
             <button
               onClick={() => setActiveTab("book")}
+              style={{
+                borderColor: activeTab === "book" ? "var(--color-primary, #4F46E5)" : "transparent",
+                color: activeTab === "book" ? "var(--color-primary, #4F46E5)" : undefined,
+              }}
               className={`pb-2 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border-b-2 ${
-                activeTab === "book"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
+                activeTab === "book" ? "" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               <Ticket className="w-3.5 h-3.5" />
-              <span>Take Place (Instant Registration)</span>
+              <span>Take Place (Instant Pass)</span>
             </button>
             <button
               onClick={() => setActiveTab("details")}
+              style={{
+                borderColor: activeTab === "details" ? "var(--color-primary, #4F46E5)" : "transparent",
+                color: activeTab === "details" ? "var(--color-primary, #4F46E5)" : undefined,
+              }}
               className={`pb-2 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border-b-2 ${
-                activeTab === "details"
-                  ? "border-indigo-600 text-indigo-600"
-                  : "border-transparent text-slate-500 hover:text-slate-800"
+                activeTab === "details" ? "" : "text-slate-500 hover:text-slate-800"
               }`}
             >
               <Info className="w-3.5 h-3.5" />

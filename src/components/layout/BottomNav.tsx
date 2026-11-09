@@ -60,8 +60,13 @@ export function BottomNav() {
               }`}
             >
               <div
+                style={{
+                  backgroundColor: active
+                    ? "rgba(var(--color-primary-rgb, 79, 70, 229), 0.12)"
+                    : "transparent",
+                }}
                 className={`p-1 rounded-xl transition-colors ${
-                  active ? "bg-indigo-50 text-[var(--color-primary)]" : "text-slate-400"
+                  active ? "text-[var(--color-primary)]" : "text-slate-400"
                 }`}
               >
                 <Icon

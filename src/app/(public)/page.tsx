@@ -7,6 +7,9 @@ import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { FeaturedEventsSection } from "@/components/home/FeaturedEventsSection";
 import { EventCalendarSection } from "@/components/home/calendar/EventCalendarSection";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function HomePage() {
   const [featured, allEvents, categories, expoSlides, sponsors, scrollInterval] =
     await Promise.all([
