@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, CheckCircle2, AlertCircle, Layers } from "lucide-react";
+import { Save, CheckCircle2, AlertCircle, Clock } from "lucide-react";
 import { HeroSlide, SponsorItem, defaultExpoSlides, defaultSponsors } from "@/lib/expo-settings";
 import { ExpoSlidesManager } from "@/components/admin/expo/ExpoSlidesManager";
 import { SponsorsManager } from "@/components/admin/expo/SponsorsManager";
@@ -9,6 +9,7 @@ import { SponsorsManager } from "@/components/admin/expo/SponsorsManager";
 export default function ExpoSettingsPage() {
   const [slides, setSlides] = useState<HeroSlide[]>(defaultExpoSlides);
   const [sponsors, setSponsors] = useState<SponsorItem[]>(defaultSponsors);
+  const [scrollInterval, setScrollInterval] = useState<number>(7);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -20,6 +21,7 @@ export default function ExpoSettingsPage() {
       .then((data) => {
         if (data.slides) setSlides(data.slides);
         if (data.sponsors) setSponsors(data.sponsors);
+        if (data.scrollInterval) setScrollInterval(Number(data.scrollInterval));
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -33,7 +35,7 @@ export default function ExpoSettingsPage() {
       const res = await fetch("/api/settings/expo", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slides, sponsors }),
+        body: JSON.stringify({ slides, sponsors, scrollInterval }),
       });
 
       if (!res.ok) {
@@ -61,7 +63,7 @@ export default function ExpoSettingsPage() {
             Expos, Hero Slider & Commercial Sponsors
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Configure featured expos, YouTube background trailers, and strategic sponsor ribbons.
+            Configure featured expos, scroll interval timing, and strategic sponsor logos.
           </p>
         </div>
 
@@ -93,6 +95,35 @@ export default function ExpoSettingsPage() {
         <div className="p-12 text-center text-slate-400">Loading expo settings...</div>
       ) : (
         <div className="space-y-6">
+          {/* Timing Control Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <Clock className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm text-slate-900">Hero Slider Autoplay Timing</h3>
+                <p className="text-xs text-slate-500">How long each featured expo stays visible before sliding.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {[5, 7, 10, 15].map((sec) => (
+                <button
+                  key={sec}
+                  type="button"
+                  onClick={() => setScrollInterval(sec)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
+                    scrollInterval === sec
+                      ? "bg-indigo-600 text-white shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  {sec}s {sec === 7 && "(Default)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <ExpoSlidesManager slides={slides} onChange={setSlides} />
           <SponsorsManager sponsors={sponsors} onChange={setSponsors} />
         </div>

@@ -90,14 +90,16 @@ export const defaultSponsors: SponsorItem[] = [
   {
     id: "sp-ethio-telecom",
     name: "Ethio Telecom",
-    logoText: "ethio telecom",
+    logoText: "Ethio Telecom",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Ethio_telecom_logo.png/640px-Ethio_telecom_logo.png",
     tier: "STRATEGIC",
     websiteUrl: "https://www.ethiotelecom.et",
   },
   {
     id: "sp-cbe",
     name: "Commercial Bank of Ethiopia",
-    logoText: "CBE Bank",
+    logoText: "Commercial Bank of Ethiopia",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Commercial_Bank_of_Ethiopia_logo.png/640px-Commercial_Bank_of_Ethiopia_logo.png",
     tier: "STRATEGIC",
     websiteUrl: "https://www.combanketh.et",
   },
@@ -105,6 +107,7 @@ export const defaultSponsors: SponsorItem[] = [
     id: "sp-ethiopian-airlines",
     name: "Ethiopian Airlines",
     logoText: "Ethiopian Airlines",
+    logoUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Ethiopian_Airlines_Logo.svg/640px-Ethiopian_Airlines_Logo.svg.png",
     tier: "PLATINUM",
     websiteUrl: "https://www.ethiopianairlines.com",
   },
@@ -133,9 +136,7 @@ export const defaultSponsors: SponsorItem[] = [
 
 export async function getExpoSlides(): Promise<HeroSlide[]> {
   try {
-    const setting = await prisma.siteSetting.findUnique({
-      where: { key: "expo_hero_slides" },
-    });
+    const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_hero_slides" } });
     if (setting?.value) {
       const parsed = JSON.parse(setting.value);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -155,9 +156,7 @@ export async function saveExpoSlides(slides: HeroSlide[]): Promise<HeroSlide[]> 
 
 export async function getSponsors(): Promise<SponsorItem[]> {
   try {
-    const setting = await prisma.siteSetting.findUnique({
-      where: { key: "expo_sponsors" },
-    });
+    const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_sponsors" } });
     if (setting?.value) {
       const parsed = JSON.parse(setting.value);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -173,4 +172,24 @@ export async function saveSponsors(sponsors: SponsorItem[]): Promise<SponsorItem
     create: { key: "expo_sponsors", value: JSON.stringify(sponsors) },
   });
   return sponsors;
+}
+
+export async function getExpoScrollInterval(): Promise<number> {
+  try {
+    const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_scroll_interval" } });
+    if (setting?.value) {
+      const val = Number(setting.value);
+      if (!isNaN(val) && val >= 3) return val;
+    }
+  } catch {}
+  return 7;
+}
+
+export async function saveExpoScrollInterval(seconds: number): Promise<number> {
+  await prisma.siteSetting.upsert({
+    where: { key: "expo_scroll_interval" },
+    update: { value: String(seconds) },
+    create: { key: "expo_scroll_interval", value: String(seconds) },
+  });
+  return seconds;
 }

@@ -19,9 +19,10 @@ import { ExhibitorInquiryModal } from "./ExhibitorInquiryModal";
 
 interface Props {
   slides: HeroSlide[];
+  intervalSeconds?: number;
 }
 
-export function ExpoHeroSlider({ slides }: Props) {
+export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
   const activeSlides = slides.filter((s) => s.isActive);
   const [index, setIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -32,13 +33,14 @@ export function ExpoHeroSlider({ slides }: Props) {
 
   useEffect(() => {
     if (isPaused || activeSlides.length <= 1) return;
+    const ms = Math.max(3, intervalSeconds) * 1000;
     timerRef.current = setInterval(() => {
       setIndex((prev) => (prev + 1) % activeSlides.length);
-    }, 7000);
+    }, ms);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused, activeSlides.length, index]);
+  }, [isPaused, activeSlides.length, index, intervalSeconds]);
 
   if (!current) return null;
 

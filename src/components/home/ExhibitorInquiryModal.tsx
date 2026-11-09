@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Building2, CheckCircle2, Send, Loader2 } from "lucide-react";
 
 interface Props {
@@ -18,19 +18,36 @@ export function ExhibitorInquiryModal({ expoTitle, isOpen, onClose }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  // Freeze background scrolling when modal is active
+  useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    // Simulating instant lead capture / notification
     await new Promise((r) => setTimeout(r, 600));
     setSubmitting(false);
     setSubmitted(true);
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in overscroll-none">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in overscroll-none"
+    >
       <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92dvh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5">
@@ -48,13 +65,14 @@ export function ExhibitorInquiryModal({ expoTitle, isOpen, onClose }: Props) {
           </div>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             className="p-2 rounded-full text-slate-400 hover:text-slate-700 bg-slate-100 transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-6 overflow-y-auto space-y-4">
+        <div className="p-6 overflow-y-auto overscroll-contain space-y-4">
           {submitted ? (
             <div className="text-center py-4 space-y-3">
               <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto text-emerald-600">
