@@ -1,11 +1,11 @@
 import { getAllEvents, getFeaturedEvents, getCategories } from "@/lib/events";
 import { getExpoSlides, getSponsors, getExpoScrollInterval } from "@/lib/expo-settings";
 import { ExpoHeroSlider } from "@/components/home/ExpoHeroSlider";
-import { SponsorsMarquee } from "@/components/home/SponsorsMarquee";
 import { StatsSection } from "@/components/home/StatsSection";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
-import { FeaturedEventsSection } from "@/components/home/FeaturedEventsSection";
 import { EventCalendarSection } from "@/components/home/calendar/EventCalendarSection";
+import { FeaturedEventsSection } from "@/components/home/FeaturedEventsSection";
+import { SponsorsMarquee } from "@/components/home/SponsorsMarquee";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,11 +26,13 @@ export default async function HomePage() {
   return (
     <div>
       <ExpoHeroSlider slides={expoSlides} intervalSeconds={scrollInterval} />
-      <SponsorsMarquee sponsors={sponsors} />
       <StatsSection />
       <CategoriesSection categories={categories} />
-      <EventCalendarSection events={allEvents} />
+      <div id="calendar">
+        <EventCalendarSection events={allEvents} />
+      </div>
       <FeaturedEventsSection featured={featured} upcoming={upcoming} />
+      <SponsorsMarquee sponsors={sponsors} />
     </div>
   );
 }
