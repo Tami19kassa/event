@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { X, CheckCircle2, Loader2 } from "lucide-react";
+import { X, Loader2, AlertCircle } from "lucide-react";
 import { Event } from "@/types/event";
 import { PaymentMethodSelector, PaymentGatewayInfo } from "./PaymentMethodSelector";
-import { TicketPassCard } from "./TicketPassCard";
-import { CalendarSyncButtons } from "./CalendarSyncButtons";
+import { CheckoutSuccessView } from "./CheckoutSuccessView";
 
 interface CheckoutModalProps {
   event: Event;
@@ -71,42 +70,44 @@ export function CheckoutModal({
     }
   };
 
-  const calendarData = completedOrder
-    ? {
-        title: `${event.title} - Pass #${completedOrder.orderNumber}`,
-        description: `${event.shortDescription || event.title}\nRef: ${completedOrder.orderNumber}`,
-        location: `${event.location.name}, ${event.location.city}, Ethiopia`,
-        startDate: event.startDate,
-        endDate: event.endDate,
-        orderNumber: completedOrder.orderNumber,
-        status: completedOrder.status,
-      }
-    : null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-slate-100 relative max-h-[92vh] overflow-y-auto">
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-xl w-full max-h-[92vh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+        {/* Mobile Pull Indicator */}
+        <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto my-2.5 sm:hidden shrink-0" />
 
-        {!completedOrder ? (
+        {/* Modal Top Header Bar */}
+        <div className="flex items-center justify-between px-5 py-3 sm:px-7 sm:py-4 border-b border-slate-100 shrink-0">
           <div>
-            <div className="mb-5">
-              <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
-                Direct Booking & Pass
-              </span>
-              <h3 className="text-2xl font-extrabold text-slate-900">Reserve Your Tickets</h3>
-              <p className="text-xs text-slate-500 mt-1">{event.title}</p>
-            </div>
+            <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">
+              Direct Booking & Pass
+            </span>
+            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
+              {completedOrder ? "Reservation Confirmed" : "Reserve Your Tickets"}
+            </h3>
+            <p className="text-xs text-slate-500 truncate max-w-[240px] sm:max-w-md">{event.title}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close modal"
+            className="p-2.5 rounded-full text-slate-400 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 transition shrink-0 ml-3"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
+        {/* Modal Scrollable Body */}
+        <div className="overflow-y-auto p-5 sm:p-7 space-y-4">
+          {!completedOrder ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               {checkoutError && (
-                <div className="p-3.5 text-xs bg-rose-50 border border-rose-200 text-rose-700 rounded-xl">
-                  {checkoutError}
+                <div className="p-3.5 text-xs bg-rose-50 border border-rose-200 text-rose-800 rounded-xl leading-relaxed flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold block">Could not complete reservation</span>
+                    <span>{checkoutError}</span>
+                  </div>
                 </div>
               )}
 
@@ -116,8 +117,8 @@ export function CheckoutModal({
                   required
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Full Name (e.g. Abebe Bikila)"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                  placeholder="Full Name (e.g. Kebede Abebe)"
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <input
                   type="tel"
@@ -125,7 +126,7 @@ export function CheckoutModal({
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="Phone Number (09...)"
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
@@ -134,8 +135,8 @@ export function CheckoutModal({
                 required
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="Email Address"
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"
+                placeholder="Email Address (for ticket pass & barcode)"
+                className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
 
               {total > 0 && (
@@ -152,31 +153,23 @@ export function CheckoutModal({
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3.5 mt-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-4 mt-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
               >
-                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Confirm & Book (ETB ${total.toLocaleString()})`}
+                {submitting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  `Confirm & Book (ETB ${total.toLocaleString()})`
+                )}
               </button>
             </form>
-          </div>
-        ) : (
-          <div className="text-center py-2">
-            <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-emerald-600">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-            <h3 className="text-2xl font-black text-slate-900 mb-1">
-              {completedOrder.status === "RESERVED_PAY_AT_GATE" ? "Gate Reservation Confirmed!" : "Ticket Confirmed!"}
-            </h3>
-            <p className="text-xs text-slate-500 mb-5">Digital entry pass generated successfully.</p>
-            <TicketPassCard event={event} order={completedOrder} />
-            {calendarData && <CalendarSyncButtons eventData={calendarData} orderNumber={completedOrder.orderNumber} />}
-            <button
-              onClick={onClose}
-              className="w-full py-3 bg-slate-100 text-slate-700 font-bold rounded-2xl hover:bg-slate-200 transition text-sm cursor-pointer"
-            >
-              Done
-            </button>
-          </div>
-        )}
+          ) : (
+            <CheckoutSuccessView
+              event={event}
+              order={completedOrder}
+              onClose={onClose}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
