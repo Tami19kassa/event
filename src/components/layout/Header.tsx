@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { Search, Menu, X, MapPin } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
@@ -18,7 +19,28 @@ export function Header({
   primaryColor = "#4F46E5",
   categories,
 }: Props) {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isHomePage) {
+      setScrolledPastHero(true);
+      return;
+    }
+
+    const handleScroll = () => {
+      // Hero section is ~560px-620px; reveal nav search once scrolled past 320px
+      setScrolledPastHero(window.scrollY > 320);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isHomePage]);
+
+  const showSearch = !isHomePage || scrolledPastHero;
 
   const navCategories =
     categories && categories.length > 0
@@ -30,7 +52,7 @@ export function Header({
         ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Brand Logo & Name */}
@@ -61,16 +83,24 @@ export function Header({
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-4">
-            {/* Search Input Bar */}
-            <form action="/discover" method="GET" className="relative hidden lg:block w-64 xl:w-72">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="search"
-                name="q"
-                placeholder="Search events in Addis..."
-                className="w-full pl-10 pr-4 py-2 text-xs bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-transparent focus:border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
-              />
-            </form>
+            {/* Search Input Bar with Smooth Progressive Disclosure */}
+            <div
+              className={`transition-all duration-300 ease-out hidden lg:block overflow-hidden ${
+                showSearch
+                  ? "w-64 xl:w-72 opacity-100 translate-x-0"
+                  : "w-0 opacity-0 translate-x-4 pointer-events-none"
+              }`}
+            >
+              <form action="/discover" method="GET" className="relative w-64 xl:w-72">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Search events in Addis..."
+                  className="w-full pl-10 pr-4 py-2 text-xs bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-transparent focus:border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
+                />
+              </form>
+            </div>
 
             {/* Localized City Badge */}
             <div
@@ -83,7 +113,7 @@ export function Header({
 
             {/* Mobile Hamburger Menu */}
             <button
-              className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl transition"
+              className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
