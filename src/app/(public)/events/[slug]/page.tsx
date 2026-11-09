@@ -1,0 +1,56 @@
+import { notFound } from "next/navigation";
+import { Users } from "lucide-react";
+import { getEventBySlug, getAllEvents } from "@/lib/events";
+import { TicketSelector } from "@/components/events/TicketSelector";
+import { EventHeroBanner } from "@/components/events/detail/EventHeroBanner";
+import { EventDetailsContent } from "@/components/events/detail/EventDetailsContent";
+
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  const events = await getAllEvents();
+  return events.map((event) => ({
+    slug: event.slug,
+  }));
+}
+
+export default async function EventPage({ params }: PageProps) {
+  const { slug } = await params;
+  const event = await getEventBySlug(slug);
+
+  if (!event) {
+    notFound();
+  }
+
+  return (
+    <div>
+      <EventHeroBanner event={event} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2">
+            <EventDetailsContent event={event} />
+          </div>
+
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              <TicketSelector event={event} />
+
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-600">
+                <div className="flex items-center gap-2 mb-1.5 font-bold text-slate-900">
+                  <Users className="w-4 h-4 text-indigo-600" />
+                  <span>{event.attendeesCount.toLocaleString()} attendees registered</span>
+                </div>
+                <div className="text-slate-400">
+                  Venue maximum capacity: {event.capacity.toLocaleString()}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
