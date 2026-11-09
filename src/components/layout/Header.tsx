@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Search, Menu, X, MapPin } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
 type Props = {
@@ -100,15 +100,6 @@ export function Header({
                   className="w-full pl-10 pr-4 py-2 text-xs bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-transparent focus:border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
                 />
               </form>
-            </div>
-
-            {/* Localized City Badge */}
-            <div
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100/80 border border-slate-200/80 px-3.5 py-2 rounded-full shadow-2xs"
-              title="Official City: Addis Ababa, Ethiopia"
-            >
-              <MapPin className="w-3.5 h-3.5 text-[var(--color-primary)]" />
-              <span>Addis Ababa</span>
             </div>
 
             {/* Mobile Hamburger Menu */}
