@@ -17,24 +17,27 @@ import {
   Mail,
   Clapperboard,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
 import { BrandLogo } from "@/components/ui/BrandLogo";
+import type { AdminNavBadges } from "./AdminLayoutShell";
 
 interface NavItem {
   href: string;
   label: string;
-  icon: any;
+  icon: LucideIcon;
   exact?: boolean;
+  badgeKey?: keyof AdminNavBadges;
 }
 
 const mainNavItems: NavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/categories", label: "Event Types", icon: Layers },
-  { href: "/admin/orders", label: "Orders & Gate", icon: ShoppingCart },
+  { href: "/admin/orders", label: "Orders & Gate", icon: ShoppingCart, badgeKey: "orders" },
   { href: "/admin/media", label: "Media & Stories", icon: Clapperboard },
-  { href: "/admin/inquiries", label: "B2B Inquiries", icon: Mail },
+  { href: "/admin/inquiries", label: "B2B Inquiries", icon: Mail, badgeKey: "inquiries" },
   { href: "/admin/users", label: "Users", icon: Users },
 ];
 
@@ -51,6 +54,7 @@ interface SidebarProps {
   siteName?: string;
   logoUrl?: string | null;
   logoDarkUrl?: string | null;
+  navBadges?: AdminNavBadges;
 }
 
 export function AdminSidebar({
@@ -59,6 +63,7 @@ export function AdminSidebar({
   siteName = "Utopia",
   logoUrl,
   logoDarkUrl,
+  navBadges,
 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -70,21 +75,20 @@ export function AdminSidebar({
   };
 
   const isItemActive = (item: NavItem) => {
-    if (item.exact) {
-      return pathname === item.href;
-    }
+    if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname.startsWith(item.href + "/");
   };
 
   const renderNavGroup = (items: NavItem[], groupTitle?: string) => (
     <div className="space-y-0.5">
       {groupTitle && (
-        <div className="px-3 pt-2.5 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+        <div className="px-3 pt-3 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
           {groupTitle}
         </div>
       )}
       {items.map((item) => {
         const active = isItemActive(item);
+        const badgeCount = item.badgeKey ? navBadges?.[item.badgeKey] || 0 : 0;
 
         return (
           <Link
@@ -93,16 +97,28 @@ export function AdminSidebar({
             prefetch={true}
             onClick={onClose}
             className={clsx(
-              "flex items-center gap-3 px-3 py-2 theme-radius-sm text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+              "flex items-center justify-between gap-2 px-3 py-2 theme-radius-sm text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
               active
                 ? "theme-nav-active"
                 : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
             )}
           >
-            <item.icon
-              className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-slate-400")}
-            />
-            <span className="truncate">{item.label}</span>
+            <span className="flex items-center gap-3 min-w-0">
+              <item.icon
+                className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-slate-400")}
+              />
+              <span className="truncate">{item.label}</span>
+            </span>
+            {badgeCount > 0 && (
+              <span
+                className={clsx(
+                  "px-1.5 py-0.5 text-[10px] font-extrabold leading-none rounded-full shrink-0",
+                  active ? "bg-white/20 text-white" : "theme-pill-accent"
+                )}
+              >
+                {badgeCount > 99 ? "99+" : badgeCount}
+              </span>
+            )}
           </Link>
         );
       })}
@@ -135,7 +151,7 @@ export function AdminSidebar({
           />
           <button
             onClick={onClose}
-            className="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
+            className="md:hidden p-1.5 text-slate-400 hover:text-white theme-radius-sm hover:bg-slate-800 transition cursor-pointer"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -143,7 +159,7 @@ export function AdminSidebar({
         </div>
 
         <nav className="dark-scrollbar flex-1 py-2.5 px-3 overflow-y-auto space-y-2">
-          {renderNavGroup(mainNavItems)}
+          {renderNavGroup(mainNavItems, "Operations")}
           {renderNavGroup(settingsNavItems, "System & Settings")}
         </nav>
 
@@ -151,14 +167,14 @@ export function AdminSidebar({
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white theme-radius-sm hover:bg-slate-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <ChevronLeft className="w-4 h-4" />
             View Public Site ↗
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-rose-300 rounded-lg hover:bg-rose-950/40 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-rose-300 theme-radius-sm hover:bg-rose-950/40 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <LogOut className="w-4 h-4" />
             Sign out
