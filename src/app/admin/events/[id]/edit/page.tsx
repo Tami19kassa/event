@@ -10,25 +10,26 @@ export default function EditEventPage() {
   const id = params.id as string;
   const [data, setData] = useState<(Partial<EventFormData> & { id: string }) | null>(null);
   const [categories, setCategories] = useState<Array<{ id: string; name: string }>>([]);
+  const [currency, setCurrency] = useState("ETB");
   const [error, setError] = useState("");
 
   useEffect(() => {
     Promise.all([
       fetch(`/api/events/${id}`).then((r) => r.json()),
       fetch("/api/categories").then((r) => r.json()),
+      fetch("/api/settings/payments").then((r) => r.json()).catch(() => null),
     ])
-      .then(([event, cats]) => {
+      .then(([event, cats, pay]) => {
         if (event.error) {
           setError(event.error);
           return;
         }
-
-        if (Array.isArray(cats)) {
-          setCategories(cats);
-        }
+        if (Array.isArray(cats)) setCategories(cats);
+        if (pay?.currency) setCurrency(pay.currency);
 
         const toLocal = (d: string) => {
           const date = new Date(d);
+          if (Number.isNaN(date.getTime())) return "";
           const offset = date.getTimezoneOffset();
           const local = new Date(date.getTime() - offset * 60000);
           return local.toISOString().slice(0, 16);
@@ -60,7 +61,7 @@ export default function EditEventPage() {
             quantity: t.quantity,
             remaining: t.remaining,
             description: t.description || "",
-            earlyBird: t.earlyBird,
+            earlyBird: Boolean(t.earlyBird),
           })),
           speakers: (event.speakers || []).map((s: any) => ({
             id: s.id,
@@ -83,8 +84,10 @@ export default function EditEventPage() {
 
   if (error) {
     return (
-      <div className="p-8">
-        <div className="p-4 bg-rose-50 text-rose-700 rounded-xl">{error}</div>
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 theme-radius text-sm">
+          {error}
+        </div>
       </div>
     );
   }
@@ -98,8 +101,8 @@ export default function EditEventPage() {
   }
 
   return (
-    <div className="p-6 md:p-10">
-      <EventForm mode="edit" initialData={data} categories={categories} />
+    <div className="p-5 sm:p-6 md:p-8">
+      <EventForm mode="edit" initialData={data} categories={categories} currency={currency} />
     </div>
   );
 }

@@ -28,6 +28,68 @@ export function sanitizeAgendaInput(raw: unknown) {
     .filter((a) => a.time.length > 0 && a.title.length > 0);
 }
 
+export async function syncEventTicketTiers(
+  tx: Prisma.TransactionClient,
+  eventId: string,
+  existingTiers: Array<{ id: string; quantity: number; remaining: number; currency: string }>,
+  incomingTiers: unknown
+) {
+  if (!Array.isArray(incomingTiers)) return;
+
+  const cleanTiers = incomingTiers.filter(
+    (t: any) => typeof t?.name === "string" && t.name.trim()
+  );
+  const existingMap = new Map(existingTiers.map((t) => [t.id, t]));
+  const incomingIds = new Set<string>(
+    cleanTiers
+      .filter((t: any) => typeof t?.id === "string" && t.id)
+      .map((t: any) => String(t.id))
+  );
+
+  await tx.ticketTier.deleteMany({
+    where: { eventId, id: { notIn: Array.from(incomingIds) } },
+  });
+
+  for (let i = 0; i < cleanTiers.length; i++) {
+    const t = cleanTiers[i];
+    const qty = Math.max(1, Math.floor(Number(t.quantity) || 100));
+    const price = Math.max(0, Number(t.price) || 0);
+    const prev = t?.id ? existingMap.get(t.id) : undefined;
+    const desc = typeof t.description === "string" ? t.description.trim() || null : null;
+
+    if (prev) {
+      const nextRemaining = Math.max(0, Math.min(qty, prev.remaining + (qty - prev.quantity)));
+      await tx.ticketTier.update({
+        where: { id: prev.id },
+        data: {
+          name: String(t.name).trim().slice(0, 100),
+          description: desc,
+          price,
+          currency: t.currency || prev.currency || "ETB",
+          quantity: qty,
+          remaining: nextRemaining,
+          earlyBird: Boolean(t.earlyBird),
+          sortOrder: i,
+        },
+      });
+    } else {
+      await tx.ticketTier.create({
+        data: {
+          eventId,
+          name: String(t.name).trim().slice(0, 100),
+          description: desc,
+          price,
+          currency: t.currency || "ETB",
+          quantity: qty,
+          remaining: Math.min(qty, Math.max(0, Math.floor(Number(t.remaining ?? qty)))),
+          earlyBird: Boolean(t.earlyBird),
+          sortOrder: i,
+        },
+      });
+    }
+  }
+}
+
 export async function syncEventSpeakersAndAgenda(
   tx: Prisma.TransactionClient,
   eventId: string,

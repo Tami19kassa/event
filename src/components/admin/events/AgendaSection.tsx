@@ -24,12 +24,14 @@ export function AgendaSection({ items, onChange }: Props) {
   };
 
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-        <div className="flex items-center gap-2.5">
-          <CalendarClock className="w-5 h-5 text-[var(--color-primary)]" />
+    <section className="bg-white theme-radius-card border border-slate-200 p-5 sm:p-6 space-y-5 shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 theme-radius-sm theme-icon-secondary border flex items-center justify-center shrink-0">
+            <CalendarClock className="w-4 h-4" />
+          </div>
           <div>
-            <h2 className="font-semibold text-slate-900">Program Agenda &amp; Sessions</h2>
+            <h2 className="font-semibold text-slate-900 text-sm">Program Agenda &amp; Sessions</h2>
             <p className="text-xs text-slate-400">
               Chronological schedule shown on the public event detail view.
             </p>
@@ -38,20 +40,20 @@ export function AgendaSection({ items, onChange }: Props) {
         <button
           type="button"
           onClick={addSlot}
-          className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl theme-badge border cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 theme-radius-sm theme-badge-secondary border cursor-pointer hover:brightness-95 transition"
         >
           <Plus className="w-4 h-4" /> Add Session
         </button>
       </div>
 
       {items.length === 0 ? (
-        <div className="p-8 text-center bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-xs text-slate-500">
+        <div className="p-8 text-center bg-slate-50 border border-dashed border-slate-200 theme-radius text-xs text-slate-500">
           No agenda slots added yet. Click <strong>Add Session</strong> to outline check-in, keynotes, or workshops.
         </div>
       ) : (
         <div className="space-y-3">
           {items.map((slot, i) => (
-            <div key={i} className="grid grid-cols-12 gap-3 items-start p-4 bg-slate-50 border border-slate-200/80 rounded-2xl">
+            <div key={i} className="grid grid-cols-12 gap-3 items-start p-4 bg-slate-50/90 border border-slate-200/80 theme-radius">
               <div className="col-span-12 sm:col-span-3">
                 <label className="block text-xs font-bold text-slate-600 mb-1">Time Window *</label>
                 <input
@@ -60,7 +62,7 @@ export function AgendaSection({ items, onChange }: Props) {
                   value={slot.time}
                   onChange={(e) => updateSlot(i, "time", e.target.value)}
                   placeholder="09:00 AM"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm font-mono"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm font-mono"
                 />
               </div>
               <div className="col-span-12 sm:col-span-4">
@@ -70,8 +72,8 @@ export function AgendaSection({ items, onChange }: Props) {
                   required
                   value={slot.title}
                   onChange={(e) => updateSlot(i, "title", e.target.value)}
-                  placeholder="Opening Keynote & Expo Ribbon Cutting"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm"
+                  placeholder="Opening Keynote & Ribbon Cutting"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm"
                 />
               </div>
               <div className="col-span-10 sm:col-span-4">
@@ -81,7 +83,7 @@ export function AgendaSection({ items, onChange }: Props) {
                   value={slot.description}
                   onChange={(e) => updateSlot(i, "description", e.target.value)}
                   placeholder="Main Hall · Followed by Q&A"
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm"
                 />
               </div>
               <div className="col-span-2 sm:col-span-1 flex justify-end pt-6">

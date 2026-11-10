@@ -4,9 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
-import { syncEventSpeakersAndAgenda } from "@/lib/event-write-helpers";
+import { syncEventSpeakersAndAgenda, syncEventTicketTiers } from "@/lib/event-write-helpers";
 
 type Params = { params: Promise<{ id: string }> };
+
+const VALID_STATUSES = new Set(["DRAFT", "PUBLISHED", "LIVE", "ENDED", "CANCELLED"]);
+const VALID_FORMATS = new Set(["IN_PERSON", "ONLINE", "HYBRID"]);
 
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
@@ -19,6 +22,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
         ticketTiers: { orderBy: { sortOrder: "asc" } },
         speakers: { orderBy: { sortOrder: "asc" } },
         agendaItems: { orderBy: { sortOrder: "asc" } },
+        _count: { select: { orders: true } },
       },
     });
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -60,69 +64,38 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     const scalars = [
       "title", "slug", "shortDescription", "description", "imageUrl",
-      "timezone", "format", "status", "locationName", "locationAddress",
-      "locationCity", "locationCountry",
+      "timezone", "locationName", "locationAddress", "locationCity", "locationCountry",
     ];
     for (const field of scalars) {
       if (body[field] !== undefined) data[field] = body[field];
     }
-    if (body.startDate !== undefined) data.startDate = new Date(body.startDate);
-    if (body.endDate !== undefined) data.endDate = new Date(body.endDate);
+
+    if (typeof body.status === "string" && VALID_STATUSES.has(body.status.toUpperCase())) {
+      data.status = body.status.toUpperCase();
+    }
+    if (typeof body.format === "string") {
+      const normalizedFormat = body.format.toUpperCase().replace("-", "_");
+      if (VALID_FORMATS.has(normalizedFormat)) data.format = normalizedFormat;
+    }
+    if (body.startDate !== undefined || body.endDate !== undefined) {
+      const nextStart = body.startDate !== undefined ? new Date(body.startDate) : existing.startDate;
+      const nextEnd = body.endDate !== undefined ? new Date(body.endDate) : existing.endDate;
+      if (Number.isNaN(nextStart.getTime()) || Number.isNaN(nextEnd.getTime()) || nextEnd <= nextStart) {
+        return NextResponse.json(
+          { error: "End date & time must be after start date & time." },
+          { status: 400 }
+        );
+      }
+      if (body.startDate !== undefined) data.startDate = nextStart;
+      if (body.endDate !== undefined) data.endDate = nextEnd;
+    }
     if (body.capacity !== undefined) data.capacity = Math.max(1, Number(body.capacity));
     if (body.isFeatured !== undefined) data.isFeatured = Boolean(body.isFeatured);
     if (body.categoryId !== undefined) data.categoryId = body.categoryId || null;
 
     const event = await prisma.$transaction(async (tx) => {
       const updatedEvent = await tx.event.update({ where: { id }, data });
-
-      if (Array.isArray(body.ticketTiers)) {
-        const existingMap = new Map(existing.ticketTiers.map((t) => [t.id, t]));
-        const incomingIds = new Set<string>(
-          body.ticketTiers.filter((t: any) => typeof t?.id === "string" && t.id).map((t: any) => String(t.id))
-        );
-        await tx.ticketTier.deleteMany({
-          where: { eventId: id, id: { notIn: Array.from(incomingIds) } },
-        });
-
-        for (let i = 0; i < body.ticketTiers.length; i++) {
-          const t = body.ticketTiers[i];
-          const qty = Math.max(1, Math.floor(Number(t.quantity) || 100));
-          const price = Math.max(0, Number(t.price) || 0);
-          const prev = t?.id ? existingMap.get(t.id) : undefined;
-
-          if (prev) {
-            const nextRemaining = Math.max(0, Math.min(qty, prev.remaining + (qty - prev.quantity)));
-            await tx.ticketTier.update({
-              where: { id: prev.id },
-              data: {
-                name: t.name,
-                description: t.description || null,
-                price,
-                currency: t.currency || prev.currency || "ETB",
-                quantity: qty,
-                remaining: nextRemaining,
-                earlyBird: Boolean(t.earlyBird),
-                sortOrder: i,
-              },
-            });
-          } else {
-            await tx.ticketTier.create({
-              data: {
-                eventId: id,
-                name: t.name,
-                description: t.description || null,
-                price,
-                currency: t.currency || "ETB",
-                quantity: qty,
-                remaining: Math.min(qty, Math.max(0, Math.floor(Number(t.remaining ?? qty)))),
-                earlyBird: Boolean(t.earlyBird),
-                sortOrder: i,
-              },
-            });
-          }
-        }
-      }
-
+      await syncEventTicketTiers(tx, id, existing.ticketTiers, body.ticketTiers);
       await syncEventSpeakersAndAgenda(tx, id, body.speakers, body.agendaItems);
       return updatedEvent;
     });
@@ -140,12 +113,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
         speakers: { orderBy: { sortOrder: "asc" } },
         agendaItems: { orderBy: { sortOrder: "asc" } },
         category: true,
+        _count: { select: { orders: true } },
       },
     });
     return NextResponse.json(updated);
   } catch (err: any) {
     console.error(err);
-    if (err.code === "P2002") return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
+    if (err.code === "P2002") {
+      return NextResponse.json({ error: "An event with this URL slug already exists." }, { status: 409 });
+    }
     return NextResponse.json({ error: "Failed to update event" }, { status: 500 });
   }
 }
@@ -159,13 +135,28 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const { id } = await params;
 
   try {
-    const event = await prisma.event.findUnique({ where: { id }, select: { slug: true } });
+    const event = await prisma.event.findUnique({
+      where: { id },
+      select: { slug: true, title: true, _count: { select: { orders: true } } },
+    });
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+    if (event._count.orders > 0) {
+      return NextResponse.json(
+        {
+          error: `Cannot delete "${event.title}" because ${event._count.orders} order${event._count.orders === 1 ? "" : "s"} are linked to it. Set its status to Ended or Cancelled instead.`,
+        },
+        { status: 409 }
+      );
+    }
+
     await prisma.event.delete({ where: { id } });
 
     revalidateCacheTags(CACHE_TAGS.events, CACHE_TAGS.categories);
     revalidatePath("/");
     revalidatePath("/discover");
-    if (event?.slug) revalidatePath(`/events/${event.slug}`);
+    if (event.slug) revalidatePath(`/events/${event.slug}`);
     revalidatePath("/sitemap.xml");
 
     return NextResponse.json({ success: true });
