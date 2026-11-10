@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { getCategories } from "@/lib/events";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
 export async function GET() {
   try {
@@ -53,6 +55,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    revalidateCacheTags(CACHE_TAGS.categories, CACHE_TAGS.events);
     revalidatePath("/", "layout");
     revalidatePath("/discover");
 

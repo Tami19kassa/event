@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Award, X, Check } from "lucide-react";
-import { SponsorItem } from "@/lib/expo-settings";
+import { SponsorItem } from "@/lib/expo-types";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { SponsorListItem } from "./SponsorListItem";
 

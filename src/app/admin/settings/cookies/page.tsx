@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Cookie, Save, Info, Loader2, CheckCircle2 } from "lucide-react";
 import { CookieCategoriesSection } from "@/components/admin/settings/CookieCategoriesSection";
-import { CookieSettings, defaultCookieSettings } from "@/lib/cookie-settings";
+import { CookieSettings, defaultCookieSettings } from "@/lib/cookie-types";
 
 export default function CookieSettingsPage() {
   const [settings, setSettings] = useState<CookieSettings>(defaultCookieSettings);

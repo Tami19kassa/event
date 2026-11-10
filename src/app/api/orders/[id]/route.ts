@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -97,6 +99,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       });
     });
 
+    revalidateCacheTags(CACHE_TAGS.events);
     revalidatePath("/");
     revalidatePath("/discover");
     revalidatePath("/admin/dashboard");

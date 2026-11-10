@@ -2,64 +2,23 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Save, ArrowLeft, Loader2 } from "lucide-react";
+import { Save, ArrowLeft, Loader2, FileText, Ticket, Mic2, CalendarClock } from "lucide-react";
 import Link from "next/link";
 import { BasicInfoSection } from "./events/BasicInfoSection";
 import { DateTimeFormatSection } from "./events/DateTimeFormatSection";
 import { LocationSection } from "./events/LocationSection";
 import { TicketTiersSection } from "./events/TicketTiersSection";
+import { SpeakersSection } from "./events/SpeakersSection";
+import { AgendaSection } from "./events/AgendaSection";
+import {
+  emptyEventForm,
+  type EventFormData,
+  type TicketTierInput,
+  type SpeakerInput,
+  type AgendaItemInput,
+} from "@/lib/event-form-types";
 
-export type TicketTierInput = {
-  id?: string;
-  name: string;
-  price: number;
-  quantity: number;
-  remaining?: number;
-  description?: string;
-  earlyBird?: boolean;
-};
-
-export type EventFormData = {
-  title: string;
-  slug: string;
-  shortDescription: string;
-  description: string;
-  imageUrl: string;
-  startDate: string;
-  endDate: string;
-  timezone: string;
-  format: "IN_PERSON" | "ONLINE" | "HYBRID";
-  status: "DRAFT" | "PUBLISHED" | "LIVE" | "ENDED" | "CANCELLED";
-  capacity: number;
-  isFeatured: boolean;
-  locationName: string;
-  locationAddress: string;
-  locationCity: string;
-  locationCountry: string;
-  categoryId: string;
-  ticketTiers: TicketTierInput[];
-};
-
-const emptyForm: EventFormData = {
-  title: "",
-  slug: "",
-  shortDescription: "",
-  description: "",
-  imageUrl: "",
-  startDate: "",
-  endDate: "",
-  timezone: "Africa/Addis_Ababa",
-  format: "IN_PERSON",
-  status: "DRAFT",
-  capacity: 100,
-  isFeatured: false,
-  locationName: "",
-  locationAddress: "",
-  locationCity: "Addis Ababa",
-  locationCountry: "Ethiopia",
-  categoryId: "",
-  ticketTiers: [{ name: "General Admission", price: 0, quantity: 100 }],
-};
+export type { TicketTierInput, SpeakerInput, AgendaItemInput, EventFormData };
 
 interface Props {
   initialData?: Partial<EventFormData> & { id?: string };
@@ -67,13 +26,18 @@ interface Props {
   categories?: Array<{ id: string; name: string }>;
 }
 
+type TabKey = "details" | "tickets" | "speakers" | "agenda";
+
 export function EventForm({ initialData, mode, categories = [] }: Props) {
   const router = useRouter();
   const [activeCategories, setActiveCategories] = useState(categories);
+  const [activeTab, setActiveTab] = useState<TabKey>("details");
   const [form, setForm] = useState<EventFormData>({
-    ...emptyForm,
+    ...emptyEventForm,
     ...initialData,
-    ticketTiers: initialData?.ticketTiers?.length ? initialData.ticketTiers : emptyForm.ticketTiers,
+    ticketTiers: initialData?.ticketTiers?.length ? initialData.ticketTiers : emptyEventForm.ticketTiers,
+    speakers: initialData?.speakers || [],
+    agendaItems: initialData?.agendaItems || [],
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -125,6 +89,12 @@ export function EventForm({ initialData, mode, categories = [] }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.title.trim() || !form.startDate || !form.endDate) {
+      setActiveTab("details");
+      setError("Please provide an event title, start date, and end date.");
+      return;
+    }
+
     setSaving(true);
     setError("");
 
@@ -150,13 +120,17 @@ export function EventForm({ initialData, mode, categories = [] }: Props) {
     }
   };
 
+  const tabs = [
+    { key: "details" as const, label: "Details & Venue", icon: FileText },
+    { key: "tickets" as const, label: `Tickets (${form.ticketTiers.length})`, icon: Ticket },
+    { key: "speakers" as const, label: `Speakers (${form.speakers.length})`, icon: Mic2 },
+    { key: "agenda" as const, label: `Agenda (${form.agendaItems.length})`, icon: CalendarClock },
+  ];
+
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-6 pb-12">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/admin/events"
-          className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 font-medium"
-        >
+    <form onSubmit={handleSubmit} noValidate className="max-w-4xl mx-auto space-y-6 pb-12">
+      <div className="flex items-center justify-between gap-4">
+        <Link href="/admin/events" className="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 font-medium">
           <ArrowLeft className="w-4 h-4" /> Back to events
         </Link>
         <button
@@ -169,21 +143,47 @@ export function EventForm({ initialData, mode, categories = [] }: Props) {
         </button>
       </div>
 
+      <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-2xs">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const active = activeTab === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              onClick={() => setActiveTab(tab.key)}
+              className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                active ? "theme-btn-primary shadow-xs" : "text-slate-600 hover:bg-slate-50"
+              }`}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm">
-          {error}
-        </div>
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-sm">{error}</div>
       )}
 
-      <BasicInfoSection form={form} update={update} categories={activeCategories} />
-      <DateTimeFormatSection form={form} update={update} />
-      <LocationSection form={form} update={update} />
-      <TicketTiersSection
-        tiers={form.ticketTiers}
-        updateTier={updateTier}
-        addTier={addTier}
-        removeTier={removeTier}
-      />
+      <div className={activeTab === "details" ? "space-y-6" : "hidden"}>
+        <BasicInfoSection form={form} update={update} categories={activeCategories} />
+        <DateTimeFormatSection form={form} update={update} />
+        <LocationSection form={form} update={update} />
+      </div>
+
+      <div className={activeTab === "tickets" ? "space-y-6" : "hidden"}>
+        <TicketTiersSection tiers={form.ticketTiers} updateTier={updateTier} addTier={addTier} removeTier={removeTier} />
+      </div>
+
+      <div className={activeTab === "speakers" ? "space-y-6" : "hidden"}>
+        <SpeakersSection speakers={form.speakers} onChange={(next) => update("speakers", next)} />
+      </div>
+
+      <div className={activeTab === "agenda" ? "space-y-6" : "hidden"}>
+        <AgendaSection items={form.agendaItems} onChange={(next) => update("agendaItems", next)} />
+      </div>
     </form>
   );
 }

@@ -9,6 +9,8 @@ import {
   validateCheckoutItems,
 } from "@/lib/checkout-helpers";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
 export async function POST(req: NextRequest) {
   try {
@@ -145,8 +147,10 @@ export async function POST(req: NextRequest) {
       { maxWait: 10000, timeout: 20000 }
     );
 
+    revalidateCacheTags(CACHE_TAGS.events);
     revalidatePath("/");
     revalidatePath("/discover");
+    revalidatePath(`/events/${createdOrder.event.slug}`);
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin/orders");
 

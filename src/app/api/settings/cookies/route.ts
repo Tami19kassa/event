@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
 import { getCookieSettings, saveCookieSettings, CookieSettings } from "@/lib/cookie-settings";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
 function isSafePolicyUrl(url?: string): boolean {
   if (!url) return false;
@@ -47,6 +49,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const updated = await saveCookieSettings(patch);
+    revalidateCacheTags(CACHE_TAGS.cookies);
     revalidatePath("/", "layout");
     revalidatePath("/privacy");
 

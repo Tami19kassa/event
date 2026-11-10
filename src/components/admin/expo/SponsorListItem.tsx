@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Trash2, ExternalLink } from "lucide-react";
-import { SponsorItem } from "@/lib/expo-settings";
+import { SponsorItem } from "@/lib/expo-types";
 
 interface Props {
   sponsor: SponsorItem;

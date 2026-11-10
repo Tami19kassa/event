@@ -1,7 +1,7 @@
 "use client";
 
 import { Palette } from "lucide-react";
-import { ThemeSettings } from "@/lib/settings";
+import { ThemeSettings } from "@/lib/theme-types";
 
 const presets = [
   { name: "Indigo", primary: "#4F46E5", secondary: "#0D9488", accent: "#F59E0B" },

@@ -62,6 +62,20 @@ export default function EditEventPage() {
             description: t.description || "",
             earlyBird: t.earlyBird,
           })),
+          speakers: (event.speakers || []).map((s: any) => ({
+            id: s.id,
+            name: s.name || "",
+            title: s.title || "",
+            company: s.company || "",
+            bio: s.bio || "",
+            imageUrl: s.imageUrl || "",
+          })),
+          agendaItems: (event.agendaItems || []).map((a: any) => ({
+            id: a.id,
+            time: a.time || "",
+            title: a.title || "",
+            description: a.description || "",
+          })),
         });
       })
       .catch(() => setError("Failed to load event"));

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
 export async function DELETE(
   req: NextRequest,
@@ -33,6 +35,7 @@ export async function DELETE(
       where: { id },
     });
 
+    revalidateCacheTags(CACHE_TAGS.categories, CACHE_TAGS.events);
     revalidatePath("/", "layout");
     revalidatePath("/discover");
 
@@ -76,6 +79,7 @@ export async function PUT(
       data,
     });
 
+    revalidateCacheTags(CACHE_TAGS.categories, CACHE_TAGS.events);
     revalidatePath("/", "layout");
     revalidatePath("/discover");
 

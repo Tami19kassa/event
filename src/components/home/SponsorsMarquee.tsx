@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Handshake, Award, ArrowUpRight } from "lucide-react";
-import { SponsorItem } from "@/lib/expo-settings";
+import { SponsorItem } from "@/lib/expo-types";
 import { SponsorInquiryModal } from "./SponsorInquiryModal";
 
 interface Props {

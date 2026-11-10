@@ -1,11 +1,20 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getAllEvents, getCategories } from "@/lib/events";
+import { getThemeSettings } from "@/lib/settings";
 import { DiscoverClient } from "@/components/events/discover/DiscoverClient";
-
-export const dynamic = "force-dynamic";
 
 interface PageProps {
   searchParams: Promise<{ q?: string; category?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const [{ category }, theme] = await Promise.all([searchParams, getThemeSettings()]);
+  const label = category ? `${category} Events & Expos` : "Discover Events & Expos";
+  return {
+    title: `${label} — ${theme.siteName}`,
+    description: `Browse verified conferences, concerts, and B2B exhibitions on ${theme.siteName}.`,
+  };
 }
 
 export default async function DiscoverPage({ searchParams }: PageProps) {

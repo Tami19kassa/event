@@ -1,31 +1,13 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
+import { CACHE_TAGS } from "./cache-tags";
+import { revalidateCacheTags } from "./cache-revalidate";
+import { defaultCookieSettings, type CookieSettings } from "./cookie-types";
 
-export type CookieSettings = {
-  enabled: boolean;
-  title: string;
-  description: string;
-  acceptAllLabel: string;
-  rejectAllLabel: string;
-  customizeLabel: string;
-  privacyPolicyUrl: string;
-  showAnalytics: boolean;
-  showMarketing: boolean;
-};
+export { defaultCookieSettings, type CookieSettings };
 
-export const defaultCookieSettings: CookieSettings = {
-  enabled: true,
-  title: "We value your privacy",
-  description:
-    "We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies.",
-  acceptAllLabel: "Accept All",
-  rejectAllLabel: "Reject Non-Essential",
-  customizeLabel: "Customize",
-  privacyPolicyUrl: "/privacy",
-  showAnalytics: true,
-  showMarketing: true,
-};
-
-export async function getCookieSettings(): Promise<CookieSettings> {
+async function readCookieSettingsFromDb(): Promise<CookieSettings> {
   try {
     const setting = await prisma.siteSetting.findUnique({ where: { key: "cookies" } });
     if (setting?.value) {
@@ -37,10 +19,18 @@ export async function getCookieSettings(): Promise<CookieSettings> {
   return defaultCookieSettings;
 }
 
+const getCachedCookieSettings = unstable_cache(
+  readCookieSettingsFromDb,
+  ["site-setting-cookies"],
+  { tags: [CACHE_TAGS.cookies], revalidate: 300 }
+);
+
+export const getCookieSettings = cache(getCachedCookieSettings);
+
 export async function saveCookieSettings(
   settings: Partial<CookieSettings>
 ): Promise<CookieSettings> {
-  const current = await getCookieSettings();
+  const current = await readCookieSettingsFromDb();
   const updated: CookieSettings = { ...current, ...settings };
 
   await prisma.siteSetting.upsert({
@@ -49,5 +39,6 @@ export async function saveCookieSettings(
     create: { key: "cookies", value: JSON.stringify(updated) },
   });
 
+  revalidateCacheTags(CACHE_TAGS.cookies);
   return updated;
 }

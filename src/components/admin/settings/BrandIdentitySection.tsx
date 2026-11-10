@@ -2,7 +2,7 @@
 
 import { Sparkles } from "lucide-react";
 import { ImageUpload } from "@/components/ui/ImageUpload";
-import { ThemeSettings } from "@/lib/settings";
+import { ThemeSettings } from "@/lib/theme-types";
 
 interface Props {
   settings: ThemeSettings;

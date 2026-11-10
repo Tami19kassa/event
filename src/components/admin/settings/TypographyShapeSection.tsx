@@ -1,7 +1,7 @@
 "use client";
 
 import { Layers } from "lucide-react";
-import { ThemeSettings } from "@/lib/settings";
+import { ThemeSettings } from "@/lib/theme-types";
 
 interface Props {
   settings: ThemeSettings;

@@ -1,7 +1,7 @@
 "use client";
 
 import { Video, Image as ImageIcon } from "lucide-react";
-import { HeroSlide } from "@/lib/expo-settings";
+import { HeroSlide } from "@/lib/expo-types";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 
 interface Props {
@@ -96,7 +96,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             type="button"
             onClick={() => onChange("mediaType", "image")}
             className={`py-2 px-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer ${
-              slide.mediaType === "image" ? "bg-indigo-50 border-indigo-500 text-indigo-700" : "bg-slate-50 text-slate-600"
+              slide.mediaType === "image" ? "theme-badge border" : "bg-slate-50 text-slate-600"
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5" /> Static Image
@@ -105,7 +105,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             type="button"
             onClick={() => onChange("mediaType", "video")}
             className={`py-2 px-3 rounded-lg border text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer ${
-              slide.mediaType === "video" ? "bg-indigo-50 border-indigo-500 text-indigo-700" : "bg-slate-50 text-slate-600"
+              slide.mediaType === "video" ? "theme-badge border" : "bg-slate-50 text-slate-600"
             }`}
           >
             <Video className="w-3.5 h-3.5" /> Video Loop
@@ -113,18 +113,13 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
         </div>
 
         {slide.mediaType === "video" && (
-          <div>
-            <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-              YouTube or Direct MP4 / WebM Video URL
-            </label>
-            <input
-              type="text"
-              value={slide.videoUrl || ""}
-              onChange={(e) => onChange("videoUrl", e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=... or https://cdn.../hero.mp4"
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-600"
-            />
-          </div>
+          <ImageUpload
+            accept="video"
+            label="Hero Loop Video (Upload MP4/WebM or YouTube / CDN URL)"
+            value={slide.videoUrl || ""}
+            onChange={(url) => onChange("videoUrl", url)}
+            placeholder="https://www.youtube.com/watch?v=... or https://cdn.../hero.mp4"
+          />
         )}
 
         <ImageUpload

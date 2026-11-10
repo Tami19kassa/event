@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { getThemeSettings } from "@/lib/settings";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+import { getSiteUrl } from "@/lib/site-url";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,10 +11,25 @@ const inter = Inter({
 
 export async function generateMetadata(): Promise<Metadata> {
   const theme = await getThemeSettings();
+  const title = `${theme.siteName} — Events & B2B Expos`;
+  const description =
+    "Discover, reserve passes, and exhibit at flagship conferences, concerts, and B2B trade exhibitions.";
+
   return {
-    title: `${theme.siteName} — Events & B2B Expos`,
-    description:
-      "Discover, reserve passes, and exhibit at flagship conferences, concerts, and B2B trade exhibitions.",
+    metadataBase: new URL(getSiteUrl()),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      siteName: theme.siteName,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
     icons: theme.faviconUrl ? [{ rel: "icon", url: theme.faviconUrl }] : undefined,
   };
 }

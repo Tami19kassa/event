@@ -1,52 +1,17 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
+import { CACHE_TAGS } from "./cache-tags";
+import { revalidateCacheTags } from "./cache-revalidate";
+import {
+  defaultThemeSettings,
+  pickThemeFields,
+  type ThemeSettings,
+} from "./theme-types";
 
-export type ThemeSettings = {
-  siteName: string;
-  logoUrl: string | null;
-  logoDarkUrl: string | null;
-  faviconUrl: string | null;
-  primaryColor: string;
-  secondaryColor: string;
-  accentColor: string;
-  themeType: "solid" | "gradient";
-  gradientFrom: string;
-  gradientTo: string;
-  gradientDirection: string;
-  borderRadius: "none" | "sm" | "md" | "lg" | "xl";
-  buttonStyle: "filled" | "soft" | "outline";
-};
+export { defaultThemeSettings, type ThemeSettings };
 
-export const defaultThemeSettings: ThemeSettings = {
-  siteName: "Utopia",
-  logoUrl: null,
-  logoDarkUrl: null,
-  faviconUrl: null,
-  primaryColor: "#4F46E5",
-  secondaryColor: "#0D9488",
-  accentColor: "#F59E0B",
-  themeType: "solid",
-  gradientFrom: "#4F46E5",
-  gradientTo: "#0D9488",
-  gradientDirection: "to-br",
-  borderRadius: "xl",
-  buttonStyle: "filled",
-};
-
-function pickThemeFields(raw: Partial<ThemeSettings>): Partial<ThemeSettings> {
-  const keys: Array<keyof ThemeSettings> = [
-    "siteName", "logoUrl", "logoDarkUrl", "faviconUrl",
-    "primaryColor", "secondaryColor", "accentColor",
-    "themeType", "gradientFrom", "gradientTo", "gradientDirection",
-    "borderRadius", "buttonStyle",
-  ];
-  const out: Record<string, unknown> = {};
-  for (const k of keys) {
-    if (raw[k] !== undefined) out[k] = raw[k];
-  }
-  return out as Partial<ThemeSettings>;
-}
-
-export async function getThemeSettings(): Promise<ThemeSettings> {
+async function readThemeSettingsFromDb(): Promise<ThemeSettings> {
   try {
     const setting = await prisma.siteSetting.findUnique({
       where: { key: "theme" },
@@ -61,10 +26,18 @@ export async function getThemeSettings(): Promise<ThemeSettings> {
   return defaultThemeSettings;
 }
 
+const getCachedThemeSettings = unstable_cache(
+  readThemeSettingsFromDb,
+  ["site-setting-theme"],
+  { tags: [CACHE_TAGS.theme], revalidate: 300 }
+);
+
+export const getThemeSettings = cache(getCachedThemeSettings);
+
 export async function saveThemeSettings(
   settings: Partial<ThemeSettings>
 ): Promise<ThemeSettings> {
-  const current = await getThemeSettings();
+  const current = await readThemeSettingsFromDb();
   const updated = { ...current, ...pickThemeFields(settings) };
 
   await prisma.siteSetting.upsert({
@@ -73,5 +46,6 @@ export async function saveThemeSettings(
     create: { key: "theme", value: JSON.stringify(updated) },
   });
 
+  revalidateCacheTags(CACHE_TAGS.theme);
   return updated;
 }

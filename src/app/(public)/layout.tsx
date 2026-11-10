@@ -6,9 +6,6 @@ import { getThemeSettings } from "@/lib/settings";
 import { getCategories } from "@/lib/events";
 import { getCookieSettings } from "@/lib/cookie-settings";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
 export default async function PublicLayout({
   children,
 }: {

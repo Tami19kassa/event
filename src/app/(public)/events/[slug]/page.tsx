@@ -1,12 +1,51 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Users } from "lucide-react";
 import { getEventBySlug, getAllEvents } from "@/lib/events";
+import { getThemeSettings } from "@/lib/settings";
+import { resolveOgImageUrl } from "@/lib/site-url";
 import { TicketSelector } from "@/components/events/TicketSelector";
 import { EventHeroBanner } from "@/components/events/detail/EventHeroBanner";
 import { EventDetailsContent } from "@/components/events/detail/EventDetailsContent";
 
+export const revalidate = 60;
+
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const [event, theme] = await Promise.all([getEventBySlug(slug), getThemeSettings()]);
+  if (!event) {
+    return { title: `Event Not Found — ${theme.siteName}` };
+  }
+
+  const description = (event.shortDescription || event.description || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+  const ogImage = resolveOgImageUrl(event.imageUrl);
+  const title = `${event.title} — ${theme.siteName}`;
+
+  return {
+    title,
+    description: description || `${event.title} in ${event.location.city}.`,
+    openGraph: {
+      title: event.title,
+      description: description || `${event.title} · ${event.location.name}`,
+      url: `/events/${event.slug}`,
+      siteName: theme.siteName,
+      type: "website",
+      images: ogImage ? [{ url: ogImage, alt: event.title }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title: event.title,
+      description: description || `${event.title} · ${event.location.city}`,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  };
 }
 
 export async function generateStaticParams() {

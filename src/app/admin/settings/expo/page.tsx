@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Save, CheckCircle2, AlertCircle, Clock } from "lucide-react";
-import { HeroSlide, SponsorItem, defaultExpoSlides, defaultSponsors } from "@/lib/expo-settings";
+import { HeroSlide, SponsorItem } from "@/lib/expo-types";
+import { defaultExpoSlides, defaultSponsors } from "@/lib/expo-defaults";
 import { ExpoSlidesManager } from "@/components/admin/expo/ExpoSlidesManager";
 import { SponsorsManager } from "@/components/admin/expo/SponsorsManager";
 

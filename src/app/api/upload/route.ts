@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { put } from "@vercel/blob";
 import { getSession } from "@/lib/auth";
-
-const ALLOWED_MIME_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/gif",
-  "image/svg+xml",
-  "video/mp4",
-  "video/webm",
-];
-
-const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB limit
+import {
+  ALLOWED_MEDIA_MIME_TYPES,
+  MAX_UPLOAD_BYTES,
+  sanitizeSvgMarkup,
+  sanitizeUploadFilename,
+} from "@/lib/media-security";
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
@@ -29,67 +24,94 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    const mime = file.type || "";
+    if (!ALLOWED_MEDIA_MIME_TYPES.includes(mime)) {
       return NextResponse.json(
-        { error: `File type "${file.type}" not supported. Allowed: JPG, PNG, WEBP, SVG.` },
+        { error: `File type "${mime}" not supported. Allowed: JPG, PNG, WEBP, GIF, SVG, MP4, WebM.` },
         { status: 400 }
       );
     }
 
-    if (file.size > MAX_FILE_SIZE) {
-      return NextResponse.json({ error: "File exceeds 15MB limit." }, { status: 400 });
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: "File exceeds 25MB limit." }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    let buffer: Buffer = Buffer.from(await file.arrayBuffer());
 
-    // If running on Vercel or serverless (read-only filesystem) or if file is an image <= 5MB,
-    // Base64 Data URL provides 100% persistence across ephemeral containers with 0 storage config.
-    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
-    const mime = file.type || "image/png";
+    if (mime === "image/svg+xml") {
+      const check = sanitizeSvgMarkup(buffer.toString("utf8"));
+      if (!check.ok) {
+        return NextResponse.json({ error: "Invalid SVG file." }, { status: 400 });
+      }
+      buffer = Buffer.from(check.sanitized, "utf8");
+    }
 
-    if (isServerless || file.size <= 4 * 1024 * 1024) {
-      const base64Url = `data:${mime};base64,${buffer.toString("base64")}`;
+    const safeName = sanitizeUploadFilename(file.name);
+    const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}-${safeName}`;
+
+    // Priority 1: Vercel Blob CDN when BLOB_READ_WRITE_TOKEN is provisioned
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const blob = await put(`uploads/${uniqueName}`, buffer, {
+        access: "public",
+        contentType: mime,
+      });
       return NextResponse.json({
-        url: base64Url,
+        url: blob.url,
         name: file.name,
-        size: file.size,
+        size: buffer.length,
         type: mime,
+        storage: "vercel-blob",
       });
     }
 
-    // Local filesystem storage fallback for larger video/media
-    try {
-      const safeName = file.name
-        .toLowerCase()
-        .replace(/[^a-z0-9.-]/g, "_")
-        .replace(/_+/g, "_");
-      const uniqueName = `${Date.now()}-${Math.random().toString(36).substring(2, 6)}-${safeName}`;
+    // Priority 2: Writable filesystem (/public/uploads) in local / Node VPS environments
+    const isServerless = Boolean(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+    if (!isServerless) {
       const uploadsDir = path.join(process.cwd(), "public", "uploads");
-
       await mkdir(uploadsDir, { recursive: true });
       await writeFile(path.join(uploadsDir, uniqueName), buffer);
 
       return NextResponse.json({
         url: `/uploads/${uniqueName}`,
         name: file.name,
-        size: file.size,
+        size: buffer.length,
         type: mime,
-      });
-    } catch {
-      // In case local write fails (e.g. read-only volume), fallback to Base64
-      const fallbackUrl = `data:${mime};base64,${buffer.toString("base64")}`;
-      return NextResponse.json({
-        url: fallbackUrl,
-        name: file.name,
-        size: file.size,
-        type: mime,
+        storage: "local",
       });
     }
+
+    // Priority 3: Read-only serverless fallback without Blob — reject video payloads & oversized assets
+    if (mime.startsWith("video/")) {
+      return NextResponse.json(
+        {
+          error:
+            "Cloud video uploads require BLOB_READ_WRITE_TOKEN configured in Vercel, or paste an MP4/YouTube URL.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (buffer.length > 2 * 1024 * 1024) {
+      return NextResponse.json(
+        {
+          error:
+            "File exceeds 2MB serverless inline fallback. Configure BLOB_READ_WRITE_TOKEN for large cloud uploads.",
+        },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({
+      url: `data:${mime};base64,${buffer.toString("base64")}`,
+      name: file.name,
+      size: buffer.length,
+      type: mime,
+      storage: "base64",
+    });
   } catch (err: any) {
     console.error("Upload handler error:", err);
     return NextResponse.json(
-      { error: err.message || "Failed to upload file." },
+      { error: err?.message || "Failed to upload file." },
       { status: 500 }
     );
   }

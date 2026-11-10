@@ -1,26 +1,26 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
+import { CACHE_TAGS } from "./cache-tags";
 import { Event, Category } from "@/types/event";
 import { events as mockEvents, categories as mockCategories } from "./mock-data";
 import { mapPrismaEventToUI } from "./event-mapper";
 
 export { mapPrismaEventToUI };
 
-/**
- * Fetch all published events from DB, with fallback to mock data
- */
-export async function getAllEvents(): Promise<Event[]> {
+const EVENT_RELATIONS = {
+  category: true,
+  organizer: true,
+  ticketTiers: { orderBy: { sortOrder: "asc" as const } },
+  speakers: { orderBy: { sortOrder: "asc" as const } },
+  agendaItems: { orderBy: { sortOrder: "asc" as const } },
+};
+
+async function readAllEventsFromDb(): Promise<Event[]> {
   try {
     const dbEvents = await prisma.event.findMany({
-      where: {
-        status: { in: ["PUBLISHED", "LIVE"] },
-      },
-      include: {
-        category: true,
-        organizer: true,
-        ticketTiers: { orderBy: { sortOrder: "asc" } },
-        speakers: { orderBy: { sortOrder: "asc" } },
-        agendaItems: { orderBy: { sortOrder: "asc" } },
-      },
+      where: { status: { in: ["PUBLISHED", "LIVE"] } },
+      include: EVENT_RELATIONS,
       orderBy: { startDate: "asc" },
     });
 
@@ -34,23 +34,21 @@ export async function getAllEvents(): Promise<Event[]> {
   return mockEvents;
 }
 
-/**
- * Fetch featured events for hero/featured sections
- */
-export async function getFeaturedEvents(): Promise<Event[]> {
+export const getAllEvents = cache(
+  unstable_cache(readAllEventsFromDb, ["events-all"], {
+    tags: [CACHE_TAGS.events],
+    revalidate: 60,
+  })
+);
+
+async function readFeaturedEventsFromDb(): Promise<Event[]> {
   try {
     const dbFeatured = await prisma.event.findMany({
       where: {
         status: { in: ["PUBLISHED", "LIVE"] },
         isFeatured: true,
       },
-      include: {
-        category: true,
-        organizer: true,
-        ticketTiers: { orderBy: { sortOrder: "asc" } },
-        speakers: { orderBy: { sortOrder: "asc" } },
-        agendaItems: { orderBy: { sortOrder: "asc" } },
-      },
+      include: EVENT_RELATIONS,
       take: 6,
     });
 
@@ -65,23 +63,21 @@ export async function getFeaturedEvents(): Promise<Event[]> {
   return all.filter((e) => e.isFeatured);
 }
 
-/**
- * Fetch a single event by slug
- */
-export async function getEventBySlug(slug: string): Promise<Event | null> {
+export const getFeaturedEvents = cache(
+  unstable_cache(readFeaturedEventsFromDb, ["events-featured"], {
+    tags: [CACHE_TAGS.events],
+    revalidate: 60,
+  })
+);
+
+async function readEventBySlugFromDb(slug: string): Promise<Event | null> {
   try {
     const dbEvent = await prisma.event.findFirst({
       where: {
         slug,
         status: { in: ["PUBLISHED", "LIVE"] },
       },
-      include: {
-        category: true,
-        organizer: true,
-        ticketTiers: { orderBy: { sortOrder: "asc" } },
-        speakers: { orderBy: { sortOrder: "asc" } },
-        agendaItems: { orderBy: { sortOrder: "asc" } },
-      },
+      include: EVENT_RELATIONS,
     });
 
     if (dbEvent) {
@@ -94,10 +90,14 @@ export async function getEventBySlug(slug: string): Promise<Event | null> {
   return mockEvents.find((e) => e.slug === slug) || null;
 }
 
-/**
- * Fetch categories with event counts
- */
-export async function getCategories(): Promise<Category[]> {
+export const getEventBySlug = cache(
+  unstable_cache(readEventBySlugFromDb, ["event-by-slug"], {
+    tags: [CACHE_TAGS.events],
+    revalidate: 60,
+  })
+);
+
+async function readCategoriesFromDb(): Promise<Category[]> {
   try {
     const dbCategories = await prisma.category.findMany({
       include: {
@@ -127,3 +127,10 @@ export async function getCategories(): Promise<Category[]> {
 
   return mockCategories;
 }
+
+export const getCategories = cache(
+  unstable_cache(readCategoriesFromDb, ["categories-all"], {
+    tags: [CACHE_TAGS.categories, CACHE_TAGS.events],
+    revalidate: 60,
+  })
+);

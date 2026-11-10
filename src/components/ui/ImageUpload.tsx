@@ -2,61 +2,23 @@
 
 import { useState, useRef, useId } from "react";
 import { Upload, Link as LinkIcon, X, Loader2 } from "lucide-react";
+import { uploadMediaAsset } from "@/lib/client-upload";
 
 interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
   label?: string;
   placeholder?: string;
+  accept?: "image" | "video" | "all";
 }
 
-// Client-side image optimization to keep uploads lightweight (< 50KB)
-async function optimizeImage(file: File): Promise<File | Blob> {
-  if (!file.type.startsWith("image/") || file.type.includes("svg")) {
-    return file;
-  }
+function isVideoValue(val: string): boolean {
+  const v = val.trim().toLowerCase();
+  return v.startsWith("data:video/") || /\.(mp4|webm)(\?|$)/i.test(v);
+}
 
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const MAX_DIM = 600;
-        let { width, height } = img;
-        if (width > MAX_DIM || height > MAX_DIM) {
-          if (width > height) {
-            height = Math.round((height * MAX_DIM) / width);
-            width = MAX_DIM;
-          } else {
-            width = Math.round((width * MAX_DIM) / height);
-            height = MAX_DIM;
-          }
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return resolve(file);
-
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (blob && blob.size < file.size) {
-              resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" }));
-            } else {
-              resolve(file);
-            }
-          },
-          "image/webp",
-          0.85
-        );
-      };
-      img.onerror = () => resolve(file);
-      img.src = e.target?.result as string;
-    };
-    reader.onerror = () => resolve(file);
-    reader.readAsDataURL(file);
-  });
+function isYoutubeUrl(val: string): boolean {
+  return /(?:youtube\.com|youtu\.be)/i.test(val);
 }
 
 export function ImageUpload({
@@ -64,12 +26,20 @@ export function ImageUpload({
   onChange,
   label = "Upload Image",
   placeholder = "https://images.unsplash.com/...",
+  accept = "image",
 }: ImageUploadProps) {
   const [tab, setTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
+
+  const acceptAttr =
+    accept === "video"
+      ? "video/mp4,video/webm"
+      : accept === "all"
+      ? "image/*,video/mp4,video/webm"
+      : "image/*";
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,21 +49,8 @@ export function ImageUpload({
     setUploading(true);
 
     try {
-      const processedFile = await optimizeImage(file);
-      const formData = new FormData();
-      formData.append("file", processedFile);
-
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Upload failed");
-      }
-
-      onChange(data.url);
+      const uploadedUrl = await uploadMediaAsset(file);
+      onChange(uploadedUrl);
     } catch (err: any) {
       setError(err.message || "Failed to upload file");
     } finally {
@@ -104,11 +61,11 @@ export function ImageUpload({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
           {label}
         </label>
-        <div className="flex bg-slate-100 rounded-lg p-0.5 text-xs">
+        <div className="flex bg-slate-100 rounded-lg p-0.5 text-xs shrink-0">
           <button
             type="button"
             onClick={() => setTab("upload")}
@@ -130,14 +87,14 @@ export function ImageUpload({
         </div>
       </div>
 
-      {error && <p className="text-xs text-rose-600">{error}</p>}
+      {error && <p className="text-xs text-rose-600 font-medium">{error}</p>}
 
       {tab === "upload" ? (
         <div className="flex items-center gap-3">
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={acceptAttr}
             onChange={handleFileChange}
             className="hidden"
             id={inputId}
@@ -149,13 +106,21 @@ export function ImageUpload({
             {uploading ? (
               <div className="flex items-center gap-2 text-[var(--color-primary)] text-xs font-semibold py-2">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Optimizing & uploading...
+                Optimizing &amp; uploading...
               </div>
             ) : (
               <>
                 <Upload className="w-5 h-5 text-[var(--color-primary)]" />
-                <span className="text-xs font-bold text-slate-700">Choose logo/image from your device</span>
-                <span className="text-[10px] text-slate-400">PNG, JPG, WEBP, SVG auto-optimized</span>
+                <span className="text-xs font-bold text-slate-700">
+                  {accept === "video"
+                    ? "Choose MP4 / WebM video from device"
+                    : "Choose logo/image from your device"}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  {accept === "video"
+                    ? "MP4 or WebM up to 25MB (CDN / Local)"
+                    : "PNG, JPG, WEBP, SVG auto-optimized up to 25MB"}
+                </span>
               </>
             )}
           </label>
@@ -173,20 +138,32 @@ export function ImageUpload({
         </div>
       )}
 
-      {/* Live Preview */}
       {value && (
         <div className="relative inline-block mt-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={value}
-            alt="Preview"
-            className="h-20 w-32 object-contain bg-white rounded-xl border border-slate-200 p-1 shadow-2xs"
-          />
+          {isVideoValue(value) ? (
+            <video
+              src={value}
+              muted
+              controls
+              className="h-24 w-44 rounded-xl border border-slate-200 bg-slate-950 object-cover shadow-2xs"
+            />
+          ) : isYoutubeUrl(value) ? (
+            <div className="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-900 text-white text-xs font-semibold pr-7">
+              YouTube Video Stream Attached
+            </div>
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={value}
+              alt="Preview"
+              className="h-20 w-32 object-contain bg-white rounded-xl border border-slate-200 p-1 shadow-2xs"
+            />
+          )}
           <button
             type="button"
             onClick={() => onChange("")}
-            className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white p-1 rounded-full hover:bg-rose-700 shadow-sm transition"
-            title="Remove image"
+            className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white p-1 rounded-full hover:bg-rose-700 shadow-sm transition cursor-pointer"
+            title="Remove media"
           >
             <X className="w-3 h-3" />
           </button>

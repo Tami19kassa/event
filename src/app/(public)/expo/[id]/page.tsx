@@ -1,14 +1,51 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getExpoSlideById, getExpoSlides } from "@/lib/expo-settings";
+import { getThemeSettings } from "@/lib/settings";
+import { resolveOgImageUrl } from "@/lib/site-url";
 import { Calendar, MapPin, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ExpoMediaBackground } from "@/components/expo/ExpoMediaBackground";
 import { ExpoBookingCard } from "@/components/expo/ExpoBookingCard";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const [expo, theme] = await Promise.all([getExpoSlideById(id), getThemeSettings()]);
+  if (!expo) {
+    return { title: `Exhibition Not Found — ${theme.siteName}` };
+  }
+
+  const description = (expo.subtitle || expo.detailedDescription || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 160);
+  const ogImage = resolveOgImageUrl(expo.posterUrl);
+  const title = `${expo.title} — ${theme.siteName}`;
+
+  return {
+    title,
+    description: description || `${expo.title} · ${expo.venueText}`,
+    openGraph: {
+      title: expo.title,
+      description: description || `${expo.datesText} · ${expo.venueText}`,
+      url: `/expo/${expo.id}`,
+      siteName: theme.siteName,
+      type: "website",
+      images: ogImage ? [{ url: ogImage, alt: expo.title }] : undefined,
+    },
+    twitter: {
+      card: ogImage ? "summary_large_image" : "summary",
+      title: expo.title,
+      description: description || `${expo.datesText} · ${expo.venueText}`,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  };
 }
 
 export async function generateStaticParams() {

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 import {
   getExpoSlides,
   saveExpoSlides,
@@ -130,7 +132,10 @@ export async function PUT(req: NextRequest) {
       updatedInterval = await saveExpoScrollInterval(clamped);
     }
 
+    revalidateCacheTags(CACHE_TAGS.expo);
     revalidatePath("/");
+    revalidatePath("/expo/[id]", "page");
+    revalidatePath("/sitemap.xml");
     revalidatePath("/admin/settings/expo");
 
     return NextResponse.json({

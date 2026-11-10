@@ -4,6 +4,8 @@ import { getThemeSettings } from "@/lib/settings";
 import { getCookieSettings } from "@/lib/cookie-settings";
 import { ResetCookiesButton } from "@/components/privacy/ResetCookiesButton";
 
+export const revalidate = 300;
+
 export default async function PrivacyPolicyPage() {
   const [theme, cookieSettings] = await Promise.all([
     getThemeSettings(),

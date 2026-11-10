@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Trash2, Eye, EyeOff, Layers } from "lucide-react";
-import { HeroSlide } from "@/lib/expo-settings";
+import { HeroSlide } from "@/lib/expo-types";
 import { ExpoSlideForm } from "./ExpoSlideForm";
 
 interface Props {

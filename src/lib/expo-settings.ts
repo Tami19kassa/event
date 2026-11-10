@@ -1,11 +1,15 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { prisma } from "./prisma";
+import { CACHE_TAGS } from "./cache-tags";
+import { revalidateCacheTags } from "./cache-revalidate";
 import { HeroSlide, SponsorItem } from "./expo-types";
 import { defaultExpoSlides, defaultSponsors } from "./expo-defaults";
 
 export * from "./expo-types";
 export * from "./expo-defaults";
 
-export async function getExpoSlides(): Promise<HeroSlide[]> {
+async function readExpoSlidesFromDb(): Promise<HeroSlide[]> {
   try {
     const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_hero_slides" } });
     if (setting?.value) {
@@ -22,10 +26,17 @@ export async function getExpoSlides(): Promise<HeroSlide[]> {
   return defaultExpoSlides;
 }
 
-export async function getExpoSlideById(id: string): Promise<HeroSlide | null> {
+export const getExpoSlides = cache(
+  unstable_cache(readExpoSlidesFromDb, ["expo-hero-slides"], {
+    tags: [CACHE_TAGS.expo],
+    revalidate: 120,
+  })
+);
+
+export const getExpoSlideById = cache(async (id: string): Promise<HeroSlide | null> => {
   const slides = await getExpoSlides();
   return slides.find((s) => s.id === id) || null;
-}
+});
 
 export async function saveExpoSlides(slides: HeroSlide[]): Promise<HeroSlide[]> {
   await prisma.siteSetting.upsert({
@@ -33,10 +44,11 @@ export async function saveExpoSlides(slides: HeroSlide[]): Promise<HeroSlide[]> 
     update: { value: JSON.stringify(slides) },
     create: { key: "expo_hero_slides", value: JSON.stringify(slides) },
   });
+  revalidateCacheTags(CACHE_TAGS.expo);
   return slides;
 }
 
-export async function getSponsors(): Promise<SponsorItem[]> {
+async function readSponsorsFromDb(): Promise<SponsorItem[]> {
   try {
     const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_sponsors" } });
     if (setting?.value) {
@@ -47,16 +59,24 @@ export async function getSponsors(): Promise<SponsorItem[]> {
   return defaultSponsors;
 }
 
+export const getSponsors = cache(
+  unstable_cache(readSponsorsFromDb, ["expo-sponsors"], {
+    tags: [CACHE_TAGS.expo],
+    revalidate: 120,
+  })
+);
+
 export async function saveSponsors(sponsors: SponsorItem[]): Promise<SponsorItem[]> {
   await prisma.siteSetting.upsert({
     where: { key: "expo_sponsors" },
     update: { value: JSON.stringify(sponsors) },
     create: { key: "expo_sponsors", value: JSON.stringify(sponsors) },
   });
+  revalidateCacheTags(CACHE_TAGS.expo);
   return sponsors;
 }
 
-export async function getExpoScrollInterval(): Promise<number> {
+async function readExpoScrollIntervalFromDb(): Promise<number> {
   try {
     const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_scroll_interval" } });
     if (setting?.value) {
@@ -67,11 +87,19 @@ export async function getExpoScrollInterval(): Promise<number> {
   return 7;
 }
 
+export const getExpoScrollInterval = cache(
+  unstable_cache(readExpoScrollIntervalFromDb, ["expo-scroll-interval"], {
+    tags: [CACHE_TAGS.expo],
+    revalidate: 120,
+  })
+);
+
 export async function saveExpoScrollInterval(seconds: number): Promise<number> {
   await prisma.siteSetting.upsert({
     where: { key: "expo_scroll_interval" },
     update: { value: String(seconds) },
     create: { key: "expo_scroll_interval", value: String(seconds) },
   });
+  revalidateCacheTags(CACHE_TAGS.expo);
   return seconds;
 }

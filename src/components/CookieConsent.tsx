@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Cookie, X, SlidersHorizontal } from "lucide-react";
-import { CookieSettings, defaultCookieSettings } from "@/lib/cookie-settings";
+import { CookieSettings, defaultCookieSettings } from "@/lib/cookie-types";
 
 interface Props {
   settings?: CookieSettings;

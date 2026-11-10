@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Calendar, MapPin, ArrowRight, BookOpen } from "lucide-react";
-import { HeroSlide } from "@/lib/expo-settings";
+import { HeroSlide } from "@/lib/expo-types";
 import { ExpoMediaBackground } from "@/components/expo/ExpoMediaBackground";
 import { ExhibitorInquiryModal } from "./ExhibitorInquiryModal";
 

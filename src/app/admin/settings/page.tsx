@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Save, CheckCircle2, AlertCircle, Building2, ArrowRight } from "lucide-react";
-import { ThemeSettings, defaultThemeSettings } from "@/lib/settings";
+import { ThemeSettings, defaultThemeSettings } from "@/lib/theme-types";
 import { BrandIdentitySection } from "@/components/admin/settings/BrandIdentitySection";
 import { ColorPickerSection } from "@/components/admin/settings/ColorPickerSection";
 import { TypographyShapeSection } from "@/components/admin/settings/TypographyShapeSection";
