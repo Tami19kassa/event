@@ -80,7 +80,10 @@ export function MediaPostCard({ post, onPlayVideo }: Props) {
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mb-2">
             {post.categoryTag && (
               <>
-                <span className="text-[var(--color-primary)] font-semibold uppercase tracking-wider text-[11px]">
+                <span
+                  className="font-semibold uppercase tracking-wider text-[11px]"
+                  style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}
+                >
                   {post.categoryTag}
                 </span>
                 <span>·</span>

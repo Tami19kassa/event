@@ -127,7 +127,9 @@ export function MediaFormFields({ form, events, onChange }: Props) {
             onChange={(e) => onChange("isFeatured", e.target.checked)}
             className="w-4 h-4 accent-[var(--color-primary)]"
           />
-          <span className="text-xs font-bold text-slate-800">Feature on Homepage Spotlight</span>
+          <span className="text-xs font-bold text-slate-800">
+            Pin to Homepage Bottom Strip
+          </span>
         </label>
       </div>
     </div>

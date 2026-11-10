@@ -14,7 +14,10 @@ export function FooterBrandSection({ settings, update }: Props) {
   return (
     <section className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
       <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-        <MessageSquare className="w-5 h-5 text-[var(--color-primary)]" />
+        <MessageSquare
+          className="w-5 h-5"
+          style={{ color: "var(--color-accent-ink, #7F5206)" }}
+        />
         <div>
           <h2 className="font-semibold text-slate-900">Footer Identity, Contact &amp; Socials</h2>
           <p className="text-xs text-slate-400">
@@ -87,7 +90,10 @@ export function FooterBrandSection({ settings, update }: Props) {
       <div className="pt-2 border-t border-slate-100 space-y-3">
         <div className="flex items-center justify-between gap-2">
           <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase tracking-wider">
-            <Globe className="w-3.5 h-3.5 text-[var(--color-primary)]" /> Social Channels
+            <Globe
+              className="w-3.5 h-3.5"
+              style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}
+            /> Social Channels
           </span>
           <span className="text-[11px] text-slate-400">
             Leave blank to hide unconfigured links

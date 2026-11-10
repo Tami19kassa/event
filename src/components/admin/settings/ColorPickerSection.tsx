@@ -2,15 +2,16 @@
 
 import { Palette } from "lucide-react";
 import { ThemeSettings } from "@/lib/theme-types";
-import { getContrastForeground } from "@/lib/theme-colors";
+import { getContrastForeground, normalizeHex } from "@/lib/theme-colors";
+import { SidebarColorPicker } from "./SidebarColorPicker";
 
 const presets = [
-  { name: "Indigo", primary: "#4F46E5", secondary: "#0D9488", accent: "#F59E0B" },
-  { name: "Emerald", primary: "#059669", secondary: "#0284C7", accent: "#D97706" },
-  { name: "Violet", primary: "#7C3AED", secondary: "#EC4899", accent: "#EAB308" },
-  { name: "Rose", primary: "#E11D48", secondary: "#8B5CF6", accent: "#F97316" },
-  { name: "Gold", primary: "#EAB308", secondary: "#0F172A", accent: "#10B981" },
-  { name: "Obsidian", primary: "#0F172A", secondary: "#2563EB", accent: "#F59E0B" },
+  { name: "Indigo", primary: "#4F46E5", secondary: "#0D9488", accent: "#F59E0B", sidebar: "#0F172A" },
+  { name: "Emerald", primary: "#059669", secondary: "#0284C7", accent: "#D97706", sidebar: "#06281E" },
+  { name: "Violet", primary: "#7C3AED", secondary: "#EC4899", accent: "#EAB308", sidebar: "#1A1033" },
+  { name: "Rose", primary: "#E11D48", secondary: "#8B5CF6", accent: "#F97316", sidebar: "#280B18" },
+  { name: "Gold", primary: "#EAB308", secondary: "#0F172A", accent: "#10B981", sidebar: "#18181B" },
+  { name: "Obsidian", primary: "#0F172A", secondary: "#2563EB", accent: "#F59E0B", sidebar: "#FFFFFF" },
 ];
 
 interface Props {
@@ -32,11 +33,11 @@ export function ColorPickerSection({ settings, update }: Props) {
   };
 
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4">
+    <section className="bg-white rounded-2xl border border-slate-200 p-6 space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
           <Palette className="w-5 h-5 text-[var(--color-primary)]" />
-          <h2 className="font-semibold text-slate-900">Color Palette</h2>
+          <h2 className="font-semibold text-slate-900">Color Palette &amp; Admin Navigation</h2>
         </div>
 
         <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-500">
@@ -65,12 +66,14 @@ export function ColorPickerSection({ settings, update }: Props) {
                 update("accentColor", p.accent);
                 update("gradientFrom", p.primary);
                 update("gradientTo", p.secondary);
+                update("adminSidebarColor", p.sidebar);
               }}
               className="p-2.5 rounded-xl border border-slate-200 hover:border-slate-400 text-left transition flex items-center gap-2 cursor-pointer"
             >
               <div className="flex -space-x-1 shrink-0">
-                <div className="w-4 h-4 rounded-full border border-white" style={{ background: p.primary }} />
-                <div className="w-4 h-4 rounded-full border border-white" style={{ background: p.secondary }} />
+                <div className="w-3.5 h-3.5 rounded-full border border-white" style={{ background: p.primary }} />
+                <div className="w-3.5 h-3.5 rounded-full border border-white" style={{ background: p.secondary }} />
+                <div className="w-3.5 h-3.5 rounded-full border border-white" style={{ background: p.accent }} />
               </div>
               <span className="text-xs font-bold text-slate-800 truncate">{p.name}</span>
             </button>
@@ -78,13 +81,15 @@ export function ColorPickerSection({ settings, update }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Primary Brand</label>
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            Primary <span className="text-slate-400 font-medium">(CTAs &amp; Active)</span>
+          </label>
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={settings.primaryColor}
+              value={normalizeHex(settings.primaryColor, "#4F46E5")}
               onChange={(e) => handlePrimaryChange(e.target.value)}
               className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 shrink-0"
             />
@@ -98,11 +103,13 @@ export function ColorPickerSection({ settings, update }: Props) {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Secondary</label>
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            Secondary <span className="text-slate-400 font-medium">(Catalog &amp; Charts)</span>
+          </label>
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={settings.secondaryColor}
+              value={normalizeHex(settings.secondaryColor, "#0D9488")}
               onChange={(e) => handleSecondaryChange(e.target.value)}
               className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 shrink-0"
             />
@@ -116,11 +123,13 @@ export function ColorPickerSection({ settings, update }: Props) {
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-600 mb-1">Accent</label>
+          <label className="block text-xs font-bold text-slate-700 mb-1">
+            Accent <span className="text-slate-400 font-medium">(Alerts &amp; Badges)</span>
+          </label>
           <div className="flex items-center gap-2">
             <input
               type="color"
-              value={settings.accentColor}
+              value={normalizeHex(settings.accentColor, "#F59E0B")}
               onChange={(e) => update("accentColor", e.target.value)}
               className="w-10 h-10 rounded-xl cursor-pointer border border-slate-200 shrink-0"
             />
@@ -133,6 +142,8 @@ export function ColorPickerSection({ settings, update }: Props) {
           </div>
         </div>
       </div>
+
+      <SidebarColorPicker settings={settings} update={update} />
     </section>
   );
 }

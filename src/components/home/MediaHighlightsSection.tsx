@@ -17,11 +17,14 @@ export function MediaHighlightsSection({ posts }: Props) {
         <ScrollReveal variant="fade-up" durationMs={500}>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 theme-radius-sm theme-badge border flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-10 h-10 theme-radius-sm theme-badge-secondary border flex items-center justify-center shrink-0 mt-0.5">
                 <Clapperboard className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block">
+                <span
+                  className="text-xs font-bold uppercase tracking-wider block"
+                  style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}
+                >
                   Expo Media &amp; Editorial
                 </span>
                 <h2 className="text-2xl md:text-3xl font-display text-slate-900">

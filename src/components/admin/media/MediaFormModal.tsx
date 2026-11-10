@@ -28,7 +28,7 @@ const EMPTY_FORM: MediaFormState = {
   excerpt: "",
   content: "",
   eventId: "",
-  isFeatured: true,
+  isFeatured: false,
   status: "PUBLISHED",
 };
 
@@ -105,7 +105,7 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
             <h2 className="font-display text-lg text-slate-900">
               {editing ? "Edit Media / Story" : "Publish Video, Vlog or Story"}
             </h2>
-            <p className="text-xs text-slate-500">Appears on the homepage spotlight, /stories hub, and linked event pages.</p>
+            <p className="text-xs text-slate-500">Publishes to the /stories hub and linked event pages (separate from Expo Hero).</p>
           </div>
           <button
             type="button"

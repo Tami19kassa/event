@@ -65,56 +65,70 @@ export function AdminTopNav({
   const roleLabel = user?.role === "ORGANIZER" ? "Organizer" : "Admin";
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80 h-16 flex items-center justify-between px-4 sm:px-6 md:px-8">
-      <div className="flex items-center gap-3 min-w-0">
-        <button
-          onClick={onToggleSidebar}
-          className="md:hidden p-2 text-slate-700 hover:bg-slate-100 theme-radius-sm transition cursor-pointer"
-          aria-label="Open navigation sidebar"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
+    <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+      <div
+        className="h-[2px] w-full"
+        style={{
+          background:
+            "linear-gradient(90deg, var(--color-primary), var(--color-secondary) 55%, var(--color-accent))",
+        }}
+        aria-hidden="true"
+      />
+      <div className="h-16 flex items-center justify-between px-4 sm:px-6 md:px-8">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={onToggleSidebar}
+            className="md:hidden p-2 text-slate-700 hover:bg-slate-100 theme-radius-sm transition cursor-pointer"
+            aria-label="Open navigation sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
 
-        <div className="md:hidden">
-          <BrandLogo siteName={siteName} logoUrl={logoUrl} showSubtitle={false} />
+          <div className="md:hidden">
+            <BrandLogo siteName={siteName} logoUrl={logoUrl} showSubtitle={false} />
+          </div>
+
+          <nav
+            aria-label="Admin breadcrumb"
+            className="hidden md:flex items-center gap-1.5 text-xs font-semibold min-w-0"
+          >
+            <span className="text-slate-400 truncate">{siteName}</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+            <span style={{ color: "var(--color-secondary-ink, #64748B)" }}>{routeMeta.section}</span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+            <span className="text-slate-900 font-bold truncate">{routeMeta.title}</span>
+          </nav>
         </div>
 
-        <nav
-          aria-label="Admin breadcrumb"
-          className="hidden md:flex items-center gap-1.5 text-xs font-semibold min-w-0"
-        >
-          <span className="text-slate-400 truncate">{siteName}</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-          <span className="text-slate-500">{routeMeta.section}</span>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-          <span className="text-slate-900 font-bold truncate">{routeMeta.title}</span>
-        </nav>
-      </div>
+        <div className="flex items-center gap-3 shrink-0">
+          <Link
+            href="/"
+            target="_blank"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold bg-white text-slate-700 border border-slate-200 px-3 py-1.5 theme-radius-sm hover:border-[var(--color-secondary)]/50 hover:text-[var(--color-secondary-ink,var(--color-secondary))] transition shadow-2xs"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            <span>Live Site</span>
+          </Link>
 
-      <div className="flex items-center gap-3 shrink-0">
-        <Link
-          href="/"
-          target="_blank"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold bg-white text-slate-700 border border-slate-200 px-3 py-1.5 theme-radius-sm hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary-ink,var(--color-primary))] transition shadow-2xs"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Live Site</span>
-        </Link>
-
-        <div
-          title={user?.email || displayName}
-          className="flex items-center gap-2.5 pl-3 border-l border-slate-200 text-xs"
-        >
-          <div className="w-8 h-8 theme-radius-sm theme-icon-soft border flex items-center justify-center font-bold text-[11px] tracking-wide shrink-0">
-            {initials}
-          </div>
-          <div className="hidden sm:flex flex-col min-w-0">
-            <span className="font-semibold text-slate-900 leading-tight truncate max-w-[140px]">
-              {displayName}
-            </span>
-            <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-0.5">
-              <ShieldCheck className="w-3 h-3 shrink-0 text-[var(--color-primary-ink,var(--color-primary))]" /> {roleLabel}
-            </span>
+          <div
+            title={user?.email || displayName}
+            className="flex items-center gap-2.5 pl-3 border-l border-slate-200 text-xs"
+          >
+            <div className="relative w-8 h-8 theme-radius-sm theme-icon-soft border flex items-center justify-center font-bold text-[11px] tracking-wide shrink-0">
+              {initials}
+              <span
+                className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-white"
+                style={{ backgroundColor: "var(--color-accent)" }}
+              />
+            </div>
+            <div className="hidden sm:flex flex-col min-w-0">
+              <span className="font-semibold text-slate-900 leading-tight truncate max-w-[140px]">
+                {displayName}
+              </span>
+              <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-0.5">
+                <ShieldCheck className="w-3 h-3 shrink-0 text-[var(--color-secondary-ink,var(--color-secondary))]" /> {roleLabel}
+              </span>
+            </div>
           </div>
         </div>
       </div>

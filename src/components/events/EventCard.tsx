@@ -88,7 +88,10 @@ export function EventCard({ event }: EventCardProps) {
       <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
           <div className="flex items-center gap-2 text-xs font-medium text-slate-500 mb-2">
-            <span className="text-[var(--color-primary)] font-semibold uppercase tracking-wider text-[11px]">
+            <span
+              className="font-semibold uppercase tracking-wider text-[11px]"
+              style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}
+            >
               {event.category}
             </span>
             <span>·</span>

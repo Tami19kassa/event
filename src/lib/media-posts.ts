@@ -77,9 +77,9 @@ export const getPublishedMediaPosts = cache(
   })
 );
 
-export const getHomepageMediaPosts = cache(async (limit = 4): Promise<MediaPostItem[]> => {
+export const getHomepageMediaPosts = cache(async (limit = 3): Promise<MediaPostItem[]> => {
   const all = await getPublishedMediaPosts();
-  return all.slice(0, limit);
+  return all.filter((p) => p.isFeatured).slice(0, limit);
 });
 
 export const getMediaPostBySlug = cache(async (slug: string): Promise<MediaPostItem | null> => {

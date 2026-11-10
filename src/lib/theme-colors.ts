@@ -1,65 +1,27 @@
 import { getFontPreset } from "./theme-fonts";
 import type { ThemeSettings } from "./theme-types";
+import {
+  darkenHex,
+  getContrastForeground,
+  getRelativeLuminance,
+  hexToRgbTuple,
+  lightenHex,
+  normalizeHex,
+  readableInkOnDark,
+  readableInkOnLight,
+} from "./theme-color-math";
+import { resolveSidebarPalette } from "./theme-sidebar";
 
-export function normalizeHex(hex: string | undefined | null, fallback = "#4F46E5"): string {
-  const clean = (hex || "").trim();
-  if (/^#[0-9a-fA-F]{6}$/.test(clean)) return clean;
-  if (/^#[0-9a-fA-F]{3}$/.test(clean)) {
-    return `#${clean[1]}${clean[1]}${clean[2]}${clean[2]}${clean[3]}${clean[3]}`;
-  }
-  return fallback;
-}
-
-function parseRgb(hex: string): [number, number, number] {
-  const n = normalizeHex(hex).slice(1);
-  return [
-    parseInt(n.substring(0, 2), 16),
-    parseInt(n.substring(2, 4), 16),
-    parseInt(n.substring(4, 6), 16),
-  ];
-}
-
-export function hexToRgbTuple(hex: string, fallback = "79, 70, 229"): string {
-  if (!/^#[0-9a-fA-F]{3,6}$/.test((hex || "").trim())) return fallback;
-  const [r, g, b] = parseRgb(hex);
-  return `${r}, ${g}, ${b}`;
-}
-
-function channelLuminance(c: number): number {
-  const srgb = c / 255;
-  return srgb <= 0.03928 ? srgb / 12.92 : Math.pow((srgb + 0.055) / 1.055, 2.4);
-}
-
-export function getRelativeLuminance(hex: string): number {
-  const [r, g, b] = parseRgb(hex);
-  return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
-}
-
-export function getContrastForeground(hex: string): "#FFFFFF" | "#0F172A" {
-  return getRelativeLuminance(hex) > 0.36 ? "#0F172A" : "#FFFFFF";
-}
-
-export function darkenHex(hex: string, ratio = 0.14): string {
-  const [r, g, b] = parseRgb(hex);
-  const f = 1 - Math.min(0.65, Math.max(0, ratio));
-  const toHex = (v: number) => Math.round(v * f).toString(16).padStart(2, "0");
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-}
-
-export function lightenHex(hex: string, ratio = 0.5): string {
-  const [r, g, b] = parseRgb(hex);
-  const f = Math.min(0.85, Math.max(0, ratio));
-  const toHex = (v: number) => Math.round(v + (255 - v) * f).toString(16).padStart(2, "0");
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-}
-
-export function readableInkOnLight(hex: string): string {
-  return getRelativeLuminance(hex) > 0.28 ? darkenHex(hex, 0.46) : normalizeHex(hex);
-}
-
-export function readableInkOnDark(hex: string): string {
-  return getRelativeLuminance(hex) < 0.14 ? lightenHex(hex, 0.52) : normalizeHex(hex);
-}
+export {
+  normalizeHex,
+  hexToRgbTuple,
+  getRelativeLuminance,
+  getContrastForeground,
+  darkenHex,
+  lightenHex,
+  readableInkOnLight,
+  readableInkOnDark,
+};
 
 export function radiusValue(r: string): string {
   switch (r) {
@@ -129,6 +91,14 @@ export function buildThemeCssText(theme: ThemeSettings): string {
       ? `linear-gradient(${angle}, ${primary}, ${secondary})`
       : primary;
 
+  const sidebar = resolveSidebarPalette({
+    sidebarColor: theme.adminSidebarColor,
+    primaryColor: primary,
+    secondaryColor: secondary,
+    accentColor: accent,
+    themeType: theme.themeType,
+  });
+
   return `
     :root {
       --color-primary: ${primary} !important;
@@ -148,6 +118,18 @@ export function buildThemeCssText(theme: ThemeSettings): string {
       --color-accent-foreground: ${accentFg} !important;
       --color-accent-ink: ${accentInk} !important;
       --color-accent-on-dark: ${accentOnDark} !important;
+      --admin-sidebar-bg: ${sidebar.bg} !important;
+      --admin-sidebar-fg: ${sidebar.fg} !important;
+      --admin-sidebar-muted: ${sidebar.muted} !important;
+      --admin-sidebar-group: ${sidebar.group} !important;
+      --admin-sidebar-border: ${sidebar.border} !important;
+      --admin-sidebar-hover: ${sidebar.hover} !important;
+      --admin-sidebar-surface-btn: ${sidebar.surfaceBtn} !important;
+      --admin-sidebar-active-bg: ${sidebar.activeBg} !important;
+      --admin-sidebar-active-fg: ${sidebar.activeFg} !important;
+      --admin-sidebar-badge-bg: ${sidebar.badgeBg} !important;
+      --admin-sidebar-badge-fg: ${sidebar.badgeFg} !important;
+      --admin-sidebar-scroll: ${sidebar.scrollThumb} !important;
       --radius: ${radiusValue(theme.borderRadius)} !important;
       --radius-card: ${cardRadiusValue(theme.borderRadius)} !important;
       --radius-sm: ${smallRadiusValue(theme.borderRadius)} !important;
@@ -158,7 +140,7 @@ export function buildThemeCssText(theme: ThemeSettings): string {
       --tracking-display: ${font.displayTracking} !important;
     }
     .theme-bg-primary { background-color: ${primary} !important; color: ${primaryFg} !important; }
-    .theme-text-primary { color: ${primary} !important; }
+    .theme-text-primary { color: ${primaryInk} !important; }
     .theme-border-primary { border-color: ${primary} !important; }
     .theme-bg-secondary { background-color: ${secondary} !important; color: ${secondaryFg} !important; }
     .theme-text-secondary { color: ${secondaryInk} !important; }
@@ -169,8 +151,10 @@ export function buildThemeCssText(theme: ThemeSettings): string {
 
 export function applyThemeToDocument(theme: ThemeSettings): void {
   if (typeof document === "undefined") return;
+  const sidebarLum = getRelativeLuminance(normalizeHex(theme.adminSidebarColor, "#09090B"));
   document.documentElement.dataset.buttonStyle = theme.buttonStyle || "filled";
   document.documentElement.dataset.themeType = theme.themeType || "solid";
+  document.documentElement.dataset.sidebarSurface = sidebarLum > 0.36 ? "light" : "dark";
   let styleEl = document.getElementById("theme-dynamic-vars") as HTMLStyleElement | null;
   if (!styleEl) {
     styleEl = document.createElement("style");

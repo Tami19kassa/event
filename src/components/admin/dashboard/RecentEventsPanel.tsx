@@ -18,7 +18,7 @@ function getEventStatusBadge(status: string): { label: string; className: string
     case "LIVE":
       return { label: "Live", className: "bg-emerald-50 text-emerald-700 border border-emerald-200" };
     case "PUBLISHED":
-      return { label: "Published", className: "theme-badge border" };
+      return { label: "Published", className: "theme-badge-secondary border" };
     case "DRAFT":
       return { label: "Draft", className: "bg-slate-100 text-slate-600 border border-slate-200" };
     case "CANCELLED":
@@ -47,7 +47,7 @@ export function RecentEventsPanel({
         <h2 className="font-sans font-bold text-slate-900 text-sm">Recent Events</h2>
         <Link
           href="/admin/events"
-          className="text-xs font-semibold text-[var(--color-primary)] hover:opacity-80 flex items-center gap-1"
+          className="text-xs font-semibold text-[var(--color-secondary-ink,var(--color-secondary))] hover:opacity-80 flex items-center gap-1"
         >
           View all <ArrowRight className="w-3.5 h-3.5" />
         </Link>
@@ -61,11 +61,19 @@ export function RecentEventsPanel({
             const badge = getEventStatusBadge(evt.status);
             const totalQty = (evt.ticketTiers || []).reduce((s, t) => s + t.quantity, 0);
             const remainingQty = (evt.ticketTiers || []).reduce((s, t) => s + t.remaining, 0);
+            const soldQty = Math.max(0, totalQty - remainingQty);
+            const fillPct = totalQty > 0 ? Math.min(100, Math.round((soldQty / totalQty) * 100)) : 0;
+            const barColor =
+              fillPct >= 95
+                ? "#10B981"
+                : fillPct >= 75
+                ? "var(--color-accent)"
+                : "var(--color-secondary)";
             const isPublic = evt.status === "PUBLISHED" || evt.status === "LIVE";
 
             return (
               <div key={evt.id} className="py-3 flex items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 flex-1 space-y-1.5">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-slate-900 text-sm truncate">
                       {evt.title}
@@ -76,12 +84,26 @@ export function RecentEventsPanel({
                       {badge.label}
                     </span>
                   </div>
-                  <div className="text-xs text-slate-500 mt-0.5 truncate">
-                    {evt.locationCity || shortCity} · {format(new Date(evt.startDate), "MMM d, yyyy")}
-                    {totalQty > 0
-                      ? ` · ${remainingQty === 0 ? "Sold out" : `${remainingQty} tickets left`}`
-                      : ""}
+
+                  <div className="text-xs text-slate-500 flex items-center justify-between gap-2">
+                    <span className="truncate">
+                      {evt.locationCity || shortCity} · {format(new Date(evt.startDate), "MMM d, yyyy")}
+                    </span>
+                    {totalQty > 0 && (
+                      <span className="tabular-nums font-semibold text-slate-700 shrink-0">
+                        {fillPct}% ({remainingQty.toLocaleString()} left)
+                      </span>
+                    )}
                   </div>
+
+                  {totalQty > 0 && (
+                    <div className="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{ width: `${Math.max(4, fillPct)}%`, backgroundColor: barColor }}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-1.5 shrink-0">

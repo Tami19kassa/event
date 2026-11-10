@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Calendar, MapPin, Sparkles } from "lucide-react";
+import { Eye, Calendar, MapPin, Sparkles, LayoutDashboard, ShoppingCart } from "lucide-react";
 import { ThemeSettings } from "@/lib/theme-types";
 import { getFontPreset } from "@/lib/theme-fonts";
 import {
@@ -12,6 +12,7 @@ import {
   readableInkOnDark,
   readableInkOnLight,
 } from "@/lib/theme-colors";
+import { resolveSidebarPalette } from "@/lib/theme-sidebar";
 
 interface Props {
   settings: ThemeSettings;
@@ -27,9 +28,15 @@ export function ThemeLivePreview({ settings }: Props) {
   const accentFg = getContrastForeground(accent);
   const primaryOnDark = readableInkOnDark(primary);
   const secondaryInk = readableInkOnLight(secondary);
-  const secondaryOnDark = readableInkOnDark(secondary);
   const font = getFontPreset(settings.fontPreset);
   const angle = gradientAngle(settings.gradientDirection);
+  const sidebar = resolveSidebarPalette({
+    sidebarColor: settings.adminSidebarColor,
+    primaryColor: primary,
+    secondaryColor: secondary,
+    accentColor: accent,
+    themeType: settings.themeType,
+  });
 
   const surfaceBg =
     settings.themeType === "gradient"
@@ -38,23 +45,10 @@ export function ThemeLivePreview({ settings }: Props) {
 
   const buttonStyles =
     settings.buttonStyle === "outline"
-      ? {
-          borderRadius: radiusPx,
-          border: `2px solid ${primary}`,
-          color: primary,
-          backgroundColor: "transparent",
-        }
+      ? { borderRadius: radiusPx, border: `2px solid ${primary}`, color: primary, backgroundColor: "transparent" }
       : settings.buttonStyle === "soft"
-      ? {
-          borderRadius: radiusPx,
-          backgroundColor: `${primary}1F`,
-          color: primary,
-        }
-      : {
-          borderRadius: radiusPx,
-          background: surfaceBg,
-          color: primaryFg,
-        };
+      ? { borderRadius: radiusPx, backgroundColor: `${primary}1F`, color: primary }
+      : { borderRadius: radiusPx, background: surfaceBg, color: primaryFg };
 
   return (
     <div
@@ -78,44 +72,67 @@ export function ThemeLivePreview({ settings }: Props) {
         <span className="text-[11px] font-semibold text-slate-400">{font.label}</span>
       </div>
 
+      {/* Admin Shell Mini-Preview (Sidebar Color + Active + Queue Badge) */}
       <div
-        className="p-5 overflow-hidden"
-        style={{ background: surfaceBg, color: primaryFg, borderRadius: cardRadiusPx }}
+        className="border border-slate-200 overflow-hidden grid grid-cols-12"
+        style={{ borderRadius: cardRadiusPx }}
       >
-        {settings.logoDarkUrl || settings.logoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={(settings.logoDarkUrl || settings.logoUrl)!}
-            alt={settings.siteName}
-            className="h-8 w-auto object-contain mb-2 bg-white/15 rounded-lg px-2 py-1"
-          />
-        ) : null}
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 block">
-            {settings.themeType === "gradient" ? "Gradient Theme" : "Solid Theme"} · {font.label}
-          </span>
-          <span
-            className="px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1"
-            style={{ backgroundColor: accent, color: accentFg }}
-          >
-            <Sparkles className="w-2.5 h-2.5" /> Accent
-          </span>
-        </div>
-        <h3
-          className="text-xl mt-1"
+        <div
+          className="col-span-5 p-3 space-y-2"
           style={{
-            fontFamily: font.displayStack,
-            fontWeight: font.displayWeight,
-            letterSpacing: font.displayTracking,
+            backgroundColor: sidebar.bg,
+            color: sidebar.fg,
+            borderRight: `1px solid ${sidebar.border}`,
           }}
         >
-          {settings.siteName || "Utopia"}
-        </h3>
-        <p className="text-xs opacity-85 mt-1">
-          Fonts, contrast, card radius, and all 3 brand colors sync across public &amp; admin portals.
-        </p>
+          <div className="text-[11px] font-bold truncate">{settings.siteName || "Utopia"}</div>
+          <div
+            className="px-2 py-1.5 rounded-lg text-[10px] font-bold flex items-center gap-1.5"
+            style={{ background: sidebar.activeBg, color: sidebar.activeFg }}
+          >
+            <LayoutDashboard className="w-3 h-3 shrink-0" />
+            <span className="truncate">Dashboard</span>
+          </div>
+          <div
+            className="px-2 py-1 rounded-lg text-[10px] font-medium flex items-center justify-between"
+            style={{ color: sidebar.muted }}
+          >
+            <span className="flex items-center gap-1.5 truncate">
+              <ShoppingCart className="w-3 h-3 shrink-0" />
+              Orders
+            </span>
+            <span
+              className="px-1.5 py-0.5 rounded-full text-[9px] font-bold"
+              style={{ backgroundColor: sidebar.badgeBg, color: sidebar.badgeFg }}
+            >
+              1
+            </span>
+          </div>
+        </div>
+
+        <div className="col-span-7 bg-slate-50 p-3 space-y-2">
+          <div className="flex items-center justify-between text-[10px] font-bold text-slate-600">
+            <span>3-Color Balance</span>
+            <span style={{ color: secondaryInk }}>Secondary</span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden flex">
+            <div className="h-full" style={{ width: "55%", backgroundColor: primary }} />
+            <div className="h-full" style={{ width: "30%", backgroundColor: secondary }} />
+            <div className="h-full" style={{ width: "15%", backgroundColor: accent }} />
+          </div>
+          <div className="flex items-center gap-1.5 pt-0.5">
+            <span
+              className="px-2 py-0.5 rounded-full text-[9px] font-bold inline-flex items-center gap-1"
+              style={{ backgroundColor: accent, color: accentFg }}
+            >
+              <Sparkles className="w-2.5 h-2.5" /> Accent
+            </span>
+            <span className="text-[9px] text-slate-500 font-semibold">Live Navbar</span>
+          </div>
+        </div>
       </div>
 
+      {/* Public Card + Footer Sample */}
       <div className="p-4 border border-slate-200 bg-slate-50 space-y-3" style={{ borderRadius: cardRadiusPx }}>
         <div className="flex items-center justify-between gap-2">
           <span
@@ -146,7 +163,7 @@ export function ThemeLivePreview({ settings }: Props) {
 
       <div className="bg-slate-950 text-slate-300 overflow-hidden border border-slate-800" style={{ borderRadius: cardRadiusPx }}>
         <div className="h-1 w-full" style={{ background: surfaceBg }} />
-        <div className="p-4 space-y-2.5">
+        <div className="p-4 space-y-2">
           <div className="flex items-center justify-between gap-2">
             <span
               className="text-xs text-white truncate"
@@ -155,19 +172,12 @@ export function ThemeLivePreview({ settings }: Props) {
               {settings.siteName || "Utopia"} Footer
             </span>
             <span className="text-[10px] font-bold" style={{ color: primaryOnDark }}>
-              Dark Link Ink
+              Link Ink
             </span>
           </div>
           <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
             {settings.footerTagline || "Footer tagline preview appears here."}
           </p>
-          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-400">
-            <span className="inline-flex items-center gap-1">
-              <MapPin className="w-3 h-3" style={{ color: secondaryOnDark }} />
-              {settings.contactCity || "Addis Ababa, Ethiopia"}
-            </span>
-            <span className="text-slate-300 font-semibold">ETB</span>
-          </div>
         </div>
       </div>
     </div>

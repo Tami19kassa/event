@@ -25,21 +25,26 @@ export function StatsSection({
     <section className="border-b border-slate-200/80 bg-white relative z-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-9">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {stats.map((stat, idx) => (
-            <ScrollReveal
-              key={stat.label}
-              variant="fade-up"
-              delayMs={idx * 75}
-              durationMs={500}
-            >
-              <div className="flex flex-col items-center group">
-                <div
-                  className={`w-10 h-10 theme-radius-sm border flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform duration-300 ${
-                    idx % 2 === 1 ? "theme-badge-secondary" : "theme-badge"
-                  }`}
-                >
-                  <stat.icon className="w-5 h-5" />
-                </div>
+          {stats.map((stat, idx) => {
+            const badgeClass =
+              idx === 0
+                ? "theme-badge"
+                : idx === 2
+                ? "theme-badge-accent"
+                : "theme-badge-secondary";
+            return (
+              <ScrollReveal
+                key={stat.label}
+                variant="fade-up"
+                delayMs={idx * 75}
+                durationMs={500}
+              >
+                <div className="flex flex-col items-center group">
+                  <div
+                    className={`w-10 h-10 theme-radius-sm border flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform duration-300 ${badgeClass}`}
+                  >
+                    <stat.icon className="w-5 h-5" />
+                  </div>
                 <div className="text-xl sm:text-2xl md:text-3xl font-display text-slate-900">
                   {stat.value}
                 </div>
@@ -48,7 +53,8 @@ export function StatsSection({
                 </div>
               </div>
             </ScrollReveal>
-          ))}
+          );
+          })}
         </div>
       </div>
     </section>

@@ -1,13 +1,15 @@
 import Link from "next/link";
-import { Calendar, Users, Coins, Mail } from "lucide-react";
+import { Calendar, Ticket, Coins, Mail } from "lucide-react";
 
 interface MetricsProps {
   publishedEventsCount: number;
   draftEventsCount: number;
+  upcomingEventsCount: number;
   verifiedRevenue: number;
   completedOrdersCount: number;
   pendingVerificationCount: number;
-  totalAttendees: number;
+  totalTierClaimed: number;
+  totalTierCapacity: number;
   checkedInOrdersCount: number;
   totalInquiriesCount: number;
   newInquiriesCount: number;
@@ -17,25 +19,30 @@ interface MetricsProps {
 export function DashboardMetrics({
   publishedEventsCount,
   draftEventsCount,
+  upcomingEventsCount,
   verifiedRevenue,
   completedOrdersCount,
   pendingVerificationCount,
-  totalAttendees,
+  totalTierClaimed,
+  totalTierCapacity,
   checkedInOrdersCount,
   totalInquiriesCount,
   newInquiriesCount,
   currency,
 }: MetricsProps) {
+  const claimedPct =
+    totalTierCapacity > 0 ? Math.round((totalTierClaimed / totalTierCapacity) * 100) : 0;
+
   const stats = [
     {
       label: "Published Events",
       value: publishedEventsCount.toLocaleString(),
       subtext:
         draftEventsCount > 0
-          ? `${draftEventsCount} draft${draftEventsCount === 1 ? "" : "s"} saved`
-          : "All catalog items live",
+          ? `${upcomingEventsCount} upcoming · ${draftEventsCount} draft${draftEventsCount === 1 ? "" : "s"}`
+          : `${upcomingEventsCount} upcoming in catalog`,
       icon: Calendar,
-      featured: false,
+      iconTone: "theme-icon-secondary",
       href: "/admin/events",
     },
     {
@@ -43,18 +50,18 @@ export function DashboardMetrics({
       value: `${currency} ${verifiedRevenue.toLocaleString()}`,
       subtext:
         pendingVerificationCount > 0
-          ? `${completedOrdersCount} paid · ${pendingVerificationCount} pending`
+          ? `${completedOrdersCount} paid · ${pendingVerificationCount} awaiting receipt`
           : `${completedOrdersCount} paid order${completedOrdersCount === 1 ? "" : "s"}`,
       icon: Coins,
-      featured: true,
+      iconTone: "theme-icon-soft",
       href: "/admin/orders",
     },
     {
-      label: "Event Attendees",
-      value: totalAttendees.toLocaleString(),
-      subtext: `${checkedInOrdersCount} checked in at gate`,
-      icon: Users,
-      featured: false,
+      label: "Ticket Inventory",
+      value: `${claimedPct}% sold`,
+      subtext: `${totalTierClaimed.toLocaleString()} / ${totalTierCapacity.toLocaleString()} seats · ${checkedInOrdersCount} checked in`,
+      icon: Ticket,
+      iconTone: "theme-icon-accent",
       href: "/admin/orders",
     },
     {
@@ -63,9 +70,12 @@ export function DashboardMetrics({
       subtext:
         newInquiriesCount > 0
           ? `${newInquiriesCount} unread request${newInquiriesCount === 1 ? "" : "s"}`
-          : "All leads reviewed",
+          : "All exhibitor & sponsor leads reviewed",
       icon: Mail,
-      featured: false,
+      iconTone:
+        newInquiriesCount > 0
+          ? "theme-icon-accent"
+          : "bg-slate-50 text-slate-600 border-slate-200/80",
       href: "/admin/inquiries",
     },
   ];
@@ -81,11 +91,7 @@ export function DashboardMetrics({
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-semibold text-slate-500">{s.label}</span>
             <div
-              className={`w-9 h-9 theme-radius-sm border flex items-center justify-center shrink-0 ${
-                s.featured
-                  ? "theme-icon-soft"
-                  : "bg-slate-50 text-slate-600 border-slate-200/80"
-              }`}
+              className={`w-9 h-9 theme-radius-sm border flex items-center justify-center shrink-0 ${s.iconTone}`}
             >
               <s.icon className="w-4 h-4" />
             </div>

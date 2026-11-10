@@ -2,54 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  LayoutDashboard,
-  Calendar,
-  ShoppingCart,
-  Users,
-  Palette,
-  Cookie,
-  LogOut,
-  ExternalLink,
-  CreditCard,
-  Layers,
-  Building2,
-  Mail,
-  Clapperboard,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { LogOut, ExternalLink, X } from "lucide-react";
 import clsx from "clsx";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 import type { AdminNavBadges } from "./AdminLayoutShell";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-  exact?: boolean;
-  badgeKey?: keyof AdminNavBadges;
-}
-
-const operationsNav: NavItem[] = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/orders", label: "Orders & Gate", icon: ShoppingCart, badgeKey: "orders" },
-  { href: "/admin/inquiries", label: "B2B Inquiries", icon: Mail, badgeKey: "inquiries" },
-];
-
-const catalogNav: NavItem[] = [
-  { href: "/admin/events", label: "Events", icon: Calendar },
-  { href: "/admin/categories", label: "Event Types", icon: Layers },
-  { href: "/admin/media", label: "Media & Stories", icon: Clapperboard },
-];
-
-const settingsNav: NavItem[] = [
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/settings", label: "Branding & Theme", icon: Palette, exact: true },
-  { href: "/admin/settings/expo", label: "Expo & Hero Slider", icon: Building2, exact: true },
-  { href: "/admin/settings/payments", label: "Payment Gateways", icon: CreditCard, exact: true },
-  { href: "/admin/settings/cookies", label: "Cookies", icon: Cookie, exact: true },
-];
+import { ADMIN_NAV_GROUPS, type AdminNavItem } from "./admin-nav-items";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -77,56 +34,10 @@ export function AdminSidebar({
     router.refresh();
   };
 
-  const isItemActive = (item: NavItem) => {
+  const isItemActive = (item: AdminNavItem) => {
     if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname.startsWith(item.href + "/");
   };
-
-  const renderNavGroup = (items: NavItem[], groupTitle: string) => (
-    <div className="space-y-1">
-      <div className="px-3 pb-0.5 text-[10px] leading-none font-bold uppercase tracking-widest text-zinc-500">
-        {groupTitle}
-      </div>
-      {items.map((item) => {
-        const active = isItemActive(item);
-        const badgeCount = item.badgeKey ? navBadges?.[item.badgeKey] || 0 : 0;
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            prefetch={true}
-            onClick={onClose}
-            className={clsx(
-              "flex items-center justify-between gap-2 px-3 py-[7px] theme-radius-sm text-[13px] leading-tight font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
-              active
-                ? "theme-nav-active font-semibold"
-                : "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100"
-            )}
-          >
-            <span className="flex items-center gap-2.5 min-w-0">
-              <item.icon
-                className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-zinc-400")}
-              />
-              <span className="truncate">{item.label}</span>
-            </span>
-            {badgeCount > 0 && (
-              <span
-                className={clsx(
-                  "px-1.5 py-0.5 text-[10px] font-bold leading-none rounded-full shrink-0",
-                  active
-                    ? "bg-white/20 text-white"
-                    : "bg-white/10 text-zinc-100 border border-white/15"
-                )}
-              >
-                {badgeCount > 99 ? "99+" : badgeCount}
-              </span>
-            )}
-          </Link>
-        );
-      })}
-    </div>
-  );
 
   return (
     <>
@@ -139,47 +50,107 @@ export function AdminSidebar({
       )}
 
       <aside
-        data-surface="dark"
+        style={{
+          backgroundColor: "var(--admin-sidebar-bg, #09090B)",
+          color: "var(--admin-sidebar-fg, #F8FAFC)",
+          borderRight: "1px solid var(--admin-sidebar-border, rgba(255,255,255,0.1))",
+        }}
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-zinc-950 text-zinc-300 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 shadow-2xl md:shadow-none border-r border-white/[0.08]",
+          "fixed inset-y-0 left-0 z-50 w-64 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 shadow-2xl md:shadow-none",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="h-16 flex items-center justify-between px-5 border-b border-white/[0.08] shrink-0">
+        <div
+          style={{ borderBottom: "1px solid var(--admin-sidebar-border, rgba(255,255,255,0.1))" }}
+          className="h-16 flex items-center justify-between px-5 shrink-0"
+        >
           <BrandLogo
             siteName={siteName}
             logoUrl={logoUrl}
             logoDarkUrl={logoDarkUrl}
-            variant="dark"
+            variant="sidebar"
             subtitle="Admin Workspace"
           />
           <button
             onClick={onClose}
-            className="md:hidden p-1.5 text-zinc-400 hover:text-white theme-radius-sm hover:bg-white/10 transition cursor-pointer"
+            style={{ color: "var(--admin-sidebar-muted)" }}
+            className="md:hidden p-1.5 theme-radius-sm hover:opacity-80 transition cursor-pointer"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="dark-scrollbar flex-1 py-2.5 px-3 overflow-y-auto space-y-3.5">
-          {renderNavGroup(operationsNav, "Operations")}
-          {renderNavGroup(catalogNav, "Catalog & Media")}
-          {renderNavGroup(settingsNav, "Admin & Settings")}
+        <nav className="sidebar-scrollbar flex-1 py-5 px-3.5 overflow-y-auto space-y-6">
+          {ADMIN_NAV_GROUPS.map((group) => (
+            <div key={group.title} className="space-y-1.5">
+              <div
+                style={{ color: "var(--admin-sidebar-group, rgba(241,245,249,0.48))" }}
+                className="px-3 pb-1 text-[10px] leading-none font-bold uppercase tracking-widest"
+              >
+                {group.title}
+              </div>
+
+              {group.items.map((item) => {
+                const active = isItemActive(item);
+                const badgeCount = item.badgeKey ? navBadges?.[item.badgeKey] || 0 : 0;
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    prefetch={true}
+                    onClick={onClose}
+                    className={clsx(
+                      "flex items-center justify-between gap-2.5 px-3 py-2.5 theme-radius-sm text-[13px] leading-snug transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-current/35",
+                      active ? "admin-sidebar-link-active font-semibold" : "admin-sidebar-link-idle font-medium"
+                    )}
+                  >
+                    <span className="flex items-center gap-3 min-w-0">
+                      <item.icon className={clsx("w-4 h-4 shrink-0", active ? "opacity-100" : "opacity-80")} />
+                      <span className="truncate">{item.label}</span>
+                    </span>
+                    {badgeCount > 0 && (
+                      <span
+                        style={{
+                          backgroundColor: "var(--admin-sidebar-badge-bg, var(--color-accent))",
+                          color: "var(--admin-sidebar-badge-fg, #0F172A)",
+                        }}
+                        className="px-1.5 py-0.5 text-[10px] font-bold leading-none rounded-full shrink-0"
+                      >
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-        <div className="p-2 border-t border-white/[0.08] grid grid-cols-2 gap-1.5 shrink-0">
+        <div
+          style={{ borderTop: "1px solid var(--admin-sidebar-border, rgba(255,255,255,0.1))" }}
+          className="p-2.5 grid grid-cols-2 gap-2 shrink-0"
+        >
           <Link
             href="/"
             target="_blank"
-            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white theme-radius-sm bg-white/[0.04] hover:bg-white/[0.09] transition"
+            style={{
+              backgroundColor: "var(--admin-sidebar-surface-btn, rgba(255,255,255,0.06))",
+              color: "var(--admin-sidebar-fg, #F8FAFC)",
+            }}
+            className="flex items-center justify-center gap-1.5 px-2.5 py-2 text-xs font-semibold theme-radius-sm hover:opacity-85 transition"
           >
             <ExternalLink className="w-3.5 h-3.5" />
             Live Site
           </Link>
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-400 hover:text-rose-300 theme-radius-sm bg-white/[0.04] hover:bg-rose-950/50 transition cursor-pointer"
+            style={{
+              backgroundColor: "var(--admin-sidebar-surface-btn, rgba(255,255,255,0.06))",
+              color: "var(--admin-sidebar-muted, rgba(241,245,249,0.72))",
+            }}
+            className="flex items-center justify-center gap-1.5 px-2.5 py-2 text-xs font-semibold theme-radius-sm hover:opacity-85 transition cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             Sign out

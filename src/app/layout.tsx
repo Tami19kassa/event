@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { FONT_VARIABLE_CLASSES } from "./fonts";
-import { buildThemeCssText } from "@/lib/theme-colors";
+import { buildThemeCssText, getRelativeLuminance, normalizeHex } from "@/lib/theme-colors";
 import { getThemeSettings } from "@/lib/settings";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -36,12 +36,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const theme = await getThemeSettings();
+  const sidebarIsLight =
+    getRelativeLuminance(normalizeHex(theme.adminSidebarColor, "#09090B")) > 0.36;
 
   return (
     <html
       lang="en"
       data-button-style={theme.buttonStyle || "filled"}
       data-theme-type={theme.themeType || "solid"}
+      data-sidebar-surface={sidebarIsLight ? "light" : "dark"}
       className={FONT_VARIABLE_CLASSES}
     >
       <head>

@@ -7,7 +7,7 @@ interface BrandLogoProps {
   logoUrl?: string | null;
   logoDarkUrl?: string | null;
   className?: string;
-  variant?: "light" | "dark";
+  variant?: "light" | "dark" | "sidebar";
   showSubtitle?: boolean;
   subtitle?: string;
 }
@@ -22,25 +22,45 @@ export function BrandLogo({
   subtitle = "Events & Expos",
 }: BrandLogoProps) {
   const uid = useId().replace(/:/g, "");
+  const isSidebar = variant === "sidebar";
   const isDark = variant === "dark";
-  const resolvedLogo = isDark ? logoDarkUrl || logoUrl : logoUrl;
-  const hasValidCustomLogo = Boolean(
-    resolvedLogo &&
-      !resolvedLogo.includes("photo-1612810806563") &&
-      (resolvedLogo.startsWith("/uploads") ||
-        resolvedLogo.startsWith("http") ||
-        resolvedLogo.startsWith("data:"))
-  );
+  const resolvedLogo = isDark ? logoDarkUrl || logoUrl : logoUrl || logoDarkUrl;
+  const isValidLogoUrl = (url?: string | null) =>
+    Boolean(
+      url &&
+        !url.includes("photo-1612810806563") &&
+        (url.startsWith("/uploads") || url.startsWith("http") || url.startsWith("data:"))
+    );
+  const hasLightLogo = isValidLogoUrl(logoUrl);
+  const hasDarkLogo = isValidLogoUrl(logoDarkUrl);
+  const hasValidCustomLogo = isSidebar ? hasLightLogo || hasDarkLogo : isValidLogoUrl(resolvedLogo);
 
   return (
     <div className={`flex items-center gap-3 group select-none ${className}`}>
       {hasValidCustomLogo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={resolvedLogo!}
-          alt={siteName}
-          className="h-10 w-auto max-w-[140px] rounded-xl object-contain shadow-xs"
-        />
+        isSidebar && hasLightLogo && hasDarkLogo && logoUrl !== logoDarkUrl ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoDarkUrl!}
+              alt={siteName}
+              className="sidebar-only-dark h-10 w-auto max-w-[140px] rounded-xl object-contain shadow-xs"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoUrl!}
+              alt={siteName}
+              className="sidebar-only-light h-10 w-auto max-w-[140px] rounded-xl object-contain shadow-xs"
+            />
+          </>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={(isSidebar ? logoDarkUrl || logoUrl : resolvedLogo)!}
+            alt={siteName}
+            className="h-10 w-auto max-w-[140px] rounded-xl object-contain shadow-xs"
+          />
+        )
       ) : (
         <div
           style={{
@@ -90,8 +110,13 @@ export function BrandLogo({
       <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-1.5">
           <span
+            style={isSidebar ? { color: "var(--admin-sidebar-fg, #F8FAFC)" } : undefined}
             className={`font-display text-xl sm:text-2xl leading-none transition-colors truncate ${
-              isDark ? "text-white" : "text-slate-900 group-hover:text-[var(--color-primary)]"
+              isSidebar
+                ? ""
+                : isDark
+                ? "text-white"
+                : "text-slate-900 group-hover:text-[var(--color-primary)]"
             }`}
           >
             {siteName}
@@ -102,7 +127,12 @@ export function BrandLogo({
           />
         </div>
         {showSubtitle && (
-          <span className="text-[10px] font-extrabold tracking-widest uppercase mt-1 text-slate-400 truncate">
+          <span
+            style={isSidebar ? { color: "var(--admin-sidebar-muted, #94A3B8)" } : undefined}
+            className={`text-[10px] font-extrabold tracking-widest uppercase mt-1 truncate ${
+              isSidebar ? "" : "text-slate-400"
+            }`}
+          >
             {subtitle}
           </span>
         )}

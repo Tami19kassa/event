@@ -58,7 +58,10 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
         <ScrollReveal variant="fade-up" durationMs={500}>
           <div className="flex items-center justify-between mb-6 md:mb-8">
             <div>
-              <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
+              <span
+                className="text-xs font-bold uppercase tracking-wider block mb-1"
+                style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}
+              >
                 Happening Soon
               </span>
               <h2 className="text-2xl md:text-3xl font-display text-slate-900">

@@ -89,12 +89,15 @@ export default function BrandingSettingsPage() {
     <div className="p-6 md:p-10 space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
+          <span
+            className="text-xs font-bold uppercase tracking-wider block mb-1"
+            style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}
+          >
             Visual Design System
           </span>
           <h1 className="text-3xl font-display text-slate-900">Branding &amp; Theme</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Manage platform identity, fonts, color palette, rounding, and button styles.
+            Manage platform identity, fonts, color palette, admin sidebar chrome, rounding, and button styles.
           </p>
         </div>
 

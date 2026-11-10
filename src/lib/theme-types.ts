@@ -23,6 +23,7 @@ export type ThemeSettings = {
   primaryColor: string;
   secondaryColor: string;
   accentColor: string;
+  adminSidebarColor: string;
   themeType: "solid" | "gradient";
   gradientFrom: string;
   gradientTo: string;
@@ -48,6 +49,7 @@ export const defaultThemeSettings: ThemeSettings = {
   primaryColor: "#4F46E5",
   secondaryColor: "#0D9488",
   accentColor: "#F59E0B",
+  adminSidebarColor: "#09090B",
   themeType: "solid",
   gradientFrom: "#4F46E5",
   gradientTo: "#0D9488",
@@ -97,6 +99,9 @@ export function pickThemeFields(raw: Partial<ThemeSettings>): Partial<ThemeSetti
   }
   if (typeof raw.accentColor === "string" && HEX_COLOR_RE.test(raw.accentColor.trim())) {
     out.accentColor = raw.accentColor.trim();
+  }
+  if (typeof raw.adminSidebarColor === "string" && HEX_COLOR_RE.test(raw.adminSidebarColor.trim())) {
+    out.adminSidebarColor = raw.adminSidebarColor.trim();
   }
   if (raw.themeType === "solid" || raw.themeType === "gradient") {
     out.themeType = raw.themeType;

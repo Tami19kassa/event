@@ -98,7 +98,7 @@ export function MediaPostsList({ posts, onEdit, onDelete, onToggleFeatured }: Pr
               <button
                 type="button"
                 onClick={() => onToggleFeatured(post)}
-                title={post.isFeatured ? "Unfeature from Homepage" : "Feature on Homepage"}
+                title={post.isFeatured ? "Unpin from Homepage bottom strip" : "Pin to Homepage bottom strip"}
                 className={`p-2 rounded-xl border transition cursor-pointer ${
                   post.isFeatured
                     ? "theme-badge-accent border"

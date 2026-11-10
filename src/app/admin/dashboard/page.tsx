@@ -5,6 +5,7 @@ import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { getAdminDashboardSnapshot } from "@/lib/admin-dashboard-data";
 import { DashboardAttentionBar } from "@/components/admin/dashboard/DashboardAttentionBar";
 import { DashboardMetrics } from "@/components/admin/dashboard/DashboardMetrics";
+import { DashboardVisuals } from "@/components/admin/dashboard/DashboardVisuals";
 import { RecentActivityTables } from "@/components/admin/dashboard/RecentActivityTables";
 
 export const dynamic = "force-dynamic";
@@ -52,13 +53,28 @@ export default async function AdminDashboardPage() {
       <DashboardMetrics
         publishedEventsCount={data.publishedEventsCount}
         draftEventsCount={data.draftEventsCount}
+        upcomingEventsCount={data.upcomingEventsCount}
         verifiedRevenue={data.verifiedRevenue}
         completedOrdersCount={data.completedOrdersCount}
         pendingVerificationCount={data.pendingVerificationCount}
-        totalAttendees={data.totalAttendees}
+        totalTierClaimed={data.totalTierClaimed}
+        totalTierCapacity={data.totalTierCapacity}
         checkedInOrdersCount={data.checkedInOrdersCount}
         totalInquiriesCount={data.totalInquiriesCount}
         newInquiriesCount={data.newInquiriesCount}
+        currency={currency}
+      />
+
+      <DashboardVisuals
+        dailyOrders={data.dailyOrders}
+        paymentMix={data.paymentMix}
+        totalTierCapacity={data.totalTierCapacity}
+        totalTierClaimed={data.totalTierClaimed}
+        totalTierRemaining={data.totalTierRemaining}
+        completedOrdersCount={data.completedOrdersCount}
+        pendingVerificationCount={data.pendingVerificationCount}
+        gatePendingCount={data.gatePendingCount}
+        checkedInOrdersCount={data.checkedInOrdersCount}
         currency={currency}
       />
 
