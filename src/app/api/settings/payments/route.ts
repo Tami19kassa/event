@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getPaymentSettings, savePaymentSettings } from "@/lib/payment-verification";
 import { getSession } from "@/lib/auth";
+import { CACHE_TAGS } from "@/lib/cache-tags";
+import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
 export async function GET() {
   const settings = await getPaymentSettings();
@@ -16,6 +19,8 @@ export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
     const updated = await savePaymentSettings(body);
+    revalidateCacheTags(CACHE_TAGS.payments);
+    revalidatePath("/", "layout");
     return NextResponse.json(updated);
   } catch (err) {
     console.error("Save payment settings error:", err);

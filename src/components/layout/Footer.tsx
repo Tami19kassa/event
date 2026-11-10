@@ -1,100 +1,138 @@
 import Link from "next/link";
-import { BrandLogo } from "@/components/ui/BrandLogo";
+import { MapPin } from "lucide-react";
+import { defaultPaymentSettings, type PaymentSettings } from "@/lib/payment-types";
+import { defaultThemeSettings, type ThemeSettings } from "@/lib/theme-types";
+import type { FooterVenueItem } from "@/lib/events";
+import { FooterBanner } from "./footer/FooterBanner";
+import { FooterBrandColumn } from "./footer/FooterBrandColumn";
+import { FooterPaymentColumn } from "./footer/FooterPaymentColumn";
+import { FooterLegalBar } from "./footer/FooterLegalBar";
 
 type Props = {
-  siteName?: string;
-  logoUrl?: string | null;
-  logoDarkUrl?: string | null;
+  theme?: ThemeSettings;
+  categories?: Array<{ name: string; slug: string }>;
+  venues?: FooterVenueItem[];
+  paymentSettings?: Pick<PaymentSettings, "allowPayAtGate" | "currency">;
+  privacyPolicyUrl?: string;
+  cookiesEnabled?: boolean;
 };
 
-export function Footer({ siteName = "Utopia", logoUrl, logoDarkUrl }: Props) {
+const FALLBACK_CATEGORIES = [
+  { name: "Technology & Startups", slug: "technology" },
+  { name: "Concerts & Live Shows", slug: "music" },
+  { name: "Business Summits & Expos", slug: "business" },
+];
+
+const FALLBACK_VENUES: FooterVenueItem[] = [
+  { name: "Millennium Hall", city: "Addis Ababa" },
+  { name: "Ethiopian Skylight Convention Center", city: "Addis Ababa" },
+  { name: "Friendship Park", city: "Addis Ababa" },
+  { name: "UNECA Conference Center", city: "Addis Ababa" },
+];
+
+export function Footer({
+  theme = defaultThemeSettings,
+  categories,
+  venues,
+  paymentSettings = defaultPaymentSettings,
+  privacyPolicyUrl = "/privacy",
+  cookiesEnabled = true,
+}: Props) {
+  const activeCategories =
+    categories && categories.length > 0 ? categories.slice(0, 4) : FALLBACK_CATEGORIES;
+  const activeVenues =
+    venues && venues.length > 0 ? venues.slice(0, 4) : FALLBACK_VENUES;
+  const currency = paymentSettings.currency || "ETB";
+
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-slate-900">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="md:col-span-1">
-            <div className="mb-4">
-              <BrandLogo
-                siteName={siteName}
-                logoUrl={logoUrl}
-                logoDarkUrl={logoDarkUrl}
-                variant="dark"
-              />
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              The premier platform for discovering trade expos, summits, concerts, and cultural experiences across Ethiopia.
-            </p>
-          </div>
+    <footer
+      data-surface="dark"
+      className="relative bg-slate-950 text-slate-300 border-t border-slate-900 overflow-hidden"
+    >
+      <div
+        className="h-1 w-full"
+        style={{ background: "var(--hero-bg, var(--color-primary))" }}
+        aria-hidden="true"
+      />
 
-          <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Explore Events</h3>
-            <ul className="space-y-2.5 text-xs">
+      <div
+        className="pointer-events-none absolute -top-24 -left-24 w-80 h-80 rounded-full blur-3xl opacity-20"
+        style={{ background: "var(--color-primary)" }}
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full blur-3xl opacity-15"
+        style={{ background: "var(--color-secondary)" }}
+        aria-hidden="true"
+      />
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-14">
+        <FooterBanner currency={currency} />
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10">
+          <FooterBrandColumn theme={theme} />
+
+          <nav aria-label="Explore Events" className="lg:col-span-3">
+            <h3 className="font-display text-sm sm:text-[15px] font-bold text-white mb-4">
+              Explore Events
+            </h3>
+            <ul className="space-y-2.5 text-xs sm:text-[13px]">
               <li>
-                <Link href="/discover" className="hover:text-white transition">
-                  All Events &amp; Expos
+                <Link href="/discover" className="footer-link inline-flex items-center gap-2">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: "var(--color-primary-on-dark, #a5b4fc)" }}
+                  />
+                  <span>All Events &amp; Expos</span>
                 </Link>
               </li>
-              <li>
-                <Link href="/discover?category=technology" className="hover:text-white transition">
-                  Technology &amp; Startups
-                </Link>
-              </li>
-              <li>
-                <Link href="/discover?category=music" className="hover:text-white transition">
-                  Concerts &amp; Live Shows
-                </Link>
-              </li>
-              <li>
-                <Link href="/discover?category=business" className="hover:text-white transition">
-                  Business Summits &amp; Expos
-                </Link>
-              </li>
+              {activeCategories.map((c) => (
+                <li key={c.slug}>
+                  <Link
+                    href={`/discover?category=${encodeURIComponent(c.slug)}`}
+                    className="footer-link inline-flex items-center gap-2 capitalize"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-700 shrink-0" />
+                    <span className="truncate">{c.name}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Featured Venues</h3>
-            <ul className="space-y-2.5 text-xs">
-              <li><span className="text-slate-300">Millennium Hall</span></li>
-              <li><span className="text-slate-300">Ethiopian Skylight Convention Center</span></li>
-              <li><span className="text-slate-300">Friendship Park &amp; Meskel Sq</span></li>
-              <li><span className="text-slate-300">UNECA Conference Center</span></li>
+          <nav aria-label="Featured Venues" className="lg:col-span-2">
+            <h3 className="font-display text-sm sm:text-[15px] font-bold text-white mb-4">
+              Featured Venues
+            </h3>
+            <ul className="space-y-2.5 text-xs sm:text-[13px]">
+              {activeVenues.map((v) => (
+                <li key={v.name}>
+                  <Link
+                    href={`/discover?q=${encodeURIComponent(v.name)}`}
+                    className="footer-link inline-flex items-start gap-1.5 leading-snug"
+                  >
+                    <MapPin
+                      className="w-3.5 h-3.5 mt-0.5 shrink-0"
+                      style={{ color: "var(--color-secondary-on-dark, #2dd4bf)" }}
+                    />
+                    <span>{v.name}</span>
+                  </Link>
+                </li>
+              ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4">Accepted Payments</h3>
-            <p className="text-xs text-slate-400 leading-relaxed mb-3">
-              Official instant ticket verification with Telebirr and Commercial Bank of Ethiopia (CBE), plus Pay at Gate.
-            </p>
-            <div className="flex flex-wrap gap-2 text-[11px] font-bold">
-              <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-emerald-400">
-                Telebirr
-              </span>
-              <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-amber-400">
-                CBE Birr / CBE
-              </span>
-              <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-800 text-slate-200">
-                Pay on Arrival
-              </span>
-            </div>
-          </div>
+          <FooterPaymentColumn
+            allowPayAtGate={paymentSettings.allowPayAtGate}
+            currency={currency}
+          />
         </div>
 
-        <div className="mt-12 pt-8 border-t border-slate-900 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} {siteName}. All rights reserved.</p>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6">
-            <Link href="/discover" className="hover:text-slate-300 transition">
-              Events Directory
-            </Link>
-            <span className="text-slate-700">·</span>
-            <Link href="/privacy" className="hover:text-slate-300 transition">
-              Privacy &amp; Cookies
-            </Link>
-            <span className="text-slate-700">·</span>
-            <span>East Africa Time (UTC+3)</span>
-          </div>
-        </div>
+        <FooterLegalBar
+          siteName={theme.siteName}
+          privacyPolicyUrl={privacyPolicyUrl}
+          cookiesEnabled={cookiesEnabled}
+        />
       </div>
     </footer>
   );

@@ -10,6 +10,7 @@ import { BrandIdentitySection } from "@/components/admin/settings/BrandIdentityS
 import { ColorPickerSection } from "@/components/admin/settings/ColorPickerSection";
 import { FontSelectorSection } from "@/components/admin/settings/FontSelectorSection";
 import { TypographyShapeSection } from "@/components/admin/settings/TypographyShapeSection";
+import { FooterBrandSection } from "@/components/admin/settings/FooterBrandSection";
 import { ThemeLivePreview } from "@/components/admin/settings/ThemeLivePreview";
 
 export default function BrandingSettingsPage() {
@@ -160,6 +161,7 @@ export default function BrandingSettingsPage() {
           <FontSelectorSection settings={settings} update={update} />
           <ColorPickerSection settings={settings} update={update} />
           <TypographyShapeSection settings={settings} update={update} />
+          <FooterBrandSection settings={settings} update={update} />
         </div>
 
         <div className="lg:col-span-1">

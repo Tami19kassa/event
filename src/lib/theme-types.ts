@@ -1,5 +1,20 @@
 import { isValidFontPreset, type FontPresetKey } from "./theme-fonts";
 
+export function sanitizePublicHttpUrl(raw: unknown): string {
+  if (typeof raw !== "string") return "";
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  const candidate = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return "";
+    if (!parsed.hostname || !parsed.hostname.includes(".")) return "";
+    return parsed.toString().slice(0, 240);
+  } catch {
+    return "";
+  }
+}
+
 export type ThemeSettings = {
   siteName: string;
   logoUrl: string | null;
@@ -15,6 +30,14 @@ export type ThemeSettings = {
   borderRadius: "none" | "sm" | "md" | "lg" | "xl";
   buttonStyle: "filled" | "soft" | "outline";
   fontPreset: FontPresetKey;
+  footerTagline: string;
+  supportEmail: string;
+  supportPhone: string;
+  contactCity: string;
+  socialTelegram: string;
+  socialInstagram: string;
+  socialLinkedIn: string;
+  socialX: string;
 };
 
 export const defaultThemeSettings: ThemeSettings = {
@@ -32,6 +55,15 @@ export const defaultThemeSettings: ThemeSettings = {
   borderRadius: "xl",
   buttonStyle: "filled",
   fontPreset: "inter",
+  footerTagline:
+    "The premier platform for discovering trade expos, summits, concerts, and cultural experiences across Ethiopia.",
+  supportEmail: "",
+  supportPhone: "",
+  contactCity: "Addis Ababa, Ethiopia",
+  socialTelegram: "",
+  socialInstagram: "",
+  socialLinkedIn: "",
+  socialX: "",
 };
 
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/;
@@ -86,6 +118,31 @@ export function pickThemeFields(raw: Partial<ThemeSettings>): Partial<ThemeSetti
   }
   if (isValidFontPreset(raw.fontPreset)) {
     out.fontPreset = raw.fontPreset;
+  }
+  if (typeof raw.footerTagline === "string") {
+    out.footerTagline = raw.footerTagline.trim().slice(0, 240);
+  }
+  if (typeof raw.supportEmail === "string") {
+    const email = raw.supportEmail.trim().slice(0, 120);
+    out.supportEmail = !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email : "";
+  }
+  if (typeof raw.supportPhone === "string") {
+    out.supportPhone = raw.supportPhone.replace(/[^+\d\s\-()]/g, "").trim().slice(0, 40);
+  }
+  if (typeof raw.contactCity === "string") {
+    out.contactCity = raw.contactCity.trim().slice(0, 80);
+  }
+  if (typeof raw.socialTelegram === "string") {
+    out.socialTelegram = sanitizePublicHttpUrl(raw.socialTelegram);
+  }
+  if (typeof raw.socialInstagram === "string") {
+    out.socialInstagram = sanitizePublicHttpUrl(raw.socialInstagram);
+  }
+  if (typeof raw.socialLinkedIn === "string") {
+    out.socialLinkedIn = sanitizePublicHttpUrl(raw.socialLinkedIn);
+  }
+  if (typeof raw.socialX === "string") {
+    out.socialX = sanitizePublicHttpUrl(raw.socialX);
   }
   return out;
 }

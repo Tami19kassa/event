@@ -24,6 +24,24 @@ export function CookieConsent({ settings = defaultCookieSettings }: Props) {
     }
   }, [settings.enabled]);
 
+  useEffect(() => {
+    if (!settings.enabled) return;
+    const onOpenConsent = () => {
+      try {
+        const raw = localStorage.getItem("cookie_consent");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          setAnalytics(Boolean(parsed.analytics));
+          setMarketing(Boolean(parsed.marketing));
+        }
+      } catch {}
+      setCustomizing(true);
+      setVisible(true);
+    };
+    window.addEventListener("utopia:open-cookie-consent", onOpenConsent);
+    return () => window.removeEventListener("utopia:open-cookie-consent", onOpenConsent);
+  }, [settings.enabled]);
+
   const saveChoice = (prefs: { analytics: boolean; marketing: boolean }) => {
     let visitorId = localStorage.getItem("visitor_id");
     if (!visitorId) {

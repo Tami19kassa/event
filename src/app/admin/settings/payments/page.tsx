@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Save, CheckCircle2, AlertCircle } from "lucide-react";
-import { PaymentSettings, defaultPaymentSettings } from "@/lib/payment-verification";
+import { PaymentSettings, defaultPaymentSettings } from "@/lib/payment-types";
 import { CbeGatewayCard } from "@/components/admin/settings/CbeGatewayCard";
 import { TelebirrGatewayCard } from "@/components/admin/settings/TelebirrGatewayCard";
 import { GatePaymentCard } from "@/components/admin/settings/GatePaymentCard";

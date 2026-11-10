@@ -9,6 +9,7 @@ import {
   gradientAngle,
   normalizeHex,
   radiusValue,
+  readableInkOnDark,
   readableInkOnLight,
 } from "@/lib/theme-colors";
 
@@ -24,7 +25,9 @@ export function ThemeLivePreview({ settings }: Props) {
   const accent = normalizeHex(settings.accentColor, "#F59E0B");
   const primaryFg = getContrastForeground(primary);
   const accentFg = getContrastForeground(accent);
+  const primaryOnDark = readableInkOnDark(primary);
   const secondaryInk = readableInkOnLight(secondary);
+  const secondaryOnDark = readableInkOnDark(secondary);
   const font = getFontPreset(settings.fontPreset);
   const angle = gradientAngle(settings.gradientDirection);
 
@@ -139,6 +142,33 @@ export function ThemeLivePreview({ settings }: Props) {
         <button type="button" className="w-full py-2.5 text-xs font-bold transition" style={buttonStyles}>
           Reserve Pass · ETB 500
         </button>
+      </div>
+
+      <div className="bg-slate-950 text-slate-300 overflow-hidden border border-slate-800" style={{ borderRadius: cardRadiusPx }}>
+        <div className="h-1 w-full" style={{ background: surfaceBg }} />
+        <div className="p-4 space-y-2.5">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className="text-xs text-white truncate"
+              style={{ fontFamily: font.displayStack, fontWeight: font.displayWeight }}
+            >
+              {settings.siteName || "Utopia"} Footer
+            </span>
+            <span className="text-[10px] font-bold" style={{ color: primaryOnDark }}>
+              Dark Link Ink
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+            {settings.footerTagline || "Footer tagline preview appears here."}
+          </p>
+          <div className="flex items-center justify-between pt-1 text-[10px] text-slate-400">
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="w-3 h-3" style={{ color: secondaryOnDark }} />
+              {settings.contactCity || "Addis Ababa, Ethiopia"}
+            </span>
+            <span className="text-slate-300 font-semibold">ETB</span>
+          </div>
+        </div>
       </div>
     </div>
   );

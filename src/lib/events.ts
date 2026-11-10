@@ -134,3 +134,45 @@ export const getCategories = cache(
     revalidate: 60,
   })
 );
+
+export type FooterVenueItem = { name: string; city?: string };
+
+const DEFAULT_VENUES: FooterVenueItem[] = [
+  { name: "Millennium Hall", city: "Addis Ababa" },
+  { name: "Ethiopian Skylight Convention Center", city: "Addis Ababa" },
+  { name: "Friendship Park", city: "Addis Ababa" },
+  { name: "UNECA Conference Center", city: "Addis Ababa" },
+];
+
+export function extractTopVenues(allEvents: Event[], limit = 4): FooterVenueItem[] {
+  const skipped = new Set(["online", "virtual", "tba", "remote", "zoom", "google meet"]);
+  const counts = new Map<string, { name: string; city?: string; count: number }>();
+
+  for (const ev of allEvents) {
+    if (ev.format === "online") continue;
+    const rawName = ev.location?.name?.trim();
+    if (!rawName || skipped.has(rawName.toLowerCase())) continue;
+    const key = rawName.toLowerCase();
+    const existing = counts.get(key);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      counts.set(key, { name: rawName, city: ev.location?.city?.trim(), count: 1 });
+    }
+  }
+
+  const ranked: FooterVenueItem[] = Array.from(counts.values())
+    .sort((a, b) => b.count - a.count)
+    .map(({ name, city }) => ({ name, city }));
+
+  const seen = new Set(ranked.map((v) => v.name.toLowerCase()));
+  for (const fallback of DEFAULT_VENUES) {
+    if (ranked.length >= limit) break;
+    if (!seen.has(fallback.name.toLowerCase())) {
+      ranked.push(fallback);
+      seen.add(fallback.name.toLowerCase());
+    }
+  }
+
+  return ranked.slice(0, limit);
+}
