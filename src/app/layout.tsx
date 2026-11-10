@@ -42,6 +42,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       data-button-style={theme.buttonStyle || "filled"}
       data-theme-type={theme.themeType || "solid"}
       data-sidebar-surface={sidebarIsLight ? "light" : "dark"}
@@ -50,6 +51,7 @@ export default async function RootLayout({
       <head>
         <style
           id="theme-dynamic-vars"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: buildThemeCssText(theme) }}
         />
       </head>

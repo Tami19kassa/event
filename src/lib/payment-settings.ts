@@ -6,22 +6,26 @@ import { defaultPaymentSettings, type PaymentSettings } from "./payment-types";
 
 export { defaultPaymentSettings, type PaymentSettings };
 
-async function readPublicPaymentSettings(): Promise<PaymentSettings> {
+async function fetchPublicPaymentSettingsStrict(): Promise<PaymentSettings> {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "payment_settings" } });
+  if (!setting?.value) return defaultPaymentSettings;
   try {
-    const setting = await prisma.siteSetting.findUnique({ where: { key: "payment_settings" } });
-    if (setting?.value) {
-      return { ...defaultPaymentSettings, ...JSON.parse(setting.value) };
-    }
+    return { ...defaultPaymentSettings, ...JSON.parse(setting.value) };
   } catch {
-    // Fallback to defaults if DB unavailable
+    return defaultPaymentSettings;
   }
-  return defaultPaymentSettings;
 }
 
 const getCachedPaymentSettings = unstable_cache(
-  readPublicPaymentSettings,
+  fetchPublicPaymentSettingsStrict,
   ["site-setting-payments"],
   { tags: [CACHE_TAGS.payments], revalidate: 300 }
 );
 
-export const getPublicPaymentSettings = cache(getCachedPaymentSettings);
+export const getPublicPaymentSettings = cache(async (): Promise<PaymentSettings> => {
+  try {
+    return await getCachedPaymentSettings();
+  } catch {
+    return defaultPaymentSettings;
+  }
+});

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { getThemeSettings } from "@/lib/settings";
+import { getLiveThemeSettings } from "@/lib/settings";
 import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { getAdminDashboardSnapshot } from "@/lib/admin-dashboard-data";
 import { DashboardAttentionBar } from "@/components/admin/dashboard/DashboardAttentionBar";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
   const [theme, payments, data] = await Promise.all([
-    getThemeSettings(),
+    getLiveThemeSettings(),
     getPublicPaymentSettings(),
     getAdminDashboardSnapshot(),
   ]);

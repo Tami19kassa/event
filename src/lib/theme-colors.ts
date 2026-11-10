@@ -162,4 +162,7 @@ export function applyThemeToDocument(theme: ThemeSettings): void {
     document.head.appendChild(styleEl);
   }
   styleEl.textContent = buildThemeCssText(theme);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("utopia:theme-change", { detail: theme }));
+  }
 }

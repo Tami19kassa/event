@@ -11,33 +11,62 @@ import {
 
 export { defaultThemeSettings, type ThemeSettings };
 
-async function readThemeSettingsFromDb(): Promise<ThemeSettings> {
+async function fetchThemeSettingsStrict(): Promise<ThemeSettings> {
+  let setting = null;
   try {
-    const setting = await prisma.siteSetting.findUnique({
+    setting = await prisma.siteSetting.findUnique({
       where: { key: "theme" },
     });
-
-    if (setting?.value) {
-      return { ...defaultThemeSettings, ...pickThemeFields(JSON.parse(setting.value)) };
-    }
   } catch {
-    // DB not ready yet
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    setting = await prisma.siteSetting.findUnique({
+      where: { key: "theme" },
+    });
   }
-  return defaultThemeSettings;
+
+  if (!setting?.value) {
+    return defaultThemeSettings;
+  }
+
+  try {
+    return {
+      ...defaultThemeSettings,
+      ...pickThemeFields(JSON.parse(setting.value)),
+    };
+  } catch (err) {
+    console.error("Invalid stored theme JSON, falling back to defaults:", err);
+    return defaultThemeSettings;
+  }
 }
 
+export const getLiveThemeSettings = cache(async (): Promise<ThemeSettings> => {
+  try {
+    return await fetchThemeSettingsStrict();
+  } catch (err) {
+    console.error("Failed to load live theme settings:", err);
+    return defaultThemeSettings;
+  }
+});
+
 const getCachedThemeSettings = unstable_cache(
-  readThemeSettingsFromDb,
+  fetchThemeSettingsStrict,
   ["site-setting-theme"],
   { tags: [CACHE_TAGS.theme], revalidate: 300 }
 );
 
-export const getThemeSettings = cache(getCachedThemeSettings);
+export const getThemeSettings = cache(async (): Promise<ThemeSettings> => {
+  try {
+    return await getCachedThemeSettings();
+  } catch (err) {
+    console.error("Failed to load cached theme settings:", err);
+    return defaultThemeSettings;
+  }
+});
 
 export async function saveThemeSettings(
   settings: Partial<ThemeSettings>
 ): Promise<ThemeSettings> {
-  const current = await readThemeSettingsFromDb();
+  const current = await fetchThemeSettingsStrict();
   const updated = { ...current, ...pickThemeFields(settings) };
 
   await prisma.siteSetting.upsert({

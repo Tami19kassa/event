@@ -85,11 +85,10 @@ export function DashboardTrendChart({ dailyOrders, paymentMix, currency }: Props
                 : "var(--color-secondary)";
 
             return (
-              <g key={day.dateKey}>
-                <title>
-                  {day.label}: {day.orders} order{day.orders === 1 ? "" : "s"} · {currency}{" "}
-                  {day.revenue.toLocaleString()}
-                </title>
+              <g
+                key={day.dateKey}
+                aria-label={`${day.label}: ${day.orders} order${day.orders === 1 ? "" : "s"} · ${currency} ${day.revenue.toLocaleString()}`}
+              >
                 <rect x={x} y={y} width={barWidth} height={rawHeight} rx={4} fill={barFill} />
                 {day.orders > 0 && (
                   <text

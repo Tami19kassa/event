@@ -7,30 +7,34 @@ import { defaultCookieSettings, type CookieSettings } from "./cookie-types";
 
 export { defaultCookieSettings, type CookieSettings };
 
-async function readCookieSettingsFromDb(): Promise<CookieSettings> {
+async function fetchCookieSettingsStrict(): Promise<CookieSettings> {
+  const setting = await prisma.siteSetting.findUnique({ where: { key: "cookies" } });
+  if (!setting?.value) return defaultCookieSettings;
   try {
-    const setting = await prisma.siteSetting.findUnique({ where: { key: "cookies" } });
-    if (setting?.value) {
-      return { ...defaultCookieSettings, ...JSON.parse(setting.value) };
-    }
+    return { ...defaultCookieSettings, ...JSON.parse(setting.value) };
   } catch {
-    // Fallback to defaults if DB unreachable
+    return defaultCookieSettings;
   }
-  return defaultCookieSettings;
 }
 
 const getCachedCookieSettings = unstable_cache(
-  readCookieSettingsFromDb,
+  fetchCookieSettingsStrict,
   ["site-setting-cookies"],
   { tags: [CACHE_TAGS.cookies], revalidate: 300 }
 );
 
-export const getCookieSettings = cache(getCachedCookieSettings);
+export const getCookieSettings = cache(async (): Promise<CookieSettings> => {
+  try {
+    return await getCachedCookieSettings();
+  } catch {
+    return defaultCookieSettings;
+  }
+});
 
 export async function saveCookieSettings(
   settings: Partial<CookieSettings>
 ): Promise<CookieSettings> {
-  const current = await readCookieSettingsFromDb();
+  const current = await fetchCookieSettingsStrict();
   const updated: CookieSettings = { ...current, ...settings };
 
   await prisma.siteSetting.upsert({

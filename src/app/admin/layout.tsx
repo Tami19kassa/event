@@ -1,7 +1,8 @@
 import { getSession } from "@/lib/auth";
-import { getThemeSettings } from "@/lib/settings";
+import { getLiveThemeSettings } from "@/lib/settings";
 import { prisma } from "@/lib/prisma";
 import { AdminLayoutShell } from "@/components/admin/AdminLayoutShell";
+import { AdminThemeScope } from "@/components/admin/AdminThemeScope";
 
 export const dynamic = "force-dynamic";
 
@@ -10,10 +11,14 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [session, theme] = await Promise.all([getSession(), getThemeSettings()]);
+  const [session, theme] = await Promise.all([getSession(), getLiveThemeSettings()]);
 
   if (!session) {
-    return <div className="min-h-screen bg-slate-50">{children}</div>;
+    return (
+      <AdminThemeScope initialTheme={theme}>
+        <div className="min-h-screen bg-slate-50">{children}</div>
+      </AdminThemeScope>
+    );
   }
 
   let ordersAttention = 0;
@@ -34,21 +39,23 @@ export default async function AdminLayout({
   }
 
   return (
-    <AdminLayoutShell
-      siteName={theme.siteName}
-      logoUrl={theme.logoUrl}
-      logoDarkUrl={theme.logoDarkUrl}
-      user={{
-        name: session.name,
-        email: session.email,
-        role: session.role,
-      }}
-      navBadges={{
-        orders: ordersAttention,
-        inquiries: newInquiries,
-      }}
-    >
-      {children}
-    </AdminLayoutShell>
+    <AdminThemeScope initialTheme={theme}>
+      <AdminLayoutShell
+        siteName={theme.siteName}
+        logoUrl={theme.logoUrl}
+        logoDarkUrl={theme.logoDarkUrl}
+        user={{
+          name: session.name,
+          email: session.email,
+          role: session.role,
+        }}
+        navBadges={{
+          orders: ordersAttention,
+          inquiries: newInquiries,
+        }}
+      >
+        {children}
+      </AdminLayoutShell>
+    </AdminThemeScope>
   );
 }
