@@ -56,3 +56,62 @@ export function buildYouTubeBackgroundUrl(videoId: string): string {
 export function getYouTubeThumbnail(videoId: string): string {
   return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
 }
+
+/**
+ * Interactive user-initiated modal embed URL (with audio & player controls)
+ */
+export function buildYouTubePlayerUrl(videoId: string): string {
+  const params = new URLSearchParams({
+    autoplay: "1",
+    rel: "0",
+    modestbranding: "1",
+    playsinline: "1",
+  });
+  return `https://www.youtube-nocookie.com/embed/${videoId}?${params.toString()}`;
+}
+
+export function extractVimeoId(url?: string | null): string | null {
+  if (!url) return null;
+  const match = url.trim().match(/vimeo\.com\/(?:video\/)?(\d{6,12})/);
+  return match ? match[1] : null;
+}
+
+export type ResolvedVideoSource =
+  | { type: "youtube"; id: string; embedUrl: string; thumbnail: string }
+  | { type: "vimeo"; id: string; embedUrl: string }
+  | { type: "direct"; src: string };
+
+export function resolveVideoSource(raw?: string | null): ResolvedVideoSource | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+
+  const ytId = extractYouTubeId(trimmed);
+  if (ytId) {
+    return {
+      type: "youtube",
+      id: ytId,
+      embedUrl: buildYouTubePlayerUrl(ytId),
+      thumbnail: getYouTubeThumbnail(ytId),
+    };
+  }
+
+  const vimeoId = extractVimeoId(trimmed);
+  if (vimeoId) {
+    return {
+      type: "vimeo",
+      id: vimeoId,
+      embedUrl: `https://player.vimeo.com/video/${vimeoId}?autoplay=1`,
+    };
+  }
+
+  if (
+    trimmed.startsWith("/uploads/") ||
+    trimmed.startsWith("data:video/") ||
+    /^https?:\/\//i.test(trimmed)
+  ) {
+    return { type: "direct", src: trimmed };
+  }
+
+  return null;
+}

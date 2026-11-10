@@ -62,6 +62,7 @@ model Event {
   speakers         Speaker[]
   agendaItems      AgendaItem[]
   orders           Order[]
+  mediaPosts       MediaPost[]
 
   createdAt        DateTime    @default(now())
   updatedAt        DateTime    @updatedAt
@@ -170,4 +171,31 @@ model Inquiry {
 
   @@index([type, status])
   @@index([createdAt])
+}
+
+model MediaPost {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  excerpt       String?   @db.Text
+  content       String?   @db.Text
+  kind          String    @default("VIDEO_VLOG")
+  categoryTag   String?
+  coverImageUrl String?   @db.MediumText
+  videoUrl      String?   @db.Text
+  externalUrl   String?   @db.Text
+  externalLabel String?
+  duration      String?
+  isFeatured    Boolean   @default(false)
+  status        String    @default("PUBLISHED")
+  publishedAt   DateTime  @default(now())
+
+  eventId       String?
+  event         Event?    @relation(fields: [eventId], references: [id], onDelete: SetNull)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([status, isFeatured, publishedAt])
+  @@index([eventId, status])
 }

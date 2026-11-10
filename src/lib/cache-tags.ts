@@ -5,4 +5,5 @@ export const CACHE_TAGS = {
   events: "events",
   categories: "categories",
   payments: "payments",
+  media: "media",
 } as const;

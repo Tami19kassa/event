@@ -430,6 +430,60 @@ Discover the latest in AI, climate tech, web3, and product development. Featurin
     console.log(`✅ Event: ${event.title}`);
   }
 
+  // ─── Editorial & Media Hub ────────────────────────────────────
+  const firstEvent = await prisma.event.findFirst({ where: { slug: "tech-summit-2026" }, select: { id: true } });
+
+  const mediaPostsData = [
+    {
+      slug: "addis-expo-pavilion-playbook-2026",
+      title: "Inside Ethiopia's Flagship Trade Exhibitions: 2026 Floor Playbook",
+      excerpt: "How exhibitors, procurement leads, and enterprise sponsors maximize deal flow across Addis Ababa's top convention halls.",
+      content:
+        "## Designing High-Converting Exhibition Spaces\n\nFlagship regional trade expos bring thousands of verified buyers and technical founders under one roof across **Millennium Hall** and **Skylight Convention Center**.\n\n- Pre-schedule 1-on-1 procurement meetings ahead of opening morning.\n- Pair product demonstrations with QR-ready specification sheets and localized ETB pricing.\n- Capture keynote highlights and booth walkthrough vlogs to extend ROI weeks after doors close.",
+      kind: "ARTICLE",
+      categoryTag: "Expo Insights",
+      coverImageUrl: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&h=750&fit=crop",
+      isFeatured: true,
+      status: "PUBLISHED",
+      eventId: firstEvent?.id || null,
+    },
+    {
+      slug: "keynote-preparation-for-summit-speakers",
+      title: "Speaker & Panel Spotlight: Building Sessions That Pack the Main Stage",
+      excerpt: "Key editorial takeaways from East Africa's enterprise software founders, fintech architects, and industrial manufacturers.",
+      content:
+        "## What Audiences Remember After the Closing Bell\n\nAcross technology summits and sector forums, sessions backed by concrete case studies and regional metrics consistently outperform generic pitch decks.\n\n- Focus talks on solved production challenges, unit economics, and customer delivery.\n- Share downloadable frameworks alongside video recaps so attendees keep referencing your brand.",
+      kind: "ARTICLE",
+      categoryTag: "Speaker Spotlight",
+      coverImageUrl: "https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=750&fit=crop",
+      isFeatured: false,
+      status: "PUBLISHED",
+      eventId: firstEvent?.id || null,
+    },
+    {
+      slug: "addis-chamber-trade-bulletin",
+      title: "Addis Ababa Trade & Commerce Exhibition Calendar Bulletin",
+      excerpt: "Official regional trade chamber announcements, exporter directories, and commercial delegation schedules.",
+      kind: "EXTERNAL_LINK",
+      categoryTag: "Press & Chamber",
+      coverImageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&h=750&fit=crop",
+      externalUrl: "https://addischamber.com",
+      externalLabel: "Visit Addis Chamber",
+      isFeatured: false,
+      status: "PUBLISHED",
+      eventId: null,
+    },
+  ];
+
+  for (const post of mediaPostsData) {
+    await prisma.mediaPost.upsert({
+      where: { slug: post.slug },
+      update: {},
+      create: post,
+    });
+  }
+  console.log(`✅ ${mediaPostsData.length} editorial media stories`);
+
   console.log("\n🎉 Seed completed successfully!");
   console.log("\n─── Login credentials ───");
   console.log("Admin:     admin@eventhub.com / admin123");

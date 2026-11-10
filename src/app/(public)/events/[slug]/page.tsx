@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Users } from "lucide-react";
 import { getEventBySlug, getAllEvents } from "@/lib/events";
+import { getEventMediaPosts } from "@/lib/media-posts";
 import { getThemeSettings } from "@/lib/settings";
 import { resolveOgImageUrl } from "@/lib/site-url";
 import { TicketSelector } from "@/components/events/TicketSelector";
 import { EventHeroBanner } from "@/components/events/detail/EventHeroBanner";
 import { EventDetailsContent } from "@/components/events/detail/EventDetailsContent";
+import { EventMediaStrip } from "@/components/media/EventMediaStrip";
 
 export const revalidate = 60;
 
@@ -63,14 +65,17 @@ export default async function EventPage({ params }: PageProps) {
     notFound();
   }
 
+  const eventMedia = await getEventMediaPosts(event.id);
+
   return (
     <div>
       <EventHeroBanner event={event} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-10">
             <EventDetailsContent event={event} />
+            <EventMediaStrip posts={eventMedia} />
           </div>
 
           <div className="lg:col-span-1">

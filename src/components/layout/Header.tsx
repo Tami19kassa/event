@@ -21,7 +21,7 @@ export function Header({
 
   const navCategories =
     categories && categories.length > 0
-      ? categories.slice(0, 4)
+      ? categories.slice(0, 3)
       : [
           { name: "Technology", slug: "technology" },
           { name: "Concerts & Arts", slug: "music" },
@@ -56,6 +56,13 @@ export function Header({
                 {c.name}
               </Link>
             ))}
+            <Link
+              href="/stories"
+              prefetch={true}
+              className="text-sm font-semibold text-slate-600 hover:text-[var(--color-primary)] transition-colors whitespace-nowrap"
+            >
+              Stories &amp; Vlogs
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">
@@ -115,6 +122,13 @@ export function Header({
               {c.name}
             </Link>
           ))}
+          <Link
+            href="/stories"
+            className="block px-3 py-2 text-sm font-semibold text-slate-600 rounded-xl hover:bg-slate-50"
+            onClick={() => setMobileOpen(false)}
+          >
+            Stories &amp; Vlogs
+          </Link>
         </div>
       )}
     </header>

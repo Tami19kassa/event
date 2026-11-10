@@ -1,16 +1,18 @@
 import { getAllEvents, getFeaturedEvents, getCategories } from "@/lib/events";
 import { getExpoSlides, getSponsors, getExpoScrollInterval } from "@/lib/expo-settings";
+import { getHomepageMediaPosts } from "@/lib/media-posts";
 import { ExpoHeroSlider } from "@/components/home/ExpoHeroSlider";
 import { StatsSection } from "@/components/home/StatsSection";
 import { CategoriesSection } from "@/components/home/CategoriesSection";
 import { EventCalendarSection } from "@/components/home/calendar/EventCalendarSection";
 import { FeaturedEventsSection } from "@/components/home/FeaturedEventsSection";
+import { MediaHighlightsSection } from "@/components/home/MediaHighlightsSection";
 import { SponsorsMarquee } from "@/components/home/SponsorsMarquee";
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const [featured, allEvents, categories, expoSlides, sponsors, scrollInterval] =
+  const [featured, allEvents, categories, expoSlides, sponsors, scrollInterval, mediaPosts] =
     await Promise.all([
       getFeaturedEvents(),
       getAllEvents(),
@@ -18,6 +20,7 @@ export default async function HomePage() {
       getExpoSlides(),
       getSponsors(),
       getExpoScrollInterval(),
+      getHomepageMediaPosts(4),
     ]);
 
   const activeExpos = expoSlides.filter((s) => s.isActive).length;
@@ -41,6 +44,7 @@ export default async function HomePage() {
         <EventCalendarSection events={allEvents} />
       </div>
       <FeaturedEventsSection featured={featured} upcoming={upcoming} />
+      <MediaHighlightsSection posts={mediaPosts} />
       <SponsorsMarquee sponsors={sponsors} />
     </div>
   );

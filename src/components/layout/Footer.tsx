@@ -86,6 +86,15 @@ export function Footer({
                   <span>All Events &amp; Expos</span>
                 </Link>
               </li>
+              <li>
+                <Link href="/stories" className="footer-link inline-flex items-center gap-2">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: "var(--color-accent-on-dark, var(--color-accent))" }}
+                  />
+                  <span>Vlogs &amp; Stories</span>
+                </Link>
+              </li>
               {activeCategories.map((c) => (
                 <li key={c.slug}>
                   <Link
