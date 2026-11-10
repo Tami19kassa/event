@@ -95,7 +95,7 @@ export function AdminTopNav({
         <Link
           href="/"
           target="_blank"
-          className="inline-flex items-center gap-1.5 text-xs font-bold theme-badge border px-3 py-1.5 theme-radius-sm hover:brightness-95 transition shadow-2xs"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold bg-white text-slate-700 border border-slate-200 px-3 py-1.5 theme-radius-sm hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary-ink,var(--color-primary))] transition shadow-2xs"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span>Live Site</span>
@@ -105,15 +105,15 @@ export function AdminTopNav({
           title={user?.email || displayName}
           className="flex items-center gap-2.5 pl-3 border-l border-slate-200 text-xs"
         >
-          <div className="w-8 h-8 theme-radius-sm theme-bg-primary flex items-center justify-center font-extrabold text-[11px] tracking-wide shadow-xs shrink-0">
+          <div className="w-8 h-8 theme-radius-sm theme-icon-soft border flex items-center justify-center font-bold text-[11px] tracking-wide shrink-0">
             {initials}
           </div>
           <div className="hidden sm:flex flex-col min-w-0">
-            <span className="font-bold text-slate-900 leading-tight truncate max-w-[140px]">
+            <span className="font-semibold text-slate-900 leading-tight truncate max-w-[140px]">
               {displayName}
             </span>
-            <span className="text-[10px] theme-text-secondary font-bold flex items-center gap-0.5">
-              <ShieldCheck className="w-3 h-3 shrink-0" /> {roleLabel}
+            <span className="text-[10px] text-slate-500 font-semibold flex items-center gap-0.5">
+              <ShieldCheck className="w-3 h-3 shrink-0 text-[var(--color-primary-ink,var(--color-primary))]" /> {roleLabel}
             </span>
           </div>
         </div>

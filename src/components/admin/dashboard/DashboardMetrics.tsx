@@ -35,7 +35,7 @@ export function DashboardMetrics({
           ? `${draftEventsCount} draft${draftEventsCount === 1 ? "" : "s"} saved`
           : "All catalog items live",
       icon: Calendar,
-      iconBg: "theme-bg-primary",
+      featured: false,
       href: "/admin/events",
     },
     {
@@ -46,7 +46,7 @@ export function DashboardMetrics({
           ? `${completedOrdersCount} paid · ${pendingVerificationCount} pending`
           : `${completedOrdersCount} paid order${completedOrdersCount === 1 ? "" : "s"}`,
       icon: Coins,
-      iconBg: "theme-bg-secondary",
+      featured: true,
       href: "/admin/orders",
     },
     {
@@ -54,7 +54,7 @@ export function DashboardMetrics({
       value: totalAttendees.toLocaleString(),
       subtext: `${checkedInOrdersCount} checked in at gate`,
       icon: Users,
-      iconBg: "theme-bg-accent",
+      featured: false,
       href: "/admin/orders",
     },
     {
@@ -65,7 +65,7 @@ export function DashboardMetrics({
           ? `${newInquiriesCount} unread request${newInquiriesCount === 1 ? "" : "s"}`
           : "All leads reviewed",
       icon: Mail,
-      iconBg: "bg-slate-900 text-white",
+      featured: false,
       href: "/admin/inquiries",
     },
   ];
@@ -81,7 +81,11 @@ export function DashboardMetrics({
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs font-semibold text-slate-500">{s.label}</span>
             <div
-              className={`w-9 h-9 theme-radius-sm ${s.iconBg} flex items-center justify-center shrink-0`}
+              className={`w-9 h-9 theme-radius-sm border flex items-center justify-center shrink-0 ${
+                s.featured
+                  ? "theme-icon-soft"
+                  : "bg-slate-50 text-slate-600 border-slate-200/80"
+              }`}
             >
               <s.icon className="w-4 h-4" />
             </div>

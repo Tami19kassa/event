@@ -10,7 +10,7 @@ import {
   Palette,
   Cookie,
   LogOut,
-  ChevronLeft,
+  ExternalLink,
   CreditCard,
   Layers,
   Building2,
@@ -31,17 +31,20 @@ interface NavItem {
   badgeKey?: keyof AdminNavBadges;
 }
 
-const mainNavItems: NavItem[] = [
+const operationsNav: NavItem[] = [
   { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/events", label: "Events", icon: Calendar },
-  { href: "/admin/categories", label: "Event Types", icon: Layers },
   { href: "/admin/orders", label: "Orders & Gate", icon: ShoppingCart, badgeKey: "orders" },
-  { href: "/admin/media", label: "Media & Stories", icon: Clapperboard },
   { href: "/admin/inquiries", label: "B2B Inquiries", icon: Mail, badgeKey: "inquiries" },
-  { href: "/admin/users", label: "Users", icon: Users },
 ];
 
-const settingsNavItems: NavItem[] = [
+const catalogNav: NavItem[] = [
+  { href: "/admin/events", label: "Events", icon: Calendar },
+  { href: "/admin/categories", label: "Event Types", icon: Layers },
+  { href: "/admin/media", label: "Media & Stories", icon: Clapperboard },
+];
+
+const settingsNav: NavItem[] = [
+  { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/settings", label: "Branding & Theme", icon: Palette, exact: true },
   { href: "/admin/settings/expo", label: "Expo & Hero Slider", icon: Building2, exact: true },
   { href: "/admin/settings/payments", label: "Payment Gateways", icon: CreditCard, exact: true },
@@ -79,13 +82,11 @@ export function AdminSidebar({
     return pathname === item.href || pathname.startsWith(item.href + "/");
   };
 
-  const renderNavGroup = (items: NavItem[], groupTitle?: string) => (
-    <div className="space-y-0.5">
-      {groupTitle && (
-        <div className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-          {groupTitle}
-        </div>
-      )}
+  const renderNavGroup = (items: NavItem[], groupTitle: string) => (
+    <div className="space-y-1">
+      <div className="px-3 pb-0.5 text-[10px] leading-none font-bold uppercase tracking-widest text-zinc-500">
+        {groupTitle}
+      </div>
       {items.map((item) => {
         const active = isItemActive(item);
         const badgeCount = item.badgeKey ? navBadges?.[item.badgeKey] || 0 : 0;
@@ -97,23 +98,25 @@ export function AdminSidebar({
             prefetch={true}
             onClick={onClose}
             className={clsx(
-              "flex items-center justify-between gap-2 px-3 py-1.5 theme-radius-sm text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+              "flex items-center justify-between gap-2 px-3 py-[7px] theme-radius-sm text-[13px] leading-tight font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
               active
-                ? "theme-nav-active"
-                : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
+                ? "theme-nav-active font-semibold"
+                : "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100"
             )}
           >
             <span className="flex items-center gap-2.5 min-w-0">
               <item.icon
-                className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-slate-400")}
+                className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-zinc-400")}
               />
               <span className="truncate">{item.label}</span>
             </span>
             {badgeCount > 0 && (
               <span
                 className={clsx(
-                  "px-1.5 py-0.5 text-[10px] font-extrabold leading-none rounded-full shrink-0",
-                  active ? "bg-white/20 text-white" : "theme-pill-accent"
+                  "px-1.5 py-0.5 text-[10px] font-bold leading-none rounded-full shrink-0",
+                  active
+                    ? "bg-white/20 text-white"
+                    : "bg-white/10 text-zinc-100 border border-white/15"
                 )}
               >
                 {badgeCount > 99 ? "99+" : badgeCount}
@@ -136,12 +139,13 @@ export function AdminSidebar({
       )}
 
       <aside
+        data-surface="dark"
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 shadow-2xl md:shadow-none border-r border-slate-800",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-zinc-950 text-zinc-300 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 shadow-2xl md:shadow-none border-r border-white/[0.08]",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 shrink-0">
+        <div className="h-16 flex items-center justify-between px-5 border-b border-white/[0.08] shrink-0">
           <BrandLogo
             siteName={siteName}
             logoUrl={logoUrl}
@@ -151,32 +155,33 @@ export function AdminSidebar({
           />
           <button
             onClick={onClose}
-            className="md:hidden p-1.5 text-slate-400 hover:text-white theme-radius-sm hover:bg-slate-800 transition cursor-pointer"
+            className="md:hidden p-1.5 text-zinc-400 hover:text-white theme-radius-sm hover:bg-white/10 transition cursor-pointer"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="dark-scrollbar flex-1 py-2 px-3 overflow-y-auto space-y-1.5">
-          {renderNavGroup(mainNavItems, "Operations")}
-          {renderNavGroup(settingsNavItems, "System & Settings")}
+        <nav className="dark-scrollbar flex-1 py-2.5 px-3 overflow-y-auto space-y-3.5">
+          {renderNavGroup(operationsNav, "Operations")}
+          {renderNavGroup(catalogNav, "Catalog & Media")}
+          {renderNavGroup(settingsNav, "Admin & Settings")}
         </nav>
 
-        <div className="p-2.5 border-t border-slate-800 space-y-0.5 shrink-0">
+        <div className="p-2 border-t border-white/[0.08] grid grid-cols-2 gap-1.5 shrink-0">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white theme-radius-sm hover:bg-slate-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white theme-radius-sm bg-white/[0.04] hover:bg-white/[0.09] transition"
           >
-            <ChevronLeft className="w-4 h-4" />
-            View Public Site ↗
+            <ExternalLink className="w-3.5 h-3.5" />
+            Live Site
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-rose-300 theme-radius-sm hover:bg-rose-950/40 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+            className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-zinc-400 hover:text-rose-300 theme-radius-sm bg-white/[0.04] hover:bg-rose-950/50 transition cursor-pointer"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-3.5 h-3.5" />
             Sign out
           </button>
         </div>

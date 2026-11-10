@@ -184,6 +184,19 @@
   box-shadow: 0 4px 14px -4px rgba(var(--color-primary-rgb), 0.45);
 }
 
+[data-surface="dark"] .theme-nav-active {
+  background: var(--color-primary);
+  color: var(--color-primary-foreground, #ffffff);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.theme-icon-soft {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary-ink, var(--color-primary));
+  border-color: rgba(var(--color-primary-rgb), 0.18);
+}
+
 .theme-btn-solid {
   background: var(--hero-bg, var(--color-primary));
   color: var(--color-primary-foreground, #ffffff);
@@ -197,7 +210,7 @@
 
 .theme-badge {
   background-color: rgba(var(--color-primary-rgb), 0.1);
-  color: var(--color-primary);
+  color: var(--color-primary-ink, var(--color-primary));
   border-color: rgba(var(--color-primary-rgb), 0.22);
 }
 

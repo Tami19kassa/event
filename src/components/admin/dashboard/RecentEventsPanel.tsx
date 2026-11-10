@@ -16,7 +16,7 @@ export type RecentEventRow = {
 function getEventStatusBadge(status: string): { label: string; className: string } {
   switch (status) {
     case "LIVE":
-      return { label: "Live", className: "theme-badge-secondary border" };
+      return { label: "Live", className: "bg-emerald-50 text-emerald-700 border border-emerald-200" };
     case "PUBLISHED":
       return { label: "Published", className: "theme-badge border" };
     case "DRAFT":

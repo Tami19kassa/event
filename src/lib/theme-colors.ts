@@ -116,6 +116,7 @@ export function buildThemeCssText(theme: ThemeSettings): string {
   const primaryFg = getContrastForeground(primary);
   const secondaryFg = getContrastForeground(secondary);
   const accentFg = getContrastForeground(accent);
+  const primaryInk = readableInkOnLight(primary);
   const primaryOnDark = readableInkOnDark(primary);
   const secondaryInk = readableInkOnLight(secondary);
   const secondaryOnDark = readableInkOnDark(secondary);
@@ -134,6 +135,7 @@ export function buildThemeCssText(theme: ThemeSettings): string {
       --color-primary-hover: ${primaryHover} !important;
       --color-primary-rgb: ${hexToRgbTuple(primary)} !important;
       --color-primary-foreground: ${primaryFg} !important;
+      --color-primary-ink: ${primaryInk} !important;
       --color-primary-on-dark: ${primaryOnDark} !important;
       --color-secondary: ${secondary} !important;
       --color-secondary-hover: ${secondaryHover} !important;

@@ -24,21 +24,21 @@ export function DashboardAttentionBar({
       text: `${pendingVerificationCount} receipt${pendingVerificationCount === 1 ? "" : "s"} to verify`,
       href: "/admin/orders",
       icon: Clock,
-      pillClass: "theme-badge-accent",
+      pillClass: "theme-badge",
     },
     gatePendingCount > 0 && {
       key: "gate",
       text: `${gatePendingCount} Pay at Gate (${currency} ${pendingGateRevenue.toLocaleString()})`,
       href: "/admin/orders",
       icon: DoorOpen,
-      pillClass: "theme-badge",
+      pillClass: "bg-slate-100 text-slate-800 border-slate-200",
     },
     newInquiriesCount > 0 && {
       key: "inquiries",
       text: `${newInquiriesCount} new B2B lead${newInquiriesCount === 1 ? "" : "s"}`,
       href: "/admin/inquiries",
       icon: Mail,
-      pillClass: "theme-badge-secondary",
+      pillClass: "theme-badge",
     },
     draftEventsCount > 0 && {
       key: "drafts",
@@ -70,7 +70,7 @@ export function DashboardAttentionBar({
         <Link
           key={item.key}
           href={item.href}
-          className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold border theme-radius-sm hover:brightness-95 transition ${item.pillClass}`}
+          className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold border theme-radius-sm hover:brightness-95 transition ${item.pillClass}`}
         >
           <item.icon className="w-3.5 h-3.5 shrink-0" />
           <span>{item.text}</span>

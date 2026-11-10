@@ -18,11 +18,11 @@ export type RecentOrderRow = {
 function getOrderStatusBadge(status: string): { label: string; className: string } {
   switch (status) {
     case "COMPLETED":
-      return { label: "Verified", className: "theme-badge-secondary border" };
+      return { label: "Verified", className: "bg-emerald-50 text-emerald-700 border border-emerald-200" };
     case "PENDING_VERIFICATION":
-      return { label: "Needs Review", className: "theme-badge border" };
+      return { label: "Needs Review", className: "bg-amber-50 text-amber-800 border border-amber-200" };
     case "RESERVED_PAY_AT_GATE":
-      return { label: "Gate Reserved", className: "theme-badge-accent border" };
+      return { label: "Gate Reserved", className: "bg-slate-100 text-slate-700 border border-slate-200" };
     case "PENDING":
       return { label: "Pending", className: "bg-slate-100 text-slate-600 border border-slate-200" };
     case "CANCELLED":
