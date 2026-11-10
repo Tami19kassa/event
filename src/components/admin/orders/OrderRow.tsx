@@ -147,7 +147,7 @@ export function OrderRow({ order, actionInProgress, onCheckIn, onApprove }: RowP
             <button
               onClick={() => onCheckIn(order.id, order.orderNumber)}
               disabled={actionInProgress === order.id}
-              className="px-3 py-1.5 bg-[var(--color-primary)] hover:brightness-110 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+              className="px-3 py-1.5 theme-btn-primary text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
             >
               {actionInProgress === order.id ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />

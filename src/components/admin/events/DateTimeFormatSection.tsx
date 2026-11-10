@@ -22,7 +22,7 @@ export function DateTimeFormatSection({ form, update }: Props) {
             required
             value={form.startDate}
             onChange={(e) => update("startDate", e.target.value)}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -34,7 +34,7 @@ export function DateTimeFormatSection({ form, update }: Props) {
             required
             value={form.endDate}
             onChange={(e) => update("endDate", e.target.value)}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       </div>
@@ -45,7 +45,7 @@ export function DateTimeFormatSection({ form, update }: Props) {
           <select
             value={form.format}
             onChange={(e) => update("format", e.target.value)}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
             <option value="IN_PERSON">In-person</option>
             <option value="ONLINE">Online</option>
@@ -57,7 +57,7 @@ export function DateTimeFormatSection({ form, update }: Props) {
           <select
             value={form.status}
             onChange={(e) => update("status", e.target.value)}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
@@ -73,7 +73,7 @@ export function DateTimeFormatSection({ form, update }: Props) {
             min={1}
             value={form.capacity}
             onChange={(e) => update("capacity", Number(e.target.value))}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       </div>
@@ -83,7 +83,7 @@ export function DateTimeFormatSection({ form, update }: Props) {
           type="checkbox"
           checked={form.isFeatured}
           onChange={(e) => update("isFeatured", e.target.checked)}
-          className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          className="rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
         />
         Featured event (featured prominently on homepage)
       </label>

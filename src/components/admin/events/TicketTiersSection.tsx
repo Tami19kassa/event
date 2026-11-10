@@ -26,7 +26,7 @@ export function TicketTiersSection({
         <button
           type="button"
           onClick={addTier}
-          className="flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-700 font-bold cursor-pointer"
+          className="flex items-center gap-1 text-sm text-[var(--color-primary)] hover:opacity-80 font-bold cursor-pointer"
         >
           <Plus className="w-4 h-4" /> Add tier
         </button>

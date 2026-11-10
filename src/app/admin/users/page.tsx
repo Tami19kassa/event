@@ -151,7 +151,7 @@ export default function AdminUsersPage() {
                           u.role === "ADMIN"
                             ? "bg-purple-100 text-purple-800"
                             : u.role === "ORGANIZER"
-                            ? "bg-indigo-100 text-indigo-800"
+                            ? "theme-badge border"
                             : "bg-slate-100 text-slate-700"
                         }`}
                       >

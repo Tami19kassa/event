@@ -36,7 +36,7 @@ export function CbeGatewayCard({ settings, onChange }: Props) {
             value={settings.cbeAccount}
             onChange={(e) => onChange("cbeAccount", e.target.value)}
             placeholder="e.g. 1000345678901"
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
           />
         </div>
 
@@ -50,7 +50,7 @@ export function CbeGatewayCard({ settings, onChange }: Props) {
             value={settings.cbeAccountName}
             onChange={(e) => onChange("cbeAccountName", e.target.value)}
             placeholder="e.g. Utopia Event Management PLC"
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
           />
         </div>
       </div>

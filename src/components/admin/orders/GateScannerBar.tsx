@@ -93,11 +93,11 @@ export function GateScannerBar({
     <div className="bg-slate-900 text-white rounded-3xl p-4 sm:p-5 space-y-3 shadow-md">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-300 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl theme-bg-primary border border-white/15 flex items-center justify-center">
             <QrCode className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs font-extrabold uppercase tracking-wider text-indigo-300">Venue Gate Scanner</div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-slate-100">Venue Gate Scanner</div>
             <div className="text-[11px] text-slate-400">Scan QR pass or paste order code (EVT-...)</div>
           </div>
         </div>
@@ -117,9 +117,9 @@ export function GateScannerBar({
             value={manualInput}
             onChange={(e) => setManualInput(e.target.value)}
             placeholder="Scan or enter EVT-... pass reference"
-            className="flex-1 px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
-          <button type="submit" className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-bold rounded-xl cursor-pointer">
+          <button type="submit" className="px-3.5 py-2 theme-btn-primary text-xs font-bold cursor-pointer">
             Verify
           </button>
           <button
@@ -151,7 +151,7 @@ export function GateScannerBar({
           ) : (
             <div className="space-y-1 text-xs">
               <div className="flex items-center gap-2">
-                <span className="font-mono font-bold text-indigo-300">{scannedOrder.orderNumber}</span>
+                <span className="font-mono font-bold text-white">{scannedOrder.orderNumber}</span>
                 <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${scannedOrder.checkedIn ? "bg-amber-400 text-slate-950" : "bg-emerald-400 text-slate-950"}`}>
                   {scannedOrder.checkedIn ? "ALREADY CHECKED IN" : scannedOrder.status.replace(/_/g, " ")}
                 </span>

@@ -85,11 +85,11 @@ export function SponsorsManager({ sponsors, onChange }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Company / Sponsor Name *</label>
-            <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ethiopian Airlines" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-600" />
+            <input type="text" required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Ethiopian Airlines" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[var(--color-primary)]" />
           </div>
           <div>
             <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Sponsorship Tier</label>
-            <select value={tier} onChange={(e) => setTier(e.target.value as any)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-600">
+            <select value={tier} onChange={(e) => setTier(e.target.value as any)} className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[var(--color-primary)]">
               <option value="STRATEGIC">Strategic / Title Partner</option>
               <option value="PLATINUM">Platinum Partner</option>
               <option value="GOLD">Gold Sponsor</option>
@@ -98,7 +98,7 @@ export function SponsorsManager({ sponsors, onChange }: Props) {
           </div>
           <div>
             <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Website URL (Optional)</label>
-            <input type="url" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} placeholder="https://company.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-indigo-600" />
+            <input type="url" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} placeholder="https://company.com" className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:ring-2 focus:ring-[var(--color-primary)]" />
           </div>
         </div>
 

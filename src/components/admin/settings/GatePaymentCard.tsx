@@ -12,7 +12,7 @@ export function GatePaymentCard({ settings, onChange }: Props) {
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-6">
       <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center font-bold">
+        <div className="w-12 h-12 rounded-2xl theme-badge border flex items-center justify-center font-bold">
           <DoorOpen className="w-6 h-6" />
         </div>
         <div>
@@ -31,7 +31,7 @@ export function GatePaymentCard({ settings, onChange }: Props) {
           id="allowPayAtGate"
           checked={settings.allowPayAtGate}
           onChange={(e) => onChange("allowPayAtGate", e.target.checked)}
-          className="mt-1 w-5 h-5 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500 cursor-pointer"
+          className="mt-1 w-5 h-5 rounded text-[var(--color-primary)] border-slate-300 focus:ring-[var(--color-primary)] cursor-pointer"
         />
         <label htmlFor="allowPayAtGate" className="cursor-pointer">
           <span className="font-bold text-slate-900 text-sm block">
@@ -53,7 +53,7 @@ export function GatePaymentCard({ settings, onChange }: Props) {
           value={settings.currency}
           onChange={(e) => onChange("currency", e.target.value.toUpperCase())}
           placeholder="ETB"
-          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
     </div>

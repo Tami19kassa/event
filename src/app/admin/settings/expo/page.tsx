@@ -115,7 +115,7 @@ export default function ExpoSettingsPage() {
                   onClick={() => setScrollInterval(sec)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                     scrollInterval === sec
-                      ? "bg-[var(--color-primary)] text-white shadow-xs"
+                      ? "theme-nav-active"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                   }`}
                 >

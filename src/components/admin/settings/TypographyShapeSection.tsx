@@ -21,8 +21,8 @@ export function TypographyShapeSection({ settings, update }: Props) {
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
             Corner Rounding
           </label>
-          <div className="grid grid-cols-4 gap-2">
-            {(["none", "sm", "md", "xl"] as const).map((r) => {
+          <div className="grid grid-cols-5 gap-1.5">
+            {(["none", "sm", "md", "lg", "xl"] as const).map((r) => {
               const active = settings.borderRadius === r;
               return (
                 <button
@@ -38,7 +38,7 @@ export function TypographyShapeSection({ settings, update }: Props) {
                         }
                       : undefined
                   }
-                  className={`py-2 text-xs font-bold rounded-xl border transition cursor-pointer capitalize ${
+                  className={`py-2 text-xs font-bold rounded-xl border transition cursor-pointer uppercase ${
                     active ? "" : "border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}
                 >
@@ -103,7 +103,7 @@ export function TypographyShapeSection({ settings, update }: Props) {
                       }
                     : undefined
                 }
-                className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition cursor-pointer capitalize ${
+                className={`py-2.5 px-3 text-xs font-bold rounded-xl border transition cursor-pointer ${
                   active ? "" : "border-slate-200 text-slate-600 hover:bg-slate-50"
                 }`}
               >

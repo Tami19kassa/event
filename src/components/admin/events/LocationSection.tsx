@@ -21,7 +21,7 @@ export function LocationSection({ form, update }: Props) {
             value={form.locationName}
             onChange={(e) => update("locationName", e.target.value)}
             placeholder="e.g. Millennium Hall"
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -31,7 +31,7 @@ export function LocationSection({ form, update }: Props) {
             value={form.locationCity}
             onChange={(e) => update("locationCity", e.target.value)}
             placeholder="Addis Ababa"
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -41,7 +41,7 @@ export function LocationSection({ form, update }: Props) {
             value={form.locationAddress}
             onChange={(e) => update("locationAddress", e.target.value)}
             placeholder="e.g. Bole Sub-City, Africa Avenue"
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -51,7 +51,7 @@ export function LocationSection({ form, update }: Props) {
             value={form.locationCountry}
             onChange={(e) => update("locationCountry", e.target.value)}
             placeholder="Ethiopia"
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       </div>

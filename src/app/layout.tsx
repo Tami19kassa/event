@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
+import { FONT_VARIABLE_CLASSES } from "./fonts";
+import { buildThemeCssText } from "@/lib/theme-colors";
 import { getThemeSettings } from "@/lib/settings";
 import { getSiteUrl } from "@/lib/site-url";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   const theme = await getThemeSettings();
@@ -34,62 +30,24 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-function radiusValue(r: string) {
-  switch (r) {
-    case "none": return "0px";
-    case "sm": return "6px";
-    case "md": return "10px";
-    case "lg": return "14px";
-    case "xl": return "16px";
-    default: return "14px";
-  }
-}
-
-function hexToRgb(hex: string, fallback = "79, 70, 229"): string {
-  const clean = (hex || "").replace("#", "");
-  if (clean.length === 3) {
-    return `${parseInt(clean[0] + clean[0], 16)}, ${parseInt(clean[1] + clean[1], 16)}, ${parseInt(clean[2] + clean[2], 16)}`;
-  }
-  if (clean.length === 6) {
-    return `${parseInt(clean.substring(0, 2), 16)}, ${parseInt(clean.substring(2, 4), 16)}, ${parseInt(clean.substring(4, 6), 16)}`;
-  }
-  return fallback;
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const theme = await getThemeSettings();
-  const primaryRgb = hexToRgb(theme.primaryColor || "#4F46E5");
-  const secondaryRgb = hexToRgb(theme.secondaryColor || "#0D9488", "13, 148, 136");
-  const heroBg =
-    theme.themeType === "gradient"
-      ? `linear-gradient(135deg, ${theme.primaryColor}, ${theme.secondaryColor})`
-      : theme.primaryColor;
 
   return (
-    <html lang="en" data-button-style={theme.buttonStyle || "filled"} className={inter.variable}>
+    <html
+      lang="en"
+      data-button-style={theme.buttonStyle || "filled"}
+      data-theme-type={theme.themeType || "solid"}
+      className={FONT_VARIABLE_CLASSES}
+    >
       <head>
         <style
           id="theme-dynamic-vars"
-          dangerouslySetInnerHTML={{
-            __html: `
-              :root {
-                --color-primary: ${theme.primaryColor} !important;
-                --color-primary-rgb: ${primaryRgb} !important;
-                --color-secondary: ${theme.secondaryColor} !important;
-                --color-secondary-rgb: ${secondaryRgb} !important;
-                --color-accent: ${theme.accentColor} !important;
-                --radius: ${radiusValue(theme.borderRadius)} !important;
-                --hero-bg: ${heroBg} !important;
-              }
-              .theme-bg-primary { background-color: ${theme.primaryColor} !important; }
-              .theme-text-primary { color: ${theme.primaryColor} !important; }
-              .theme-border-primary { border-color: ${theme.primaryColor} !important; }
-            `,
-          }}
+          dangerouslySetInnerHTML={{ __html: buildThemeCssText(theme) }}
         />
       </head>
       <body className="min-h-screen flex flex-col bg-slate-50 antialiased">

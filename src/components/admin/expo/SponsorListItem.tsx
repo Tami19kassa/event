@@ -13,8 +13,16 @@ interface Props {
 export function SponsorListItem({ sponsor: s, isEditing, onEdit, onDelete }: Props) {
   return (
     <div
+      style={
+        isEditing
+          ? {
+              borderColor: "var(--color-primary)",
+              backgroundColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.05)",
+            }
+          : undefined
+      }
       className={`flex items-center justify-between p-3 rounded-xl border transition ${
-        isEditing ? "border-indigo-500 bg-indigo-50/30 shadow-xs" : "border-slate-100 hover:border-slate-200 bg-white"
+        isEditing ? "shadow-xs" : "border-slate-100 hover:border-slate-200 bg-white"
       }`}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -47,7 +55,7 @@ export function SponsorListItem({ sponsor: s, isEditing, onEdit, onDelete }: Pro
         <button
           type="button"
           onClick={() => onEdit(s)}
-          className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition cursor-pointer"
+          className="p-1.5 text-slate-400 hover:text-[var(--color-primary)] hover:bg-slate-100 rounded-lg transition cursor-pointer"
           title="Edit Sponsor"
         >
           <Pencil className="w-4 h-4" />

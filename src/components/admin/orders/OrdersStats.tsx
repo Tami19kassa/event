@@ -35,7 +35,7 @@ export function OrdersStats({
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
           Checked In
         </span>
-        <span className="text-lg font-black text-indigo-600">
+        <span className="text-lg font-black text-[var(--color-primary)]">
           {checkedInCount} / {totalOrders}
         </span>
       </div>

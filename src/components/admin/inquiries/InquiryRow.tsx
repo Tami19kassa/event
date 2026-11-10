@@ -22,7 +22,7 @@ interface Props {
 }
 
 const statusStyles: Record<InquiryRecord["status"], string> = {
-  NEW: "bg-indigo-100 text-indigo-800 border-indigo-200",
+  NEW: "theme-badge",
   CONTACTED: "bg-amber-100 text-amber-800 border-amber-200",
   QUALIFIED: "bg-emerald-100 text-emerald-800 border-emerald-200",
   ARCHIVED: "bg-slate-100 text-slate-600 border-slate-200",
@@ -68,7 +68,7 @@ export function InquiryRow({ inquiry, busy, onStatusChange, onDelete }: Props) {
         <div className="font-semibold text-slate-900 text-sm">{inquiry.contactName}</div>
         <a
           href={`mailto:${inquiry.email}`}
-          className="flex items-center gap-1 text-xs text-indigo-600 hover:underline mt-0.5"
+          className="flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline mt-0.5"
         >
           <Mail className="w-3 h-3" />
           <span>{inquiry.email}</span>

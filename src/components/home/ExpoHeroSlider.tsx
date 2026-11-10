@@ -122,9 +122,10 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                         href={slide.visitorCtaLink}
                         style={{
                           background: "var(--hero-bg, var(--color-primary, #4F46E5))",
+                          color: "var(--color-primary-foreground, #ffffff)",
                           borderRadius: "var(--radius, 12px)",
                         }}
-                        className="text-white font-bold px-5 py-3 transition shadow-xl hover:brightness-110 active:scale-95 flex items-center gap-2 text-xs sm:text-sm"
+                        className="font-bold px-5 py-3 transition shadow-xl hover:brightness-95 active:scale-95 flex items-center gap-2 text-xs sm:text-sm"
                       >
                         <span>{slide.visitorCtaText}</span>
                         <ArrowRight className="w-4 h-4 shrink-0" />

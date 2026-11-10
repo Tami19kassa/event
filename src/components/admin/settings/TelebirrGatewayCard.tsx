@@ -36,7 +36,7 @@ export function TelebirrGatewayCard({ settings, onChange }: Props) {
             value={settings.telebirrNumber}
             onChange={(e) => onChange("telebirrNumber", e.target.value)}
             placeholder="e.g. 0911223344"
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
           />
         </div>
 
@@ -50,7 +50,7 @@ export function TelebirrGatewayCard({ settings, onChange }: Props) {
             value={settings.telebirrAccountName}
             onChange={(e) => onChange("telebirrAccountName", e.target.value)}
             placeholder="e.g. Utopia Events"
-            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 transition"
+            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
           />
         </div>
       </div>

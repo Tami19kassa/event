@@ -3,22 +3,26 @@
 @theme {
   --color-primary: #4F46E5;
   --color-primary-hover: #4338CA;
+  --color-primary-foreground: #FFFFFF;
   --color-secondary: #0D9488;
   --color-secondary-hover: #0F766E;
+  --color-secondary-foreground: #FFFFFF;
   --color-accent: #F59E0B;
   --color-background: #F8FAFC;
   --color-foreground: #0F172A;
   --color-muted: #64748B;
   --color-card: #FFFFFF;
   --color-border: #E2E8F0;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-ui-inter), var(--font-ui-ethiopic), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-ui-inter), var(--font-ui-ethiopic), ui-sans-serif, system-ui, sans-serif;
   --radius: 12px;
-  --hero-bg: linear-gradient(to bottom right, #4F46E5, #0D9488);
+  --hero-bg: linear-gradient(135deg, #4F46E5, #0D9488);
 }
 
 :root {
   --color-primary-rgb: 79, 70, 229;
   --color-secondary-rgb: 13, 148, 136;
+  --color-accent-rgb: 245, 158, 11;
 }
 
 @layer base {
@@ -27,22 +31,77 @@
   }
   html {
     scroll-behavior: smooth;
+    accent-color: var(--color-primary);
+  }
+  ::selection {
+    background-color: rgba(var(--color-primary-rgb), 0.18);
+    color: var(--color-foreground);
   }
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-sans);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display, var(--font-sans));
+  }
+}
+
+.font-display {
+  font-family: var(--font-display, var(--font-sans));
+}
+
+/* Slim, non-intrusive scrollbars (WebKit + Firefox fallback) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.34);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(var(--color-primary-rgb), 0.58);
+}
+
+.dark-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.dark-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(148, 163, 184, 0.22);
+  border-radius: 9999px;
+}
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(148, 163, 184, 0.42);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.38) transparent;
+  }
+  .dark-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.24) transparent;
   }
 }
 
 /* Dynamic Theme-Aware Primitives */
 .theme-btn-primary {
   background: var(--hero-bg, var(--color-primary));
-  color: #ffffff;
+  color: var(--color-primary-foreground, #ffffff);
   border-radius: var(--radius);
   transition: all 0.2s ease;
 }
 .theme-btn-primary:hover:not(:disabled) {
-  filter: brightness(1.08);
+  filter: brightness(0.94);
+  box-shadow: 0 6px 18px -6px rgba(var(--color-primary-rgb), 0.45);
 }
 
 [data-button-style="soft"] .theme-btn-primary {
@@ -52,6 +111,7 @@
 [data-button-style="soft"] .theme-btn-primary:hover:not(:disabled) {
   background: rgba(var(--color-primary-rgb), 0.22);
   filter: none;
+  box-shadow: none;
 }
 
 [data-button-style="outline"] .theme-btn-primary {
@@ -62,6 +122,13 @@
 [data-button-style="outline"] .theme-btn-primary:hover:not(:disabled) {
   background: rgba(var(--color-primary-rgb), 0.1);
   filter: none;
+  box-shadow: none;
+}
+
+.theme-nav-active {
+  background: var(--hero-bg, var(--color-primary));
+  color: var(--color-primary-foreground, #ffffff);
+  box-shadow: 0 4px 14px -4px rgba(var(--color-primary-rgb), 0.45);
 }
 
 .theme-badge {
@@ -76,11 +143,11 @@
 
 .btn-primary {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-primary-foreground, #ffffff);
   border-radius: var(--radius);
 }
 .btn-primary:hover {
-  opacity: 0.9;
+  background-color: var(--color-primary-hover);
 }
 
 .text-primary { color: var(--color-primary); }

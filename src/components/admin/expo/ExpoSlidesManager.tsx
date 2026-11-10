@@ -80,7 +80,7 @@ export function ExpoSlidesManager({ slides, onChange }: Props) {
             onClick={() => setActiveTab(idx)}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 cursor-pointer ${
               idx === activeTab
-                ? "bg-[var(--color-primary)] text-white shadow-xs"
+                ? "theme-nav-active"
                 : "bg-slate-100 hover:bg-slate-200 text-slate-600"
             }`}
           >

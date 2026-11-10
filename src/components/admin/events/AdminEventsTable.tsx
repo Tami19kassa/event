@@ -89,14 +89,14 @@ export function AdminEventsTable({ events, onToggleStatus, onDelete }: TableProp
                     <Link
                       href={`/events/${evt.slug}`}
                       target="_blank"
-                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition"
+                      className="p-2 text-slate-400 hover:text-[var(--color-primary)] hover:bg-slate-100 rounded-xl transition"
                       title="View public page"
                     >
                       <Eye className="w-4 h-4" />
                     </Link>
                     <Link
                       href={`/admin/events/${evt.id}/edit`}
-                      className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition"
+                      className="p-2 text-slate-400 hover:text-[var(--color-primary)] hover:bg-slate-100 rounded-xl transition"
                       title="Edit details"
                     >
                       <Edit className="w-4 h-4" />

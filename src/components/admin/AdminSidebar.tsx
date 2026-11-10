@@ -75,9 +75,9 @@ export function AdminSidebar({
   };
 
   const renderNavGroup = (items: NavItem[], groupTitle?: string) => (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {groupTitle && (
-        <div className="px-3 pt-4 pb-1.5 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+        <div className="px-3 pt-2.5 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
           {groupTitle}
         </div>
       )}
@@ -91,14 +91,16 @@ export function AdminSidebar({
             prefetch={true}
             onClick={onClose}
             className={clsx(
-              "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
               active
-                ? "bg-[var(--color-primary)] text-white shadow-md"
+                ? "theme-nav-active"
                 : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
             )}
           >
-            <item.icon className={clsx("w-4 h-4 shrink-0", active ? "text-white" : "text-slate-400")} />
-            <span>{item.label}</span>
+            <item.icon
+              className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-slate-400")}
+            />
+            <span className="truncate">{item.label}</span>
           </Link>
         );
       })}
@@ -121,7 +123,7 @@ export function AdminSidebar({
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="h-18 flex items-center justify-between px-5 border-b border-slate-800">
+        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 shrink-0">
           <BrandLogo
             siteName={siteName}
             logoUrl={logoUrl}
@@ -138,23 +140,23 @@ export function AdminSidebar({
           </button>
         </div>
 
-        <nav className="flex-1 py-4 px-3 overflow-y-auto space-y-3">
+        <nav className="dark-scrollbar flex-1 py-2.5 px-3 overflow-y-auto space-y-2">
           {renderNavGroup(mainNavItems)}
           {renderNavGroup(settingsNavItems, "System & Settings")}
         </nav>
 
-        <div className="p-4 border-t border-slate-800 space-y-2">
+        <div className="p-3 border-t border-slate-800 space-y-1 shrink-0">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <ChevronLeft className="w-4 h-4" />
             View Public Site ↗
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-rose-400 hover:text-rose-300 rounded-xl hover:bg-rose-950/40 transition cursor-pointer"
+            className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-bold text-slate-400 hover:text-rose-300 rounded-lg hover:bg-rose-950/40 transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           >
             <LogOut className="w-4 h-4" />
             Sign out

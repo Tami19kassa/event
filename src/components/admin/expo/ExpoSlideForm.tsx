@@ -19,7 +19,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             type="text"
             value={slide.title}
             onChange={(e) => onChange("title", e.target.value)}
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -28,7 +28,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             type="text"
             value={slide.badgeText}
             onChange={(e) => onChange("badgeText", e.target.value)}
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       </div>
@@ -41,7 +41,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             value={slide.datesText}
             onChange={(e) => onChange("datesText", e.target.value)}
             placeholder="e.g. Nov 4–5, 2026"
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -51,7 +51,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             value={slide.venueText}
             onChange={(e) => onChange("venueText", e.target.value)}
             placeholder="e.g. Millennium Hall, Addis Ababa"
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <div>
@@ -61,7 +61,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
             value={slide.category}
             onChange={(e) => onChange("category", e.target.value)}
             placeholder="e.g. FMCG Trade Show"
-            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       </div>
@@ -72,7 +72,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
           rows={2}
           value={slide.subtitle}
           onChange={(e) => onChange("subtitle", e.target.value)}
-          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:ring-2 focus:ring-indigo-600"
+          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
 
@@ -85,7 +85,7 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
           value={slide.detailedDescription || ""}
           onChange={(e) => onChange("detailedDescription", e.target.value)}
           placeholder="In-depth overview, key pavilions, exhibition profile..."
-          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:ring-2 focus:ring-indigo-600"
+          className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
 

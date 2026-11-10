@@ -90,7 +90,7 @@ export function BrandLogo({
       <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-1.5">
           <span
-            className={`font-black text-xl sm:text-2xl tracking-tight leading-none transition-colors truncate ${
+            className={`font-display font-black text-xl sm:text-2xl tracking-tight leading-none transition-colors truncate ${
               isDark ? "text-white" : "text-slate-900 group-hover:text-[var(--color-primary)]"
             }`}
           >

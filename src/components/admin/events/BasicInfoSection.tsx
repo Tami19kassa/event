@@ -23,7 +23,7 @@ export function BasicInfoSection({ form, update, categories }: Props) {
           required
           value={form.title}
           onChange={(e) => update("title", e.target.value)}
-          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           placeholder="e.g. Addis AI & Cloud Summit 2026"
         />
       </div>
@@ -38,7 +38,7 @@ export function BasicInfoSection({ form, update, categories }: Props) {
             required
             value={form.slug}
             onChange={(e) => update("slug", e.target.value)}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
 
@@ -49,7 +49,7 @@ export function BasicInfoSection({ form, update, categories }: Props) {
           <select
             value={form.categoryId}
             onChange={(e) => update("categoryId", e.target.value)}
-            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           >
             <option value="">Select category...</option>
             {categories.map((c) => (
@@ -67,7 +67,7 @@ export function BasicInfoSection({ form, update, categories }: Props) {
           type="text"
           value={form.shortDescription}
           onChange={(e) => update("shortDescription", e.target.value)}
-          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           placeholder="Brief summary for event cards"
         />
       </div>
@@ -80,7 +80,7 @@ export function BasicInfoSection({ form, update, categories }: Props) {
           value={form.description}
           onChange={(e) => update("description", e.target.value)}
           rows={4}
-          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none"
         />
       </div>
 

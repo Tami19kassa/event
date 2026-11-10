@@ -34,9 +34,10 @@ export function CookieCategoriesSection({
             </div>
           </div>
           <button
+            type="button"
             onClick={() => onUpdate("showAnalytics", !showAnalytics)}
-            className={`relative w-11 h-6 rounded-full transition ${
-              showAnalytics ? "bg-indigo-600" : "bg-slate-300"
+            className={`relative w-11 h-6 rounded-full transition cursor-pointer ${
+              showAnalytics ? "bg-[var(--color-primary)]" : "bg-slate-300"
             }`}
           >
             <span
@@ -55,9 +56,10 @@ export function CookieCategoriesSection({
             </div>
           </div>
           <button
+            type="button"
             onClick={() => onUpdate("showMarketing", !showMarketing)}
-            className={`relative w-11 h-6 rounded-full transition ${
-              showMarketing ? "bg-indigo-600" : "bg-slate-300"
+            className={`relative w-11 h-6 rounded-full transition cursor-pointer ${
+              showMarketing ? "bg-[var(--color-primary)]" : "bg-slate-300"
             }`}
           >
             <span

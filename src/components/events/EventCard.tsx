@@ -46,7 +46,7 @@ export function EventCard({ event }: EventCardProps) {
     <Link
       href={`/events/${event.slug}`}
       prefetch={true}
-      className="group block bg-white rounded-2xl overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 flex flex-col h-full active:scale-[0.98]"
+      className="group block bg-white theme-radius overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 flex flex-col h-full active:scale-[0.98]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <Image

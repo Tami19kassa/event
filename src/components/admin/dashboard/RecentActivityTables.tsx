@@ -14,7 +14,7 @@ export function RecentActivityTables({ recentEvents, recentOrders }: Props) {
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <h2 className="font-bold text-slate-900 text-base">Recent Events</h2>
-          <Link href="/admin/events" className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+          <Link href="/admin/events" className="text-xs font-bold text-[var(--color-primary)] hover:opacity-80 flex items-center gap-1">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
@@ -29,7 +29,7 @@ export function RecentActivityTables({ recentEvents, recentOrders }: Props) {
                   <h4 className="font-bold text-slate-900 text-sm">{evt.title}</h4>
                   <span className="text-[11px] text-slate-400">{evt.locationCity || "Addis Ababa"} · {format(new Date(evt.startDate), "MMM d, yyyy")}</span>
                 </div>
-                <Link href={`/admin/events/${evt.id}/edit`} className="p-2 text-slate-400 hover:text-indigo-600 rounded-lg transition">
+                <Link href={`/admin/events/${evt.id}/edit`} className="p-2 text-slate-400 hover:text-[var(--color-primary)] rounded-lg transition">
                   <Eye className="w-4 h-4" />
                 </Link>
               </div>
@@ -42,7 +42,7 @@ export function RecentActivityTables({ recentEvents, recentOrders }: Props) {
       <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <h2 className="font-bold text-slate-900 text-base">Recent Passes & Bookings</h2>
-          <Link href="/admin/orders" className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1">
+          <Link href="/admin/orders" className="text-xs font-bold text-[var(--color-primary)] hover:opacity-80 flex items-center gap-1">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
