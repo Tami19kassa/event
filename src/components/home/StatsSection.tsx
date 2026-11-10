@@ -33,7 +33,7 @@ export function StatsSection({
               durationMs={500}
             >
               <div className="flex flex-col items-center group">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-[var(--color-primary)] mb-2.5 group-hover:scale-110 group-hover:bg-indigo-100 transition-all duration-300">
+                <div className="w-10 h-10 rounded-2xl theme-badge border flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform duration-300">
                   <stat.icon className="w-5 h-5" />
                 </div>
                 <div className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">

@@ -61,7 +61,7 @@ export default function CookieSettingsPage() {
     <div className="p-6 md:p-8 max-w-3xl space-y-6">
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <Cookie className="w-6 h-6 text-indigo-600" />
+          <Cookie className="w-6 h-6 text-[var(--color-primary)]" />
           Cookie Consent
         </h1>
         <p className="text-slate-500 text-sm mt-1">
@@ -85,7 +85,7 @@ export default function CookieSettingsPage() {
             type="button"
             onClick={() => update("enabled", !settings.enabled)}
             className={`relative w-12 h-6 rounded-full transition cursor-pointer ${
-              settings.enabled ? "bg-indigo-600" : "bg-slate-300"
+              settings.enabled ? "bg-[var(--color-primary)]" : "bg-slate-300"
             }`}
           >
             <span
@@ -103,17 +103,17 @@ export default function CookieSettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Title</label>
-            <input type="text" value={settings.title} onChange={(e) => update("title", e.target.value)} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <input type="text" value={settings.title} onChange={(e) => update("title", e.target.value)} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]" />
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1.5">Privacy Policy URL</label>
-            <input type="text" value={settings.privacyPolicyUrl} onChange={(e) => update("privacyPolicyUrl", e.target.value)} placeholder="/privacy" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            <input type="text" value={settings.privacyPolicyUrl} onChange={(e) => update("privacyPolicyUrl", e.target.value)} placeholder="/privacy" className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]" />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
-          <textarea value={settings.description} onChange={(e) => update("description", e.target.value)} rows={3} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none" />
+          <textarea value={settings.description} onChange={(e) => update("description", e.target.value)} rows={3} className="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -149,7 +149,7 @@ export default function CookieSettingsPage() {
         type="button"
         disabled={saving}
         onClick={handleSave}
-        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition cursor-pointer disabled:opacity-50"
+        className="flex items-center gap-2 px-5 py-2.5 font-semibold theme-btn-primary cursor-pointer disabled:opacity-50"
       >
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
         {saving ? "Saving..." : saved ? "Saved & Live!" : "Save Cookie Settings"}

@@ -110,7 +110,7 @@ export function SponsorsManager({ sponsors, onChange }: Props) {
               Cancel
             </button>
           )}
-          <button type="submit" className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm">
+          <button type="submit" className="px-5 py-2.5 font-bold theme-btn-primary text-xs flex items-center gap-1.5 cursor-pointer shadow-sm">
             {editingId ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
             {editingId ? "Update Sponsor" : "Add Partner with Logo"}
           </button>

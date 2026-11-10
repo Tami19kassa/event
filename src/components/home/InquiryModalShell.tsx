@@ -24,7 +24,7 @@ export function InquiryModalShell({
   eyebrowClassName = "text-[var(--color-primary)]",
   title,
   icon,
-  iconWrapperClassName = "bg-indigo-50 text-[var(--color-primary)]",
+  iconWrapperClassName = "theme-badge border",
   submittedRef,
   successTitle,
   successDescription,

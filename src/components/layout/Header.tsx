@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Search, Menu, X } from "lucide-react";
 import { BrandLogo } from "@/components/ui/BrandLogo";
 
@@ -16,31 +15,9 @@ type Props = {
 export function Header({
   siteName = "Utopia",
   logoUrl,
-  primaryColor = "#4F46E5",
   categories,
 }: Props) {
-  const pathname = usePathname();
-  const isHomePage = pathname === "/";
-  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isHomePage) {
-      setScrolledPastHero(true);
-      return;
-    }
-
-    const handleScroll = () => {
-      // Hero section is ~560px-620px; reveal nav search once scrolled past 320px
-      setScrolledPastHero(window.scrollY > 320);
-    };
-
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isHomePage]);
-
-  const showSearch = !isHomePage || scrolledPastHero;
 
   const navCategories =
     categories && categories.length > 0
@@ -54,56 +31,51 @@ export function Header({
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Brand Logo & Name */}
+        <div className="flex items-center justify-between gap-3 h-16 sm:h-20">
           <Link href="/" className="shrink-0">
             <BrandLogo siteName={siteName} logoUrl={logoUrl} showSubtitle={false} />
           </Link>
 
-          {/* Centered Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-7 mx-6">
+          <nav className="hidden md:flex items-center gap-4 lg:gap-7 mx-2 lg:mx-6">
             <Link
               href="/discover"
               prefetch={true}
-              className="text-sm font-bold text-slate-800 hover:text-[var(--color-primary)] transition-colors active:scale-95"
+              className="text-sm font-bold text-slate-800 hover:text-[var(--color-primary)] transition-colors whitespace-nowrap"
             >
               Discover
             </Link>
-            {navCategories.map((c) => (
+            {navCategories.map((c, idx) => (
               <Link
                 key={c.slug}
                 href={`/discover?category=${c.slug}`}
                 prefetch={true}
-                className="text-sm font-semibold text-slate-600 hover:text-[var(--color-primary)] transition-colors capitalize active:scale-95"
+                className={`text-sm font-semibold text-slate-600 hover:text-[var(--color-primary)] transition-colors capitalize whitespace-nowrap ${
+                  idx >= 2 ? "hidden lg:inline-block" : ""
+                }`}
               >
                 {c.name}
               </Link>
             ))}
           </nav>
 
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-4">
-            {/* Search Input Bar with Smooth Progressive Disclosure */}
-            <div
-              className={`transition-all duration-300 ease-out hidden lg:block overflow-hidden ${
-                showSearch
-                  ? "w-64 xl:w-72 opacity-100 translate-x-0"
-                  : "w-0 opacity-0 translate-x-4 pointer-events-none"
-              }`}
+          <div className="flex items-center gap-3">
+            {/* Tablet (md+) & Desktop Search Always Accessible */}
+            <form
+              action="/discover"
+              method="GET"
+              className="relative hidden md:block w-48 lg:w-64 xl:w-72"
             >
-              <form action="/discover" method="GET" className="relative w-64 xl:w-72">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="search"
-                  name="q"
-                  placeholder="Search events in Addis..."
-                  className="w-full pl-10 pr-4 py-2 text-xs bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-transparent focus:border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
-                />
-              </form>
-            </div>
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="search"
+                name="q"
+                placeholder="Search events, expos, venues..."
+                className="w-full pl-9 pr-4 py-2 text-xs bg-slate-100 hover:bg-slate-200/70 focus:bg-white border border-transparent focus:border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition"
+              />
+            </form>
 
-            {/* Mobile Hamburger Menu */}
             <button
+              type="button"
               className="md:hidden p-2 text-slate-700 hover:bg-slate-100 rounded-xl transition cursor-pointer"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
@@ -114,7 +86,6 @@ export function Header({
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="md:hidden border-t border-slate-200 bg-white px-4 py-5 space-y-3 animate-in fade-in">
           <form action="/discover" method="GET" className="relative mb-3">
@@ -122,7 +93,7 @@ export function Header({
             <input
               type="search"
               name="q"
-              placeholder="Search events in Addis Ababa..."
+              placeholder="Search events, expos, venues..."
               className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-100 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
             />
           </form>

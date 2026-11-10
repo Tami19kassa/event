@@ -118,7 +118,7 @@ export function ExhibitorInquiryModal({ expoTitle, isOpen, onClose }: Props) {
           <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Power, corner placement, product category..." className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] resize-none" />
         </div>
 
-        <button type="submit" disabled={submitting} style={{ backgroundColor: "var(--color-primary, #4F46E5)" }} className="w-full py-3.5 mt-2 text-white font-bold rounded-xl hover:brightness-110 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm shadow-md">
+        <button type="submit" disabled={submitting} className="w-full py-3.5 mt-2 font-bold theme-btn-primary flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm shadow-md">
           {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           Request Floor Plan & Prospectus
         </button>

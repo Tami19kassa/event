@@ -56,11 +56,11 @@ export default function ExpoSettingsPage() {
     <div className="p-6 md:p-10 space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             B2B Expo Management
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Expos, Hero Slider & Commercial Sponsors
+            Expos, Hero Slider &amp; Commercial Sponsors
           </h1>
           <p className="text-slate-500 text-sm mt-1">
             Configure featured expos, scroll interval timing, and strategic sponsor logos.
@@ -70,7 +70,7 @@ export default function ExpoSettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-50 self-start sm:self-auto"
+          className="px-6 py-2.5 font-bold theme-btn-primary shadow-md flex items-center gap-2 cursor-pointer disabled:opacity-50 self-start sm:self-auto"
         >
           <Save className="w-4 h-4" />
           {saving ? "Saving..." : "Save All Changes"}
@@ -98,7 +98,7 @@ export default function ExpoSettingsPage() {
           {/* Timing Control Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl theme-badge border flex items-center justify-center">
                 <Clock className="w-4 h-4" />
               </div>
               <div>
@@ -114,7 +114,7 @@ export default function ExpoSettingsPage() {
                   onClick={() => setScrollInterval(sec)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
                     scrollInterval === sec
-                      ? "bg-indigo-600 text-white shadow-xs"
+                      ? "bg-[var(--color-primary)] text-white shadow-xs"
                       : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                   }`}
                 >

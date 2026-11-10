@@ -21,7 +21,7 @@ export default async function PrivacyPolicyPage() {
 
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xs space-y-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-[var(--color-primary)] flex items-center justify-center">
+          <div className="w-11 h-11 rounded-2xl theme-badge border flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
@@ -35,7 +35,7 @@ export default async function PrivacyPolicyPage() {
         </div>
 
         <p className="text-sm text-slate-600 leading-relaxed">
-          {theme.siteName} collects only the information necessary to issue verified event passes, coordinate B2B exhibitor/sponsor inquiries, and maintain secure platform operations in Addis Ababa and online.
+          {theme.siteName} collects only the information necessary to issue verified event passes, coordinate B2B exhibitor/sponsor inquiries, and maintain secure platform operations across events and online sessions.
         </p>
 
         <section className="space-y-2 border-t border-slate-100 pt-5">

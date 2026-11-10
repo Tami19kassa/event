@@ -33,11 +33,13 @@ export function DiscoverHeader({
   return (
     <div className="space-y-6 mb-8">
       <div>
-        <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
-          Addis Ababa Guide
+        <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
+          Event Directory
         </span>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">Discover Events</h1>
-        <p className="text-xs text-slate-500 mt-1">Conferences, exhibitions, festivals, and summits across Ethiopia.</p>
+        <p className="text-xs text-slate-500 mt-1">
+          Conferences, trade exhibitions, festivals, and summits across Ethiopia.
+        </p>
       </div>
 
       <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center">
@@ -47,8 +49,8 @@ export function DiscoverHeader({
             type="search"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by event title, hall, or keywords..."
-            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 shadow-2xs"
+            placeholder="Search by event title, venue, city, or keywords..."
+            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] shadow-2xs"
           />
         </div>
 
@@ -60,7 +62,7 @@ export function DiscoverHeader({
               onClick={() => onSelectFormat(fmt)}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                 selectedFormat === fmt
-                  ? "bg-indigo-600 text-white"
+                  ? "bg-[var(--color-primary)] text-white shadow-xs"
                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >
@@ -82,14 +84,20 @@ export function DiscoverHeader({
             <button
               type="button"
               onClick={() => onViewChange("grid")}
-              className={`p-1.5 rounded-lg ${view === "grid" ? "bg-slate-100 text-indigo-600" : "text-slate-400"}`}
+              aria-label="Grid view"
+              className={`p-1.5 rounded-lg cursor-pointer ${
+                view === "grid" ? "bg-slate-100 text-[var(--color-primary)]" : "text-slate-400"
+              }`}
             >
               <Grid3X3 className="w-4 h-4" />
             </button>
             <button
               type="button"
               onClick={() => onViewChange("list")}
-              className={`p-1.5 rounded-lg ${view === "list" ? "bg-slate-100 text-indigo-600" : "text-slate-400"}`}
+              aria-label="List view"
+              className={`p-1.5 rounded-lg cursor-pointer ${
+                view === "list" ? "bg-slate-100 text-[var(--color-primary)]" : "text-slate-400"
+              }`}
             >
               <List className="w-4 h-4" />
             </button>

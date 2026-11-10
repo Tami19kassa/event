@@ -50,18 +50,18 @@ export default async function AdminDashboardPage() {
     <div className="p-6 md:p-10 space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Platform Overview
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Admin Dashboard</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Monitor ticketing, revenue, attendance, and recent activity in Addis Ababa.
+            Monitor ticketing, revenue, attendance, and recent activity.
           </p>
         </div>
 
         <Link
           href="/admin/events/new"
-          className="flex items-center gap-2 px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-md transition self-start sm:self-auto cursor-pointer"
+          className="flex items-center gap-2 px-5 py-3 font-bold theme-btn-primary shadow-md self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Create Event

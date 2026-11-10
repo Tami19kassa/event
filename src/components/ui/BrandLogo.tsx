@@ -1,108 +1,109 @@
 "use client";
 
-import Link from "next/link";
+import { useId } from "react";
 
 interface BrandLogoProps {
   siteName?: string;
   logoUrl?: string | null;
+  logoDarkUrl?: string | null;
   className?: string;
   variant?: "light" | "dark";
   showSubtitle?: boolean;
+  subtitle?: string;
 }
 
 export function BrandLogo({
   siteName = "Utopia",
   logoUrl,
+  logoDarkUrl,
   className = "",
   variant = "light",
   showSubtitle = true,
+  subtitle = "Events & Expos",
 }: BrandLogoProps) {
+  const uid = useId().replace(/:/g, "");
   const isDark = variant === "dark";
+  const resolvedLogo = isDark ? logoDarkUrl || logoUrl : logoUrl;
   const hasValidCustomLogo = Boolean(
-    logoUrl &&
-    !logoUrl.includes("photo-1612810806563") &&
-    (logoUrl.startsWith("/uploads") || logoUrl.startsWith("http") || logoUrl.startsWith("data:"))
+    resolvedLogo &&
+      !resolvedLogo.includes("photo-1612810806563") &&
+      (resolvedLogo.startsWith("/uploads") ||
+        resolvedLogo.startsWith("http") ||
+        resolvedLogo.startsWith("data:"))
   );
 
   return (
-    <div className={`flex items-center gap-3.5 group select-none ${className}`}>
+    <div className={`flex items-center gap-3 group select-none ${className}`}>
       {hasValidCustomLogo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={logoUrl!}
+          src={resolvedLogo!}
           alt={siteName}
-          className="h-10 w-auto rounded-xl object-contain shadow-xs"
+          className="h-10 w-auto max-w-[140px] rounded-xl object-contain shadow-xs"
         />
       ) : (
-        /* Bespoke High-End Vector Brand Mark */
-        <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-0.5 shadow-md shadow-indigo-500/20 group-hover:scale-105 group-hover:shadow-indigo-500/30 transition-all duration-300 shrink-0">
+        <div
+          style={{
+            background: "linear-gradient(135deg, var(--color-primary, #4F46E5), var(--color-secondary, #0D9488))",
+          }}
+          className="relative w-10 h-10 rounded-2xl p-0.5 shadow-md group-hover:scale-105 transition-transform duration-300 shrink-0"
+        >
           <div className="w-full h-full rounded-[14px] bg-slate-950 flex items-center justify-center relative overflow-hidden">
-            {/* Ambient inner glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/30 to-amber-400/20 opacity-80" />
-
-            {/* Vector Utopia "U" Gateway & Event Star */}
-            <svg
-              viewBox="0 0 32 32"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-6 h-6 relative z-10"
-            >
+            <div
+              style={{
+                background:
+                  "linear-gradient(to top right, rgba(var(--color-primary-rgb, 79, 70, 229), 0.35), rgba(245, 158, 11, 0.2))",
+              }}
+              className="absolute inset-0 opacity-85"
+            />
+            <svg viewBox="0 0 32 32" fill="none" className="w-6 h-6 relative z-10">
               <defs>
-                <linearGradient id="utopia-grad" x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#818CF8" />
-                  <stop offset="0.5" stopColor="#6366F1" />
-                  <stop offset="1" stopColor="#C084FC" />
+                <linearGradient id={`grad-${uid}`} x1="4" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                  <stop style={{ stopColor: "var(--color-primary, #818CF8)" }} />
+                  <stop offset="1" style={{ stopColor: "var(--color-secondary, #0D9488)" }} />
                 </linearGradient>
-                <linearGradient id="utopia-spark" x1="18" y1="6" x2="26" y2="14" gradientUnits="userSpaceOnUse">
+                <linearGradient id={`spark-${uid}`} x1="18" y1="6" x2="26" y2="14" gradientUnits="userSpaceOnUse">
                   <stop stopColor="#FCD34D" />
                   <stop offset="1" stopColor="#F59E0B" />
                 </linearGradient>
               </defs>
-
-              {/* Gateway / Stage Arc "U" */}
               <path
                 d="M8 8V17C8 21.4183 11.5817 25 16 25C20.4183 25 24 21.4183 24 17V8"
-                stroke="url(#utopia-grad)"
+                stroke={`url(#grad-${uid})`}
                 strokeWidth="3.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
-
-              {/* Central Inspiring Spotlight / Flame */}
               <path
                 d="M16 11V19M12.5 15H19.5"
-                stroke="url(#utopia-grad)"
+                stroke={`url(#grad-${uid})`}
                 strokeWidth="2.4"
                 strokeLinecap="round"
-                opacity="0.8"
+                opacity="0.85"
               />
-
-              {/* Golden Star / Event Spark */}
-              <circle cx="23" cy="9" r="2.5" fill="url(#utopia-spark)" />
+              <circle cx="23" cy="9" r="2.5" fill={`url(#spark-${uid})`} />
             </svg>
           </div>
         </div>
       )}
 
-      {/* Brand Typography */}
-      <div className="flex flex-col">
+      <div className="flex flex-col min-w-0">
         <div className="flex items-center gap-1.5">
           <span
-            className={`font-black text-2xl tracking-tight leading-none transition-colors ${
-              isDark ? "text-white" : "text-slate-900 group-hover:text-indigo-600"
+            className={`font-black text-xl sm:text-2xl tracking-tight leading-none transition-colors truncate ${
+              isDark ? "text-white" : "text-slate-900 group-hover:text-[var(--color-primary)]"
             }`}
           >
             {siteName}
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+          <span
+            style={{ backgroundColor: "var(--color-accent, #F59E0B)" }}
+            className="w-1.5 h-1.5 rounded-full animate-pulse shrink-0"
+          />
         </div>
         {showSubtitle && (
-          <span
-            className={`text-[10px] font-extrabold tracking-widest uppercase mt-1 ${
-              isDark ? "text-slate-400" : "text-slate-400"
-            }`}
-          >
-            Events · Addis Ababa
+          <span className="text-[10px] font-extrabold tracking-widest uppercase mt-1 text-slate-400 truncate">
+            {subtitle}
           </span>
         )}
       </div>

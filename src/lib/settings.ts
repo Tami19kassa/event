@@ -14,15 +14,6 @@ export type ThemeSettings = {
   gradientDirection: string;
   borderRadius: "none" | "sm" | "md" | "lg" | "xl";
   buttonStyle: "filled" | "soft" | "outline";
-  heroStyle: "image" | "gradient" | "solid";
-  heroMediaType?: "image" | "video";
-  heroVideoUrl?: string | null;
-  heroPosterUrl?: string | null;
-  heroBadgeText?: string | null;
-  heroTitle?: string | null;
-  heroTitleHighlight?: string | null;
-  heroSubtitle?: string | null;
-  heroSearchPlaceholder?: string | null;
 };
 
 export const defaultThemeSettings: ThemeSettings = {
@@ -35,21 +26,25 @@ export const defaultThemeSettings: ThemeSettings = {
   accentColor: "#F59E0B",
   themeType: "solid",
   gradientFrom: "#4F46E5",
-  gradientTo: "#7C3AED",
+  gradientTo: "#0D9488",
   gradientDirection: "to-br",
   borderRadius: "xl",
   buttonStyle: "filled",
-  heroStyle: "gradient",
-  heroMediaType: "image",
-  heroVideoUrl: "",
-  heroPosterUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600",
-  heroBadgeText: "Live Visual Atmosphere",
-  heroTitle: "Discover Events That Inspire You",
-  heroTitleHighlight: "Inspire",
-  heroSubtitle:
-    "From tech summits at Millennium Hall to cultural concerts at Friendship Park — explore the vibrant pulse of Addis Ababa.",
-  heroSearchPlaceholder: "Search events in Addis Ababa, venues, categories...",
 };
+
+function pickThemeFields(raw: Partial<ThemeSettings>): Partial<ThemeSettings> {
+  const keys: Array<keyof ThemeSettings> = [
+    "siteName", "logoUrl", "logoDarkUrl", "faviconUrl",
+    "primaryColor", "secondaryColor", "accentColor",
+    "themeType", "gradientFrom", "gradientTo", "gradientDirection",
+    "borderRadius", "buttonStyle",
+  ];
+  const out: Record<string, unknown> = {};
+  for (const k of keys) {
+    if (raw[k] !== undefined) out[k] = raw[k];
+  }
+  return out as Partial<ThemeSettings>;
+}
 
 export async function getThemeSettings(): Promise<ThemeSettings> {
   try {
@@ -58,7 +53,7 @@ export async function getThemeSettings(): Promise<ThemeSettings> {
     });
 
     if (setting?.value) {
-      return { ...defaultThemeSettings, ...JSON.parse(setting.value) };
+      return { ...defaultThemeSettings, ...pickThemeFields(JSON.parse(setting.value)) };
     }
   } catch {
     // DB not ready yet
@@ -70,7 +65,7 @@ export async function saveThemeSettings(
   settings: Partial<ThemeSettings>
 ): Promise<ThemeSettings> {
   const current = await getThemeSettings();
-  const updated = { ...current, ...settings };
+  const updated = { ...current, ...pickThemeFields(settings) };
 
   await prisma.siteSetting.upsert({
     where: { key: "theme" },

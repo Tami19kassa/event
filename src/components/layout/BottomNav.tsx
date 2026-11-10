@@ -2,12 +2,42 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Home, Compass, Calendar } from "lucide-react";
 
 export function BottomNav() {
   const pathname = usePathname();
+  const [calendarActive, setCalendarActive] = useState(false);
 
-  // Hide on admin routes (which have their own dedicated sidebar)
+  useEffect(() => {
+    if (pathname !== "/") {
+      setCalendarActive(false);
+      return;
+    }
+
+    const syncHash = () => {
+      if (window.location.hash === "#calendar") setCalendarActive(true);
+    };
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+
+    const calEl = document.getElementById("calendar");
+    if (!calEl || typeof IntersectionObserver === "undefined") {
+      return () => window.removeEventListener("hashchange", syncHash);
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setCalendarActive(entry.isIntersecting),
+      { rootMargin: "-25% 0px -45% 0px", threshold: 0 }
+    );
+    observer.observe(calEl);
+
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      observer.disconnect();
+    };
+  }, [pathname]);
+
   if (pathname.startsWith("/admin")) {
     return null;
   }
@@ -17,19 +47,29 @@ export function BottomNav() {
       label: "Home",
       href: "/",
       icon: Home,
-      isActive: pathname === "/",
+      isActive: pathname === "/" && !calendarActive,
+      onClick: () => {
+        setCalendarActive(false);
+        if (pathname === "/" && typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      },
     },
     {
       label: "Discover",
       href: "/discover",
       icon: Compass,
       isActive: pathname.startsWith("/discover"),
+      onClick: undefined,
     },
     {
       label: "Calendar",
       href: "/#calendar",
       icon: Calendar,
-      isActive: false,
+      isActive: pathname === "/" && calendarActive,
+      onClick: () => {
+        if (pathname === "/") setCalendarActive(true);
+      },
     },
   ];
 
@@ -47,6 +87,7 @@ export function BottomNav() {
               key={item.label}
               href={item.href}
               prefetch={true}
+              onClick={item.onClick}
               className={`flex flex-col items-center justify-center py-1 px-4 rounded-2xl transition-all duration-200 active:scale-95 ${
                 active
                   ? "text-[var(--color-primary)] font-bold"

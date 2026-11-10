@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
           className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition cursor-pointer self-start shadow-sm"
           aria-label="Refresh user list"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[var(--color-primary)]" : ""}`} />
         </button>
       </div>
 
@@ -133,7 +133,7 @@ export default function AdminUsersPage() {
                   <tr key={u.id} className="hover:bg-slate-50/50 transition">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-100 text-[var(--color-primary)] font-black flex items-center justify-center text-sm shadow-sm">
+                        <div className="w-10 h-10 rounded-2xl theme-badge border font-black flex items-center justify-center text-sm shadow-sm">
                           {u.name?.charAt(0) || u.email.charAt(0).toUpperCase()}
                         </div>
                         <div>

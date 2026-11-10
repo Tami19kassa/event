@@ -56,21 +56,21 @@ export default function AdminCategoriesPage() {
     <div className="p-6 md:p-10 space-y-8 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Back-Office Operations
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             Event Types & Categories
           </h1>
           <p className="text-slate-500 text-sm mt-1">
-            Define official event classifications for Addis Ababa.
+            Define official event classifications for your catalog.
           </p>
         </div>
         <button
           onClick={loadCategories}
           className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition cursor-pointer shadow-sm"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[var(--color-primary)]" : ""}`} />
         </button>
       </div>
 
@@ -106,7 +106,7 @@ export default function AdminCategoriesPage() {
 
             {loading && categories.length === 0 ? (
               <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
-                <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
+                <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />
                 <span className="text-sm">Loading categories...</span>
               </div>
             ) : categories.length === 0 ? (
@@ -119,7 +119,7 @@ export default function AdminCategoriesPage() {
                 {categories.map((cat) => (
                   <div key={cat.id} className="p-5 flex items-center justify-between hover:bg-slate-50/70 transition">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-2xl shadow-2xs">
+                      <div className="w-12 h-12 rounded-2xl theme-badge border flex items-center justify-center text-2xl shadow-2xs">
                         {cat.icon || "📌"}
                       </div>
                       <div>

@@ -48,7 +48,8 @@ export default async function DedicatedExpoPage({ params }: Props) {
           title={expo.title}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/30 to-transparent pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 w-full z-10">
           <div className="max-w-3xl space-y-3">

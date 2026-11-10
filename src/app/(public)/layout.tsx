@@ -29,7 +29,7 @@ export default async function PublicLayout({
         categories={categories}
       />
       <main className="flex-1 pb-16 md:pb-0">{children}</main>
-      <Footer siteName={theme.siteName} />
+      <Footer siteName={theme.siteName} logoUrl={theme.logoUrl} logoDarkUrl={theme.logoDarkUrl} />
       <BottomNav />
       <CookieConsent settings={cookieSettings} />
     </>

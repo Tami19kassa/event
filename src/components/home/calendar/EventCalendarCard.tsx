@@ -18,12 +18,21 @@ export function EventCalendarCard({ event, onSelect }: Props) {
       ? Math.min(...event.ticketTiers.map((t) => t.price))
       : 0;
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect(event);
+    }
+  };
+
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(event)}
-      className="group w-[270px] sm:w-[300px] h-[345px] bg-white rounded-3xl border border-slate-200/90 hover:border-slate-400 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden select-none"
+      onKeyDown={handleKeyDown}
+      className="group w-[270px] sm:w-[300px] h-[345px] bg-white rounded-3xl border border-slate-200/90 hover:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden select-none"
     >
-      {/* Top Image & Date/Countdown Header */}
       <div className="relative h-28 bg-slate-900 shrink-0 overflow-hidden">
         {event.imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
@@ -35,12 +44,8 @@ export function EventCalendarCard({ event, onSelect }: Props) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/30 pointer-events-none" />
 
-        {/* Date Block (Top Left) */}
         <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md rounded-xl px-2.5 py-1.5 text-center shadow-md min-w-[46px]">
-          <span
-            style={{ color: "var(--color-primary, #4F46E5)" }}
-            className="text-[9px] font-black uppercase tracking-wider block leading-none"
-          >
+          <span className="text-[9px] font-black uppercase tracking-wider text-[var(--color-primary)] block leading-none">
             {dateInfo.month}
           </span>
           <span className="text-base font-black text-slate-900 leading-tight block">
@@ -48,7 +53,6 @@ export function EventCalendarCard({ event, onSelect }: Props) {
           </span>
         </div>
 
-        {/* Countdown Urgency Pill (Top Right) */}
         <span
           className={`absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full border shadow-sm backdrop-blur-md ${countdown.colorClass}`}
         >
@@ -56,7 +60,6 @@ export function EventCalendarCard({ event, onSelect }: Props) {
         </span>
       </div>
 
-      {/* Card Body */}
       <div className="p-4 flex-1 flex flex-col justify-between min-h-0">
         <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-2">
@@ -75,8 +78,10 @@ export function EventCalendarCard({ event, onSelect }: Props) {
 
         <div className="space-y-1 text-xs text-slate-500 pt-2">
           <div className="flex items-center gap-1.5">
-            <MapPin style={{ color: "var(--color-primary, #4F46E5)" }} className="w-3.5 h-3.5 shrink-0" />
-            <span className="truncate font-medium">{event.location.name || event.location.city}</span>
+            <MapPin className="w-3.5 h-3.5 shrink-0 text-[var(--color-primary)]" />
+            <span className="truncate font-medium">
+              {event.location.name || event.location.city}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -85,7 +90,6 @@ export function EventCalendarCard({ event, onSelect }: Props) {
         </div>
       </div>
 
-      {/* Card Footer CTA */}
       <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between shrink-0">
         <div>
           <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">Entry</span>
@@ -94,14 +98,10 @@ export function EventCalendarCard({ event, onSelect }: Props) {
           </span>
         </div>
 
-        <button
-          type="button"
-          style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-          className="px-3.5 py-2 rounded-xl text-white text-xs font-bold shadow-xs flex items-center gap-1 hover:brightness-110 active:scale-95 transition cursor-pointer"
-        >
+        <span className="px-3.5 py-2 theme-btn-primary text-xs font-bold shadow-xs flex items-center gap-1">
           <span>Take Place</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </button>
+        </span>
       </div>
     </div>
   );

@@ -77,8 +77,9 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                   title={slide.title}
                 />
 
-                {/* Subtle bottom atmospheric fade for crisp typography without hiding image */}
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none" />
+                {/* Multi-stop atmospheric scrim for crisp WCAG AA cardless typography */}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/45 to-slate-950/15 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/75 via-slate-950/30 to-transparent pointer-events-none" />
 
                 {/* Cardless Text Directly on Top of Image */}
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
@@ -119,8 +120,11 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                     <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
                       <Link
                         href={slide.visitorCtaLink}
-                        style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-                        className="text-white font-bold px-5 py-3 rounded-xl transition shadow-xl hover:brightness-110 active:scale-95 flex items-center gap-2 text-xs sm:text-sm"
+                        style={{
+                          background: "var(--hero-bg, var(--color-primary, #4F46E5))",
+                          borderRadius: "var(--radius, 12px)",
+                        }}
+                        className="text-white font-bold px-5 py-3 transition shadow-xl hover:brightness-110 active:scale-95 flex items-center gap-2 text-xs sm:text-sm"
                       >
                         <span>{slide.visitorCtaText}</span>
                         <ArrowRight className="w-4 h-4 shrink-0" />

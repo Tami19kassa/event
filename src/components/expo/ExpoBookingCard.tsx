@@ -39,8 +39,7 @@ export function ExpoBookingCard({
         <div className="space-y-2.5 pt-2">
           <Link
             href={visitorCtaLink || "/discover"}
-            style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-            className="w-full py-3 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 hover:brightness-110"
+            className="w-full py-3 font-bold text-xs shadow-md flex items-center justify-center gap-2 theme-btn-primary"
           >
             <Ticket className="w-4 h-4" />
             <span>{visitorCtaText}</span>

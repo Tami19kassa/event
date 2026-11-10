@@ -26,7 +26,7 @@ export function DiscoverGrid({
         <div className="flex flex-wrap items-center gap-2 mb-6">
           <span className="text-xs text-slate-400">Active filters:</span>
           {selectedCategory && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-700 font-bold text-xs rounded-full border border-indigo-200">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 theme-badge border font-bold text-xs rounded-full">
               {selectedCategory}
               <button type="button" onClick={onClearCategory} className="cursor-pointer">
                 <X className="w-3 h-3" />

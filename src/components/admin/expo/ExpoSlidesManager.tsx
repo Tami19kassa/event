@@ -54,7 +54,7 @@ export function ExpoSlidesManager({ slides, onChange }: Props) {
     <section className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl theme-badge border flex items-center justify-center">
             <Layers className="w-4 h-4" />
           </div>
           <div>
@@ -65,7 +65,7 @@ export function ExpoSlidesManager({ slides, onChange }: Props) {
         <button
           type="button"
           onClick={handleAddSlide}
-          className="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+          className="px-3.5 py-1.5 theme-badge border hover:brightness-95 font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-3.5 h-3.5" /> Add Expo Slide
         </button>
@@ -80,7 +80,7 @@ export function ExpoSlidesManager({ slides, onChange }: Props) {
             onClick={() => setActiveTab(idx)}
             className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 cursor-pointer ${
               idx === activeTab
-                ? "bg-indigo-600 text-white shadow-xs"
+                ? "bg-[var(--color-primary)] text-white shadow-xs"
                 : "bg-slate-100 hover:bg-slate-200 text-slate-600"
             }`}
           >

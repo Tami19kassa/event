@@ -54,7 +54,7 @@ export function CookieConsent({ settings = defaultCookieSettings }: Props) {
     <div className="fixed bottom-20 md:bottom-4 left-0 right-0 z-50 px-3 sm:px-4 md:px-6 pointer-events-none">
       <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 sm:p-5 md:p-6 pointer-events-auto">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="hidden sm:flex w-10 h-10 rounded-xl bg-indigo-50 items-center justify-center shrink-0 text-[var(--color-primary)]">
+          <div className="hidden sm:flex w-10 h-10 rounded-xl theme-badge border items-center justify-center shrink-0">
             <Cookie className="w-5 h-5" />
           </div>
 
@@ -92,8 +92,7 @@ export function CookieConsent({ settings = defaultCookieSettings }: Props) {
               <button
                 type="button"
                 onClick={() => saveChoice({ analytics: true, marketing: true })}
-                style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-                className="px-4 py-2 text-white text-xs sm:text-sm font-semibold rounded-xl hover:brightness-110 transition cursor-pointer"
+                className="px-4 py-2 text-xs sm:text-sm font-semibold theme-btn-primary cursor-pointer"
               >
                 {settings.acceptAllLabel}
               </button>

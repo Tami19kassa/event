@@ -48,7 +48,7 @@ export function calculateDaysLeft(dateStr: string): DaysLeftInfo {
       label: `⚡ ${days} days left`,
       days,
       urgency: "soon",
-      colorClass: "bg-indigo-50 text-indigo-700 border-indigo-200 font-bold",
+      colorClass: "theme-badge font-bold",
     };
   }
 

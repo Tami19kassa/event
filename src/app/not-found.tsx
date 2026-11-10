@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-indigo-600">
+        <div className="w-16 h-16 theme-badge border rounded-2xl flex items-center justify-center mx-auto mb-6">
           <Compass className="w-8 h-8" />
         </div>
         <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
@@ -16,7 +16,7 @@ export default function NotFound() {
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
+          className="inline-flex items-center gap-2 px-6 py-3 font-medium theme-btn-primary"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Home

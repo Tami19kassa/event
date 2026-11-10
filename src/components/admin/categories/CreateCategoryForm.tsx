@@ -45,7 +45,7 @@ export function CreateCategoryForm({ onCreated, onError, onSuccess }: FormProps)
   return (
     <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm sticky top-8">
       <h2 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
-        <Plus className="w-5 h-5 text-indigo-600" /> Add Event Type
+        <Plus className="w-5 h-5 text-[var(--color-primary)]" /> Add Event Type
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -62,7 +62,7 @@ export function CreateCategoryForm({ onCreated, onError, onSuccess }: FormProps)
               setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
             }}
             placeholder="e.g. Technology & AI"
-            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
 
@@ -88,8 +88,8 @@ export function CreateCategoryForm({ onCreated, onError, onSuccess }: FormProps)
                 type="button"
                 key={ic}
                 onClick={() => setIcon(ic)}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center text-base hover:bg-slate-100 transition ${
-                  icon === ic ? "bg-indigo-100 border border-indigo-400" : "bg-slate-50"
+                className={`w-8 h-8 rounded-lg flex items-center justify-center text-base hover:bg-slate-100 transition cursor-pointer ${
+                  icon === ic ? "theme-badge border" : "bg-slate-50"
                 }`}
               >
                 {ic}
@@ -101,7 +101,7 @@ export function CreateCategoryForm({ onCreated, onError, onSuccess }: FormProps)
         <button
           type="submit"
           disabled={submitting || !name.trim()}
-          className="w-full py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition shadow-md disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4"
+          className="w-full py-3 font-bold theme-btn-primary shadow-md disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2 mt-4"
         >
           {submitting ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
           Create Category

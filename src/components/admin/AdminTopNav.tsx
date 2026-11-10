@@ -6,12 +6,17 @@ import { BrandLogo } from "@/components/ui/BrandLogo";
 
 interface TopNavProps {
   onToggleSidebar: () => void;
+  siteName?: string;
+  logoUrl?: string | null;
 }
 
-export function AdminTopNav({ onToggleSidebar }: TopNavProps) {
+export function AdminTopNav({
+  onToggleSidebar,
+  siteName = "Utopia",
+  logoUrl,
+}: TopNavProps) {
   return (
     <header className="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 h-16 flex items-center justify-between px-4 sm:px-6 md:px-8">
-      {/* Left: Mobile hamburger & Brand */}
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
@@ -22,22 +27,21 @@ export function AdminTopNav({ onToggleSidebar }: TopNavProps) {
         </button>
 
         <div className="md:hidden">
-          <BrandLogo showSubtitle={false} />
+          <BrandLogo siteName={siteName} logoUrl={logoUrl} showSubtitle={false} />
         </div>
 
         <div className="hidden md:flex items-center gap-2 text-xs text-slate-400 font-semibold">
           <span>Admin Workspace</span>
           <span>/</span>
-          <span className="text-slate-700 font-bold">Addis Ababa Operations</span>
+          <span className="text-slate-700 font-bold">{siteName} Operations</span>
         </div>
       </div>
 
-      {/* Right: Actions */}
       <div className="flex items-center gap-3">
         <Link
           href="/"
           target="_blank"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/60 px-3 py-1.5 rounded-full transition shadow-2xs"
+          className="inline-flex items-center gap-1.5 text-xs font-bold theme-badge border px-3 py-1.5 rounded-full hover:brightness-95 transition shadow-2xs"
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span>Live Site</span>

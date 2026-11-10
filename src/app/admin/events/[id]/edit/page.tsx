@@ -78,7 +78,7 @@ export default function EditEventPage() {
   if (!data) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[40vh]">
-        <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
+        <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />
       </div>
     );
   }

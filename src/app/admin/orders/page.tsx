@@ -118,7 +118,7 @@ export default function AdminOrdersPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Attendee Verification &amp; Gate Tracking
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -129,7 +129,7 @@ export default function AdminOrdersPage() {
         <div className="flex items-center gap-3">
           <OrdersStats totalSales={totalSales} gateReservations={gateReservations} checkedInCount={checkedInCount} totalOrders={orders.length} />
           <button type="button" onClick={loadOrders} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition cursor-pointer shadow-sm">
-            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : ""}`} />
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[var(--color-primary)]" : ""}`} />
           </button>
         </div>
       </div>
@@ -148,7 +148,7 @@ export default function AdminOrdersPage() {
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         {loading && orders.length === 0 ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
-            <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
+            <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />
             <span className="text-sm">Loading transactions...</span>
           </div>
         ) : filtered.length === 0 ? (

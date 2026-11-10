@@ -12,7 +12,6 @@ interface FeaturedProps {
 export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
   return (
     <>
-      {/* Featured Section */}
       {featured.length > 0 && (
         <section className="bg-slate-50/80 border-y border-slate-200/90 py-12 md:py-16 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,17 +25,18 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
                     <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
                       Featured Highlights
                     </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">Top-tier verified events in the capital</p>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Top-tier verified events &amp; flagship exhibitions
+                    </p>
                   </div>
                 </div>
 
-                <span className="md:hidden text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                <span className="md:hidden text-[11px] font-bold theme-badge px-2.5 py-1 rounded-full flex items-center gap-1">
                   Swipe <ArrowRight className="w-3 h-3" />
                 </span>
               </div>
             </ScrollReveal>
 
-            {/* Mobile: Horizontal Snap-Scroll; Desktop: 3-Col Grid */}
             <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-5 overflow-x-auto pb-4 md:pb-0 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
               {featured.map((evt, idx) => (
                 <ScrollReveal
@@ -54,7 +54,6 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
         </section>
       )}
 
-      {/* Upcoming Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 overflow-hidden">
         <ScrollReveal variant="fade-up" durationMs={500}>
           <div className="flex items-center justify-between mb-6 md:mb-8">
@@ -63,11 +62,11 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
                 Happening Soon
               </span>
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
-                Upcoming Events in Addis
+                Upcoming Events &amp; Expos
               </h2>
             </div>
             <div className="flex items-center gap-3">
-              <span className="md:hidden text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+              <span className="md:hidden text-[11px] font-bold theme-badge px-2.5 py-1 rounded-full flex items-center gap-1">
                 Swipe <ArrowRight className="w-3 h-3" />
               </span>
               <Link
@@ -80,7 +79,6 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
           </div>
         </ScrollReveal>
 
-        {/* Mobile: Horizontal Snap-Scroll; Desktop: 3-Col Grid */}
         <div className="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-5 overflow-x-auto pb-4 md:pb-0 snap-x snap-mandatory scroll-smooth -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
           {upcoming.map((evt, idx) => (
             <ScrollReveal
@@ -95,13 +93,12 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
           ))}
         </div>
 
-        {/* Mobile Explore All CTA */}
         <div className="mt-8 md:hidden text-center">
           <Link
             href="/discover"
             className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 text-white font-bold text-xs rounded-2xl hover:bg-slate-800 transition shadow-md"
           >
-            Explore all Addis Ababa events <ArrowRight className="w-3.5 h-3.5" />
+            Explore all events &amp; expos <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </section>

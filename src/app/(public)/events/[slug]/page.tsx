@@ -40,7 +40,7 @@ export default async function EventPage({ params }: PageProps) {
 
               <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-600">
                 <div className="flex items-center gap-2 mb-1.5 font-bold text-slate-900">
-                  <Users className="w-4 h-4 text-indigo-600" />
+                  <Users className="w-4 h-4 text-[var(--color-primary)]" />
                   <span>{event.attendeesCount.toLocaleString()} attendees registered</span>
                 </div>
                 <div className="text-slate-400">

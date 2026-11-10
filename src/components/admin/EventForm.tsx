@@ -162,7 +162,7 @@ export function EventForm({ initialData, mode, categories = [] }: Props) {
         <button
           type="submit"
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition shadow-sm cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-2 px-5 py-2.5 font-bold theme-btn-primary shadow-sm cursor-pointer disabled:opacity-50"
         >
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {mode === "create" ? "Publish Event" : "Save Changes"}

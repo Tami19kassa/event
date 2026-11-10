@@ -33,17 +33,17 @@ export function EventHeroBanner({ event }: { event: Event }) {
           </h1>
           <div className="flex flex-wrap items-center gap-4 text-white/90 text-sm md:text-base font-medium">
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-indigo-400" />
+              <Calendar className="w-4 h-4 text-amber-300" />
               {format(startDate, "EEE, MMM d, yyyy")}
               {startDate.toDateString() !== endDate.toDateString() &&
                 ` – ${format(endDate, "MMM d")}`}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-indigo-400" />
+              <Clock className="w-4 h-4 text-amber-300" />
               {format(startDate, "h:mm a")}
             </span>
             <span className="flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-indigo-400" />
+              <MapPin className="w-4 h-4 text-rose-300" />
               {event.location.name}, {event.location.city}
             </span>
           </div>

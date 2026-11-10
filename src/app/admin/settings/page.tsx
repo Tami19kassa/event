@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, CheckCircle2, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Save, CheckCircle2, AlertCircle, Building2, ArrowRight } from "lucide-react";
 import { ThemeSettings, defaultThemeSettings } from "@/lib/settings";
-import { HeroMediaSection } from "@/components/admin/settings/HeroMediaSection";
-import { HeroCopySection } from "@/components/admin/settings/HeroCopySection";
+import { BrandIdentitySection } from "@/components/admin/settings/BrandIdentitySection";
 import { ColorPickerSection } from "@/components/admin/settings/ColorPickerSection";
 import { TypographyShapeSection } from "@/components/admin/settings/TypographyShapeSection";
 import { ThemeLivePreview } from "@/components/admin/settings/ThemeLivePreview";
@@ -26,7 +26,7 @@ export default function BrandingSettingsPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  const update = (key: keyof ThemeSettings, value: any) => {
+  const update = (key: keyof ThemeSettings, value: string | null) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
     setSaved(false);
   };
@@ -61,31 +61,47 @@ export default function BrandingSettingsPage() {
     <div className="p-6 md:p-10 space-y-6 max-w-6xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
-            Visual Customization
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
+            Visual Design System
           </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Branding, Theme & Hero Video
-          </h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Branding &amp; Theme</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Customize colors, corner radius, logo, and Hero background video loop.
+            Manage platform identity, logos, color palette, rounding, and button styles.
           </p>
         </div>
 
         <button
           onClick={handleSave}
-          disabled={saving}
-          className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-50 self-start sm:self-auto"
+          disabled={saving || loading}
+          className="px-6 py-2.5 bg-[var(--color-primary)] hover:brightness-110 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer disabled:opacity-50 self-start sm:self-auto"
         >
           <Save className="w-4 h-4" />
           {saving ? "Saving..." : "Save Branding"}
         </button>
       </div>
 
+      <div className="p-4 bg-slate-900 text-white rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3 text-xs">
+          <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <Building2 className="w-4 h-4 text-amber-300" />
+          </div>
+          <div>
+            <span className="font-bold block">Looking to update homepage hero slides, videos, or sponsors?</span>
+            <span className="text-slate-400">Homepage media carousels are managed in Expo &amp; Hero Slider.</span>
+          </div>
+        </div>
+        <Link
+          href="/admin/settings/expo"
+          className="inline-flex items-center gap-1.5 text-xs font-bold bg-white text-slate-900 px-3.5 py-2 rounded-xl hover:bg-slate-100 transition shrink-0 self-start sm:self-auto"
+        >
+          Expo &amp; Hero Slider <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
       {saved && (
         <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-3 text-sm">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-          <span>Branding settings saved successfully! Public pages now reflect your changes.</span>
+          <span>Branding settings saved successfully across public &amp; admin pages.</span>
         </div>
       )}
 
@@ -98,8 +114,7 @@ export default function BrandingSettingsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
-          <HeroMediaSection settings={settings} update={update} />
-          <HeroCopySection settings={settings} update={update} />
+          <BrandIdentitySection settings={settings} update={update} />
           <ColorPickerSection settings={settings} update={update} />
           <TypographyShapeSection settings={settings} update={update} />
         </div>

@@ -73,17 +73,17 @@ export default function AdminEventsPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Catalog Management
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Events Management</h1>
           <p className="text-slate-500 text-sm mt-1">
-            Toggle events live on the main page, monitor ticket sales, and manage Addis catalog.
+            Toggle events live on the main page, monitor ticket sales, and manage your catalog.
           </p>
         </div>
         <Link
           href="/admin/events/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold rounded-xl shadow-md transition self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold theme-btn-primary shadow-md self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Create Event
@@ -98,7 +98,7 @@ export default function AdminEventsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search events by title or slug..."
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
         <select
@@ -115,14 +115,14 @@ export default function AdminEventsPage() {
           onClick={load}
           className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition cursor-pointer"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[var(--color-primary)]" : ""}`} />
         </button>
       </div>
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         {loading && events.length === 0 ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
-            <RefreshCw className="w-6 h-6 animate-spin text-indigo-600" />
+            <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />
             <span className="text-sm">Loading events catalog...</span>
           </div>
         ) : filtered.length === 0 ? (

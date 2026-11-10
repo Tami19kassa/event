@@ -57,11 +57,11 @@ export default function AdminPaymentSettingsPage() {
   return (
     <div className="p-6 md:p-10 space-y-8 max-w-5xl">
       <div>
-        <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+        <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
           Financial Infrastructure
         </span>
         <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-          Payment Gateways & Accounts
+          Payment Gateways &amp; Accounts
         </h1>
         <p className="text-slate-500 text-sm mt-1">
           Configure banking and mobile wallet coordinates for attendee ticket purchases in Ethiopia.
@@ -91,7 +91,7 @@ export default function AdminPaymentSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="px-8 py-3.5 font-bold theme-btn-primary shadow-lg flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {saving ? "Saving settings..." : "Save Payment Configuration"}

@@ -21,7 +21,7 @@ export function DiscoverSidebar({
             onClick={() => onSelectCategory(null)}
             className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-between cursor-pointer ${
               selectedCategory === null
-                ? "bg-indigo-50 text-indigo-700 font-extrabold"
+                ? "theme-badge font-extrabold"
                 : "text-slate-600 hover:bg-slate-50"
             }`}
           >
@@ -35,7 +35,7 @@ export function DiscoverSidebar({
               onClick={() => onSelectCategory(cat.name)}
               className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-between cursor-pointer ${
                 selectedCategory === cat.name
-                  ? "bg-indigo-50 text-indigo-700 font-bold"
+                  ? "theme-badge font-bold"
                   : "text-slate-600 hover:bg-slate-50"
               }`}
             >

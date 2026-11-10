@@ -13,7 +13,12 @@
   --color-border: #E2E8F0;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --radius: 12px;
-  --hero-bg: linear-gradient(to bottom right, #4F46E5, #7C3AED);
+  --hero-bg: linear-gradient(to bottom right, #4F46E5, #0D9488);
+}
+
+:root {
+  --color-primary-rgb: 79, 70, 229;
+  --color-secondary-rgb: 13, 148, 136;
 }
 
 @layer base {
@@ -29,7 +34,46 @@
   }
 }
 
-/* Theme-aware utilities */
+/* Dynamic Theme-Aware Primitives */
+.theme-btn-primary {
+  background: var(--hero-bg, var(--color-primary));
+  color: #ffffff;
+  border-radius: var(--radius);
+  transition: all 0.2s ease;
+}
+.theme-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+[data-button-style="soft"] .theme-btn-primary {
+  background: rgba(var(--color-primary-rgb), 0.14);
+  color: var(--color-primary);
+}
+[data-button-style="soft"] .theme-btn-primary:hover:not(:disabled) {
+  background: rgba(var(--color-primary-rgb), 0.22);
+  filter: none;
+}
+
+[data-button-style="outline"] .theme-btn-primary {
+  background: transparent;
+  border: 2px solid var(--color-primary);
+  color: var(--color-primary);
+}
+[data-button-style="outline"] .theme-btn-primary:hover:not(:disabled) {
+  background: rgba(var(--color-primary-rgb), 0.1);
+  filter: none;
+}
+
+.theme-badge {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+  border-color: rgba(var(--color-primary-rgb), 0.22);
+}
+
+.theme-radius {
+  border-radius: var(--radius);
+}
+
 .btn-primary {
   background-color: var(--color-primary);
   color: white;
@@ -39,31 +83,13 @@
   opacity: 0.9;
 }
 
-.text-primary {
-  color: var(--color-primary);
-}
-
-.bg-primary {
-  background-color: var(--color-primary);
-}
-
-.ring-primary:focus {
-  --tw-ring-color: var(--color-primary);
-}
+.text-primary { color: var(--color-primary); }
+.bg-primary { background-color: var(--color-primary); }
+.ring-primary:focus { --tw-ring-color: var(--color-primary); }
 
 /* Hide scrollbar for horizontal carousels */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-.glass {
-  @apply bg-white/80 backdrop-blur-md border border-white/20;
-}
-
-.card-hover {
-  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
-}
+.glass { @apply bg-white/80 backdrop-blur-md border border-white/20; }
+.card-hover { @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1; }

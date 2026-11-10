@@ -46,9 +46,18 @@ const settingsNavItems: NavItem[] = [
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  siteName?: string;
+  logoUrl?: string | null;
+  logoDarkUrl?: string | null;
 }
 
-export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
+export function AdminSidebar({
+  isOpen,
+  onClose,
+  siteName = "Utopia",
+  logoUrl,
+  logoDarkUrl,
+}: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -84,7 +93,7 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
             className={clsx(
               "flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200",
               active
-                ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                ? "bg-[var(--color-primary)] text-white shadow-md"
                 : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
             )}
           >
@@ -113,7 +122,13 @@ export function AdminSidebar({ isOpen, onClose }: SidebarProps) {
         )}
       >
         <div className="h-18 flex items-center justify-between px-5 border-b border-slate-800">
-          <BrandLogo variant="dark" />
+          <BrandLogo
+            siteName={siteName}
+            logoUrl={logoUrl}
+            logoDarkUrl={logoDarkUrl}
+            variant="dark"
+            subtitle="Admin Workspace"
+          />
           <button
             onClick={onClose}
             className="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"

@@ -67,13 +67,13 @@ export function TicketSelector({ event }: TicketSelectorProps) {
   return (
     <>
       <div className="bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden sticky top-24">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-2">
           <div>
-            <h3 className="font-bold text-slate-900 text-lg">Tickets & Pricing</h3>
+            <h3 className="font-bold text-slate-900 text-lg">Tickets &amp; Pricing</h3>
             <span className="text-xs text-slate-400">All prices in Ethiopian Birr (ETB)</span>
           </div>
-          <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Addis Ababa
+          <span className="text-xs font-bold theme-badge border px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0">
+            {event.format === "online" ? "Online Event" : event.location.city || "Ethiopia"}
           </span>
         </div>
 
@@ -158,11 +158,16 @@ export function TicketSelector({ event }: TicketSelectorProps) {
           {totalItems > 0 && (
             <div className="flex justify-between font-bold text-slate-900 text-base mb-4">
               <span>Total Amount</span>
-              <span className="text-indigo-600 font-black">ETB {total.toLocaleString()}</span>
+              <span className="text-[var(--color-primary)] font-black">ETB {total.toLocaleString()}</span>
             </div>
           )}
 
-          <button type="button" disabled={totalItems === 0} onClick={() => setIsModalOpen(true)} className="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2 cursor-pointer">
+          <button
+            type="button"
+            disabled={totalItems === 0}
+            onClick={() => setIsModalOpen(true)}
+            className="w-full py-3.5 font-bold theme-btn-primary disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2 cursor-pointer"
+          >
             {totalItems === 0 ? "Select Tickets" : `Proceed to Booking · ETB ${total.toLocaleString()}`}
             {totalItems > 0 && <ArrowRight className="w-4 h-4" />}
           </button>

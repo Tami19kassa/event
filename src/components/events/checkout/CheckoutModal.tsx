@@ -100,8 +100,8 @@ export function CheckoutModal({
         {/* Modal Top Header Bar */}
         <div className="flex items-center justify-between px-5 py-3 sm:px-7 sm:py-4 border-b border-slate-100 shrink-0">
           <div>
-            <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider block">
-              Direct Booking & Pass
+            <span className="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-wider block">
+              Direct Booking &amp; Pass
             </span>
             <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
               {completedOrder ? "Reservation Confirmed" : "Reserve Your Tickets"}
@@ -139,7 +139,7 @@ export function CheckoutModal({
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Full Name (e.g. Kebede Abebe)"
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 />
                 <input
                   type="tel"
@@ -147,7 +147,7 @@ export function CheckoutModal({
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="Phone Number (09...)"
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
@@ -157,7 +157,7 @@ export function CheckoutModal({
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
                 placeholder="Email Address (for ticket pass & barcode)"
-                className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
 
               {total > 0 && (
@@ -174,7 +174,7 @@ export function CheckoutModal({
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-4 mt-3 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
+                className="w-full py-4 mt-3 font-bold theme-btn-primary shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 text-sm"
               >
                 {submitting ? (
                   <Loader2 className="w-5 h-5 animate-spin" />

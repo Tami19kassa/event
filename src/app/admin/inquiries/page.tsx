@@ -96,7 +96,7 @@ export default function AdminInquiriesPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
+          <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Commercial Pipeline
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
@@ -112,7 +112,7 @@ export default function AdminInquiriesPage() {
           onClick={loadInquiries}
           className="px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition flex items-center gap-2 self-start cursor-pointer shadow-2xs"
         >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : ""}`} />
+          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-[var(--color-primary)]" : ""}`} />
           Refresh
         </button>
       </div>
@@ -120,7 +120,7 @@ export default function AdminInquiriesPage() {
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-2xl border border-slate-200 p-4">
           <span className="text-xs font-bold text-slate-400 uppercase block">New Unread</span>
-          <span className="text-2xl font-black text-indigo-600">{newCount}</span>
+          <span className="text-2xl font-black text-[var(--color-primary)]">{newCount}</span>
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
           <div>

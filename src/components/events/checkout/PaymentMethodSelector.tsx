@@ -75,11 +75,11 @@ export function PaymentMethodSelector({
             onClick={() => onMethodChange("PAY_AT_GATE")}
             className={`p-3 rounded-2xl border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
               method === "PAY_AT_GATE"
-                ? "border-indigo-500 bg-indigo-50/70 text-indigo-900 shadow-xs"
+                ? "theme-badge shadow-xs"
                 : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
             }`}
           >
-            <DoorOpen className="w-5 h-5 text-indigo-600" />
+            <DoorOpen className="w-5 h-5 text-[var(--color-primary)]" />
             <span className="text-xs font-bold">Pay at Gate</span>
           </button>
         )}
@@ -161,11 +161,11 @@ export function PaymentMethodSelector({
 
       {/* Pay at Gate */}
       {method === "PAY_AT_GATE" && (
-        <div className="bg-indigo-50/60 border border-indigo-200 rounded-2xl p-4 text-xs text-indigo-900 space-y-2">
-          <div className="flex items-center gap-2 font-bold text-indigo-950">
-            <DoorOpen className="w-4 h-4 text-indigo-600" /> Pay on Arrival at the Venue
+        <div className="theme-badge border rounded-2xl p-4 text-xs space-y-2">
+          <div className="flex items-center gap-2 font-bold">
+            <DoorOpen className="w-4 h-4 text-[var(--color-primary)]" /> Pay on Arrival at the Venue
           </div>
-          <p className="text-[11px] leading-relaxed text-indigo-800">
+          <p className="text-[11px] leading-relaxed text-slate-700">
             Your reservation will be confirmed. Settle <span className="font-bold">ETB {total.toLocaleString()}</span> at the entrance desk via cash or Birr upon arrival.
           </p>
         </div>

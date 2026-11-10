@@ -50,7 +50,7 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
   return (
     <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 text-left shadow-2xl relative overflow-hidden mb-5">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest">
+        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
           Official Scannable Pass
         </span>
         <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${badgeStyle}`}>
@@ -64,7 +64,7 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
           <div className="grid grid-cols-2 gap-3 text-xs pt-3 border-t border-slate-800">
             <div>
               <span className="text-slate-400 block text-[10px]">PASS REFERENCE</span>
-              <span className="font-mono font-bold text-indigo-300 break-all">
+              <span className="font-mono font-bold text-amber-300 break-all">
                 {order.orderNumber}
               </span>
             </div>
@@ -75,7 +75,7 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
             <div>
               <span className="text-slate-400 block text-[10px]">VENUE</span>
               <span className="font-medium truncate block">
-                {event.location.name || "Addis Ababa"}
+                {event.location.name || event.location.city || "Venue TBA"}
               </span>
             </div>
             <div>
