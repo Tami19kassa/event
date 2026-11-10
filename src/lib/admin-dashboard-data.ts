@@ -99,7 +99,7 @@ export async function getAdminDashboardSnapshot(): Promise<DashboardSnapshot> {
         },
       }),
       prisma.order.findMany({
-        take: 6,
+        take: 5,
         orderBy: { createdAt: "desc" },
         select: {
           id: true,

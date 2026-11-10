@@ -82,7 +82,7 @@ export function AdminSidebar({
   const renderNavGroup = (items: NavItem[], groupTitle?: string) => (
     <div className="space-y-0.5">
       {groupTitle && (
-        <div className="px-3 pt-3 pb-1 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+        <div className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
           {groupTitle}
         </div>
       )}
@@ -97,13 +97,13 @@ export function AdminSidebar({
             prefetch={true}
             onClick={onClose}
             className={clsx(
-              "flex items-center justify-between gap-2 px-3 py-2 theme-radius-sm text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+              "flex items-center justify-between gap-2 px-3 py-1.5 theme-radius-sm text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
               active
                 ? "theme-nav-active"
                 : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"
             )}
           >
-            <span className="flex items-center gap-3 min-w-0">
+            <span className="flex items-center gap-2.5 min-w-0">
               <item.icon
                 className={clsx("w-4 h-4 shrink-0", active ? "opacity-95" : "text-slate-400")}
               />
@@ -158,12 +158,12 @@ export function AdminSidebar({
           </button>
         </div>
 
-        <nav className="dark-scrollbar flex-1 py-2.5 px-3 overflow-y-auto space-y-2">
+        <nav className="dark-scrollbar flex-1 py-2 px-3 overflow-y-auto space-y-1.5">
           {renderNavGroup(mainNavItems, "Operations")}
           {renderNavGroup(settingsNavItems, "System & Settings")}
         </nav>
 
-        <div className="p-3 border-t border-slate-800 space-y-1 shrink-0">
+        <div className="p-2.5 border-t border-slate-800 space-y-0.5 shrink-0">
           <Link
             href="/"
             target="_blank"
