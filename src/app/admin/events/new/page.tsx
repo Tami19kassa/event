@@ -1,15 +1,19 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { EventForm } from "@/components/admin/EventForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewEventPage() {
-  const [categories, payments] = await Promise.all([
-    prisma.category.findMany({
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
+  const [session, categories, payments] = await Promise.all([
+    getSession(),
+    withDbRetry(() =>
+      prisma.category.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      })
+    ).catch(() => []),
     getPublicPaymentSettings(),
   ]);
 
@@ -19,6 +23,7 @@ export default async function NewEventPage() {
         mode="create"
         categories={categories}
         currency={payments.currency || "ETB"}
+        canCreateCategory={session?.role === "ADMIN"}
       />
     </div>
   );

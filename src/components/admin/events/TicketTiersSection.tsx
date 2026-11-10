@@ -1,7 +1,8 @@
 "use client";
 
-import { Plus, Trash2, Ticket, Sparkles } from "lucide-react";
-import type { TicketTierInput } from "@/lib/event-form-types";
+import { Plus, Ticket } from "lucide-react";
+import { makeClientKey, type TicketTierInput } from "@/lib/event-form-types";
+import { TicketTierCard } from "./TicketTierCard";
 
 interface Props {
   tiers: TicketTierInput[];
@@ -10,6 +11,8 @@ interface Props {
   updateTier: (index: number, field: string, value: any) => void;
   addTier: () => void;
   removeTier: (index: number) => void;
+  moveTier: (index: number, delta: -1 | 1) => void;
+  replaceTiers?: (next: TicketTierInput[]) => void;
 }
 
 export function TicketTiersSection({
@@ -19,8 +22,29 @@ export function TicketTiersSection({
   updateTier,
   addTier,
   removeTier,
+  moveTier,
+  replaceTiers,
 }: Props) {
   const totalSeats = tiers.reduce((s, t) => s + (Number(t.quantity) || 0), 0);
+  const hasSoldAny = tiers.some((t) => (t.soldCount || 0) > 0);
+
+  const applyTierPack = (pack: "free" | "standard" | "expo") => {
+    if (!replaceTiers || hasSoldAny) return;
+    if (pack === "free") {
+      replaceTiers([{ clientKey: makeClientKey("tier"), name: "Free Admission", price: 0, quantity: 150, earlyBird: false, description: "Full event entry & QR gate pass" }]);
+    } else if (pack === "standard") {
+      replaceTiers([
+        { clientKey: makeClientKey("tier"), name: "Regular Pass", price: 400, quantity: 200, earlyBird: true, description: "General admission access" },
+        { clientKey: makeClientKey("tier"), name: "VIP Pass", price: 1500, quantity: 60, earlyBird: false, description: "Priority entry, front seating & refreshments" },
+      ]);
+    } else {
+      replaceTiers([
+        { clientKey: makeClientKey("tier"), name: "Visitor Pass", price: 0, quantity: 400, earlyBird: false, description: "Exhibition floor & keynote stages" },
+        { clientKey: makeClientKey("tier"), name: "Delegate VIP", price: 1800, quantity: 80, earlyBird: true, description: "B2B lounge, concierge & full sessions" },
+        { clientKey: makeClientKey("tier"), name: "Exhibitor Booth", price: 12000, quantity: 25, earlyBird: false, description: "3x3m pavilion booth + 4 team badges" },
+      ]);
+    }
+  };
 
   return (
     <section className="bg-white theme-radius-card border border-slate-200 p-5 sm:p-6 space-y-5 shadow-2xs">
@@ -32,10 +56,11 @@ export function TicketTiersSection({
           <div>
             <h2 className="font-semibold text-slate-900 text-sm">Ticket Tiers &amp; Pricing</h2>
             <p className="text-xs text-slate-400">
-              Configured in {currency} · {totalSeats.toLocaleString()} total tier passes across {tiers.length} tier{tiers.length === 1 ? "" : "s"}.
+              {currency} pricing · {totalSeats.toLocaleString()} total passes across {tiers.length} tier{tiers.length === 1 ? "" : "s"}.
             </p>
           </div>
         </div>
+
         <button
           type="button"
           onClick={addTier}
@@ -45,108 +70,49 @@ export function TicketTiersSection({
         </button>
       </div>
 
+      {!hasSoldAny && replaceTiers && (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mr-1">
+            Quick Packs:
+          </span>
+          <button
+            type="button"
+            onClick={() => applyTierPack("free")}
+            className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+          >
+            Free RSVP
+          </button>
+          <button
+            type="button"
+            onClick={() => applyTierPack("standard")}
+            className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+          >
+            Regular + VIP
+          </button>
+          <button
+            type="button"
+            onClick={() => applyTierPack("expo")}
+            className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-50 border border-slate-200 text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+          >
+            Expo (Visitor / VIP / Booth)
+          </button>
+        </div>
+      )}
+
       <div className="space-y-3">
-        {tiers.map((tier, i) => {
-          const sold =
-            mode === "edit" && typeof tier.remaining === "number"
-              ? Math.max(0, tier.quantity - tier.remaining)
-              : null;
-
-          return (
-            <div
-              key={tier.id || i}
-              className="p-4 bg-slate-50/90 theme-radius border border-slate-200/80 space-y-3"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    Tier #{i + 1}
-                  </span>
-                  {sold !== null && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white border border-slate-200 text-slate-600">
-                      {sold} sold · {tier.remaining} left
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => updateTier(i, "earlyBird", !tier.earlyBird)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border transition cursor-pointer ${
-                      tier.earlyBird
-                        ? "theme-badge-accent"
-                        : "bg-white border-slate-200 text-slate-500 hover:text-slate-800"
-                    }`}
-                  >
-                    <Sparkles className="w-3 h-3" />
-                    Early Bird {tier.earlyBird ? "On" : "Off"}
-                  </button>
-
-                  {tiers.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeTier(i)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 transition cursor-pointer"
-                      title="Remove tier"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-12 gap-3">
-                <div className="col-span-12 sm:col-span-4">
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Tier Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={tier.name}
-                    onChange={(e) => updateTier(i, "name", e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm"
-                    placeholder="VIP / Regular"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-1">
-                    Price ({currency})
-                  </label>
-                  <input
-                    type="number"
-                    min={0}
-                    step="1"
-                    value={tier.price}
-                    onChange={(e) => updateTier(i, "price", Math.max(0, Number(e.target.value) || 0))}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm"
-                  />
-                </div>
-                <div className="col-span-6 sm:col-span-2">
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Quantity</label>
-                  <input
-                    type="number"
-                    min={1}
-                    value={tier.quantity}
-                    onChange={(e) =>
-                      updateTier(i, "quantity", Math.max(1, Number(e.target.value) || 1))
-                    }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm"
-                  />
-                </div>
-                <div className="col-span-12 sm:col-span-4">
-                  <label className="block text-xs font-bold text-slate-600 mb-1">Perks / Note</label>
-                  <input
-                    type="text"
-                    value={tier.description || ""}
-                    onChange={(e) => updateTier(i, "description", e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-sm"
-                    placeholder="Front-row lounge access, lunch pass..."
-                  />
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        {tiers.map((tier, i) => (
+          <TicketTierCard
+            key={tier.id || tier.clientKey || i}
+            tier={tier}
+            index={i}
+            totalCount={tiers.length}
+            currency={currency}
+            mode={mode}
+            onUpdate={updateTier}
+            onMove={moveTier}
+            onRemove={removeTier}
+          />
+        ))}
       </div>
     </section>
   );

@@ -10,6 +10,7 @@ interface ImageUploadProps {
   label?: string;
   placeholder?: string;
   accept?: "image" | "video" | "all";
+  previewVariant?: "compact" | "banner" | "square";
 }
 
 function isVideoValue(val: string): boolean {
@@ -27,6 +28,7 @@ export function ImageUpload({
   label = "Upload Image",
   placeholder = "https://images.unsplash.com/...",
   accept = "image",
+  previewVariant = "compact",
 }: ImageUploadProps) {
   const [tab, setTab] = useState<"upload" | "url">("upload");
   const [uploading, setUploading] = useState(false);
@@ -156,7 +158,13 @@ export function ImageUpload({
             <img
               src={value}
               alt="Preview"
-              className="h-20 w-32 object-contain bg-white rounded-xl border border-slate-200 p-1 shadow-2xs"
+              className={
+                previewVariant === "banner"
+                  ? "w-full max-w-md aspect-[16/10] object-cover bg-slate-100 rounded-xl border border-slate-200 shadow-2xs"
+                  : previewVariant === "square"
+                  ? "w-20 h-20 object-cover bg-slate-100 rounded-xl border border-slate-200 shadow-2xs"
+                  : "h-20 w-32 object-contain bg-white rounded-xl border border-slate-200 p-1 shadow-2xs"
+              }
             />
           )}
           <button

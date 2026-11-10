@@ -46,9 +46,15 @@ export async function syncEventTicketTiers(
       .map((t: any) => String(t.id))
   );
 
-  await tx.ticketTier.deleteMany({
-    where: { eventId, id: { notIn: Array.from(incomingIds) } },
-  });
+  const removedIds = existingTiers
+    .filter((t) => !incomingIds.has(t.id))
+    .map((t) => t.id);
+
+  if (removedIds.length > 0) {
+    await tx.ticketTier.deleteMany({
+      where: { eventId, id: { in: removedIds } },
+    });
+  }
 
   for (let i = 0; i < cleanTiers.length; i++) {
     const t = cleanTiers[i];
@@ -94,11 +100,14 @@ export async function syncEventSpeakersAndAgenda(
   tx: Prisma.TransactionClient,
   eventId: string,
   speakers?: unknown,
-  agendaItems?: unknown
+  agendaItems?: unknown,
+  existingCounts?: { speakers: number; agendaItems: number }
 ) {
   if (Array.isArray(speakers)) {
-    await tx.speaker.deleteMany({ where: { eventId } });
     const rows = sanitizeSpeakersInput(speakers);
+    if (!existingCounts || existingCounts.speakers > 0) {
+      await tx.speaker.deleteMany({ where: { eventId } });
+    }
     if (rows.length > 0) {
       await tx.speaker.createMany({
         data: rows.map((row) => ({ ...row, eventId })),
@@ -107,8 +116,10 @@ export async function syncEventSpeakersAndAgenda(
   }
 
   if (Array.isArray(agendaItems)) {
-    await tx.agendaItem.deleteMany({ where: { eventId } });
     const rows = sanitizeAgendaInput(agendaItems);
+    if (!existingCounts || existingCounts.agendaItems > 0) {
+      await tx.agendaItem.deleteMany({ where: { eventId } });
+    }
     if (rows.length > 0) {
       await tx.agendaItem.createMany({
         data: rows.map((row) => ({ ...row, eventId })),

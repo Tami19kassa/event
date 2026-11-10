@@ -1,13 +1,15 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import { prisma } from "./prisma";
+import { prisma, withDbRetry } from "./prisma";
 import { CACHE_TAGS } from "./cache-tags";
 import { defaultPaymentSettings, type PaymentSettings } from "./payment-types";
 
 export { defaultPaymentSettings, type PaymentSettings };
 
 async function fetchPublicPaymentSettingsStrict(): Promise<PaymentSettings> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: "payment_settings" } });
+  const setting = await withDbRetry(() =>
+    prisma.siteSetting.findUnique({ where: { key: "payment_settings" } })
+  );
   if (!setting?.value) return defaultPaymentSettings;
   try {
     return { ...defaultPaymentSettings, ...JSON.parse(setting.value) };

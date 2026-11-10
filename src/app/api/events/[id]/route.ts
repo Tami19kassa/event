@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
@@ -49,10 +49,15 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const { id } = await params;
 
   try {
-    const existing = await prisma.event.findUnique({
-      where: { id },
-      include: { ticketTiers: true },
-    });
+    const existing = await withDbRetry(() =>
+      prisma.event.findUnique({
+        where: { id },
+        include: {
+          ticketTiers: true,
+          _count: { select: { speakers: true, agendaItems: true } },
+        },
+      })
+    );
     if (!existing) return NextResponse.json({ error: "Event not found" }, { status: 404 });
 
     if (session.role !== "ADMIN" && existing.organizerId !== session.id) {
@@ -93,12 +98,21 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (body.isFeatured !== undefined) data.isFeatured = Boolean(body.isFeatured);
     if (body.categoryId !== undefined) data.categoryId = body.categoryId || null;
 
-    const event = await prisma.$transaction(async (tx) => {
-      const updatedEvent = await tx.event.update({ where: { id }, data });
-      await syncEventTicketTiers(tx, id, existing.ticketTiers, body.ticketTiers);
-      await syncEventSpeakersAndAgenda(tx, id, body.speakers, body.agendaItems);
-      return updatedEvent;
-    });
+    const event = await prisma.$transaction(
+      async (tx) => {
+        const updatedEvent = await tx.event.update({ where: { id }, data });
+        await syncEventTicketTiers(tx, id, existing.ticketTiers, body.ticketTiers);
+        await syncEventSpeakersAndAgenda(
+          tx,
+          id,
+          body.speakers,
+          body.agendaItems,
+          existing._count
+        );
+        return updatedEvent;
+      },
+      { maxWait: 10000, timeout: 20000 }
+    );
 
     revalidateCacheTags(CACHE_TAGS.events, CACHE_TAGS.categories);
     revalidatePath("/");
@@ -106,16 +120,18 @@ export async function PUT(req: NextRequest, { params }: Params) {
     revalidatePath(`/events/${event.slug}`);
     revalidatePath("/sitemap.xml");
 
-    const updated = await prisma.event.findUnique({
-      where: { id },
-      include: {
-        ticketTiers: { orderBy: { sortOrder: "asc" } },
-        speakers: { orderBy: { sortOrder: "asc" } },
-        agendaItems: { orderBy: { sortOrder: "asc" } },
-        category: true,
-        _count: { select: { orders: true } },
-      },
-    });
+    const updated = await withDbRetry(() =>
+      prisma.event.findUnique({
+        where: { id },
+        include: {
+          ticketTiers: { orderBy: { sortOrder: "asc" } },
+          speakers: { orderBy: { sortOrder: "asc" } },
+          agendaItems: { orderBy: { sortOrder: "asc" } },
+          category: true,
+          _count: { select: { orders: true } },
+        },
+      })
+    );
     return NextResponse.json(updated);
   } catch (err: any) {
     console.error(err);
