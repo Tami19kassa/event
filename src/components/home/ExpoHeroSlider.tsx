@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Calendar, MapPin, ArrowRight, BookOpen } from "lucide-react";
 import { HeroSlide } from "@/lib/expo-settings";
-import { extractYouTubeId, buildYouTubeBackgroundUrl } from "@/lib/youtube";
+import { ExpoMediaBackground } from "@/components/expo/ExpoMediaBackground";
 import { ExhibitorInquiryModal } from "./ExhibitorInquiryModal";
 
 interface Props {
@@ -64,25 +64,18 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
           className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar w-full"
         >
           {activeSlides.map((slide) => {
-            const ytId = slide.mediaType === "video" && slide.videoUrl ? extractYouTubeId(slide.videoUrl) : null;
+            const customExhibitorLink = Boolean(slide.exhibitorCtaLink && !slide.exhibitorCtaLink.startsWith("#"));
             return (
               <div
                 key={slide.id}
                 className="min-w-full w-full shrink-0 snap-start relative min-h-[560px] md:min-h-[650px] flex items-end pb-16 md:pb-20"
               >
-                {slide.mediaType === "video" && ytId ? (
-                  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <iframe
-                      src={buildYouTubeBackgroundUrl(ytId)}
-                      title={slide.title}
-                      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-full min-h-full object-cover scale-[1.2] border-0"
-                      tabIndex={-1}
-                    />
-                  </div>
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={slide.posterUrl} alt={slide.title} className="absolute inset-0 w-full h-full object-cover object-center" />
-                )}
+                <ExpoMediaBackground
+                  mediaType={slide.mediaType}
+                  videoUrl={slide.videoUrl}
+                  posterUrl={slide.posterUrl}
+                  title={slide.title}
+                />
 
                 {/* Subtle bottom atmospheric fade for crisp typography without hiding image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none" />
@@ -132,16 +125,25 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                         <span>{slide.visitorCtaText}</span>
                         <ArrowRight className="w-4 h-4 shrink-0" />
                       </Link>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedExpoTitle(slide.title);
-                          setInquiryModalOpen(true);
-                        }}
-                        className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 rounded-xl border border-white/30 transition backdrop-blur-sm cursor-pointer active:scale-95 text-xs sm:text-sm"
-                      >
-                        <span>{slide.exhibitorCtaText}</span>
-                      </button>
+                      {customExhibitorLink ? (
+                        <Link
+                          href={slide.exhibitorCtaLink}
+                          className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 rounded-xl border border-white/30 transition backdrop-blur-sm active:scale-95 text-xs sm:text-sm"
+                        >
+                          <span>{slide.exhibitorCtaText}</span>
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedExpoTitle(slide.title);
+                            setInquiryModalOpen(true);
+                          }}
+                          className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 rounded-xl border border-white/30 transition backdrop-blur-sm cursor-pointer active:scale-95 text-xs sm:text-sm"
+                        >
+                          <span>{slide.exhibitorCtaText}</span>
+                        </button>
+                      )}
                       <Link
                         href={`/expo/${slide.id}`}
                         className="text-slate-200 hover:text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 py-2.5 px-3 hover:underline"

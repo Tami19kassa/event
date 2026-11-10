@@ -5,14 +5,21 @@ import { RefreshCw, ShoppingBag, CheckCircle2 } from "lucide-react";
 import { OrdersStats } from "@/components/admin/orders/OrdersStats";
 import { OrdersFilterBar } from "@/components/admin/orders/OrdersFilterBar";
 import { OrderRow, Order } from "@/components/admin/orders/OrderRow";
+import { GateScannerBar, extractOrderNumber } from "@/components/admin/orders/GateScannerBar";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [scanCode, setScanCode] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState("");
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(""), 4000);
+  };
 
   const loadOrders = async () => {
     setLoading(true);
@@ -30,6 +37,13 @@ export default function AdminOrdersPage() {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const scanParam = params.get("scan");
+    if (scanParam) {
+      const clean = extractOrderNumber(scanParam);
+      setScanCode(clean);
+      setSearch(clean);
+    }
     loadOrders();
   }, []);
 
@@ -37,10 +51,12 @@ export default function AdminOrdersPage() {
     setActionInProgress(orderId);
     try {
       const res = await fetch(`/api/orders/${orderId}/checkin`, { method: "POST" });
+      const data = await res.json();
       if (res.ok) {
-        setToastMessage(`Attendee #${orderNumber} checked in successfully!`);
-        setTimeout(() => setToastMessage(""), 4000);
+        showToast(`Attendee #${orderNumber} checked in successfully!`);
         loadOrders();
+      } else {
+        showToast(data.error || "Check-in blocked.");
       }
     } finally {
       setActionInProgress(null);
@@ -56,8 +72,7 @@ export default function AdminOrdersPage() {
         body: JSON.stringify({ status: "COMPLETED" }),
       });
       if (res.ok) {
-        setToastMessage(`Payment for #${orderNumber} verified and approved!`);
-        setTimeout(() => setToastMessage(""), 4000);
+        showToast(`Payment for #${orderNumber} verified and approved!`);
         loadOrders();
       }
     } finally {
@@ -84,12 +99,16 @@ export default function AdminOrdersPage() {
     return matchSearch && matchStatus;
   });
 
+  const scannedOrder = scanCode
+    ? orders.find((o) => o.orderNumber.toUpperCase() === scanCode.toUpperCase()) || null
+    : null;
+
   const totalSales = orders.filter((o) => o.status === "COMPLETED").reduce((s, o) => s + o.totalAmount, 0);
   const gateReservations = orders.filter((o) => o.status === "RESERVED_PAY_AT_GATE").length;
   const checkedInCount = orders.filter((o) => o.checkedIn).length;
 
   return (
-    <div className="p-6 md:p-10 space-y-8">
+    <div className="p-6 md:p-10 space-y-6">
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 p-4 bg-emerald-600 text-white font-bold rounded-2xl shadow-2xl flex items-center gap-3">
           <CheckCircle2 className="w-5 h-5" />
@@ -100,38 +119,31 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block mb-1">
-            Attendee Verification & Gate Tracking
+            Attendee Verification &amp; Gate Tracking
           </span>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Orders, Receipts & Gate Check-In
+            Orders, Receipts &amp; Gate Check-In
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Track Telebirr/CBE payments, scrape receipts, and check in attendees at the venue gate.
-          </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <OrdersStats
-            totalSales={totalSales}
-            gateReservations={gateReservations}
-            checkedInCount={checkedInCount}
-            totalOrders={orders.length}
-          />
-          <button
-            onClick={loadOrders}
-            className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition cursor-pointer shadow-sm"
-          >
+          <OrdersStats totalSales={totalSales} gateReservations={gateReservations} checkedInCount={checkedInCount} totalOrders={orders.length} />
+          <button type="button" onClick={loadOrders} className="p-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition cursor-pointer shadow-sm">
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-indigo-600" : ""}`} />
           </button>
         </div>
       </div>
 
-      <OrdersFilterBar
-        search={search}
-        onSearchChange={setSearch}
-        statusFilter={statusFilter}
-        onStatusFilterChange={setStatusFilter}
+      <GateScannerBar
+        scannedOrder={scannedOrder}
+        scanCode={scanCode}
+        actionInProgress={actionInProgress}
+        onScanResolved={(code) => { setScanCode(code); setSearch(code); }}
+        onClearScan={() => { setScanCode(""); setSearch(""); }}
+        onCheckIn={handleGateCheckIn}
       />
+
+      <OrdersFilterBar search={search} onSearchChange={setSearch} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} />
 
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         {loading && orders.length === 0 ? (
@@ -149,7 +161,7 @@ export default function AdminOrdersPage() {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-100 bg-slate-50/70 text-slate-500 text-xs uppercase tracking-wider">
-                  <th className="px-6 py-4 font-bold">Order & Method</th>
+                  <th className="px-6 py-4 font-bold">Order &amp; Method</th>
                   <th className="px-6 py-4 font-bold">Attendee</th>
                   <th className="px-6 py-4 font-bold">Event</th>
                   <th className="px-6 py-4 font-bold">Payment Status</th>
@@ -160,13 +172,7 @@ export default function AdminOrdersPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filtered.map((ord) => (
-                  <OrderRow
-                    key={ord.id}
-                    order={ord}
-                    actionInProgress={actionInProgress}
-                    onCheckIn={handleGateCheckIn}
-                    onApprove={handleApproveReceipt}
-                  />
+                  <OrderRow key={ord.id} order={ord} actionInProgress={actionInProgress} onCheckIn={handleGateCheckIn} onApprove={handleApproveReceipt} />
                 ))}
               </tbody>
             </table>

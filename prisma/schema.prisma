@@ -153,3 +153,21 @@ model CookieConsent {
   marketing Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model Inquiry {
+  id          String   @id @default(cuid())
+  type        String   // "EXHIBITOR" | "SPONSOR"
+  companyName String
+  contactName String
+  email       String
+  phone       String
+  expoTitle   String?
+  selection   String
+  notes       String?  @db.Text
+  status      String   @default("NEW") // "NEW" | "CONTACTED" | "QUALIFIED" | "ARCHIVED"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type, status])
+  @@index([createdAt])
+}

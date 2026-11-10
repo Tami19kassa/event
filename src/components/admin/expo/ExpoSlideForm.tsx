@@ -114,12 +114,14 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
 
         {slide.mediaType === "video" && (
           <div>
-            <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">YouTube Video URL</label>
+            <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+              YouTube or Direct MP4 / WebM Video URL
+            </label>
             <input
               type="text"
               value={slide.videoUrl || ""}
               onChange={(e) => onChange("videoUrl", e.target.value)}
-              placeholder="https://www.youtube.com/watch?v=..."
+              placeholder="https://www.youtube.com/watch?v=... or https://cdn.../hero.mp4"
               className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-indigo-600"
             />
           </div>
@@ -131,6 +133,25 @@ export function ExpoSlideForm({ slide, onChange }: Props) {
           onChange={(url) => onChange("posterUrl", url)}
           placeholder="https://... or upload local image"
         />
+      </div>
+
+      <div className="pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Primary Button Label</label>
+          <input type="text" value={slide.visitorCtaText} onChange={(e) => onChange("visitorCtaText", e.target.value)} placeholder="Get Visitor Pass" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" />
+        </div>
+        <div>
+          <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Primary Button Link</label>
+          <input type="text" value={slide.visitorCtaLink} onChange={(e) => onChange("visitorCtaLink", e.target.value)} placeholder="/discover" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" />
+        </div>
+        <div>
+          <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Secondary Button Label</label>
+          <input type="text" value={slide.exhibitorCtaText} onChange={(e) => onChange("exhibitorCtaText", e.target.value)} placeholder="Book Exhibition Booth" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" />
+        </div>
+        <div>
+          <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">Secondary Link (#exhibit opens booth modal)</label>
+          <input type="text" value={slide.exhibitorCtaLink} onChange={(e) => onChange("exhibitorCtaLink", e.target.value)} placeholder="#exhibit" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs" />
+        </div>
       </div>
     </div>
   );

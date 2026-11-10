@@ -21,12 +21,22 @@ export default async function HomePage() {
       getExpoScrollInterval(),
     ]);
 
+  const activeExpos = expoSlides.filter((s) => s.isActive).length;
+  const availablePassesCount = allEvents.reduce(
+    (sum, ev) => sum + ev.ticketTiers.reduce((tSum, t) => tSum + (t.remaining || 0), 0),
+    0
+  );
   const upcoming = allEvents.slice(0, 6);
 
   return (
     <div>
       <ExpoHeroSlider slides={expoSlides} intervalSeconds={scrollInterval} />
-      <StatsSection />
+      <StatsSection
+        liveEventsCount={allEvents.length + activeExpos}
+        availablePassesCount={availablePassesCount}
+        sponsorsCount={sponsors.length}
+        categoriesCount={categories.length}
+      />
       <CategoriesSection categories={categories} />
       <div id="calendar">
         <EventCalendarSection events={allEvents} />

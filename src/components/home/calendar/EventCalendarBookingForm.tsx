@@ -5,6 +5,8 @@ import { Event } from "@/types/event";
 import { Loader2, CheckCircle2, Ticket, ArrowRight, Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import { PaymentMethodSelector, PaymentGatewayInfo } from "@/components/events/checkout/PaymentMethodSelector";
+import { TicketPassCard } from "@/components/events/checkout/TicketPassCard";
+import { CalendarSyncButtons } from "@/components/events/checkout/CalendarSyncButtons";
 
 interface Props {
   event: Event;
@@ -79,20 +81,24 @@ export function EventCalendarBookingForm({ event }: Props) {
   };
 
   if (order) {
+    const calendarData = {
+      title: `${event.title} - Pass #${order.orderNumber}`,
+      description: `${event.shortDescription || event.title}\nRef: ${order.orderNumber}`,
+      location: `${event.location.name}, ${event.location.city}, Ethiopia`,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      orderNumber: order.orderNumber,
+      status: order.status,
+    };
+
     return (
-      <div className="p-6 text-center space-y-4">
-        <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-          <CheckCircle2 className="w-8 h-8" />
+      <div className="p-5 sm:p-6 text-center space-y-3">
+        <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <CheckCircle2 className="w-7 h-7" />
         </div>
-        <h4 className="text-xl font-black text-slate-900">Spot Reserved Successfully!</h4>
-        <p className="text-xs text-slate-600 max-w-sm mx-auto">
-          Pass reference: <span className="font-mono font-bold text-slate-900">{order.orderNumber}</span>. Confirmation sent to {email}.
-        </p>
-        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-left text-xs space-y-1 max-w-sm mx-auto">
-          <div className="flex justify-between text-slate-500"><span>Pass Type</span><span className="font-bold text-slate-800">{selectedTier?.name} ({quantity}x)</span></div>
-          <div className="flex justify-between text-slate-500"><span>Status</span><span className="font-bold text-slate-800">{order.status.replace(/_/g, " ")}</span></div>
-          <div className="flex justify-between text-slate-500"><span>Total</span><span className="font-bold text-slate-800">{totalPrice === 0 ? "Free Pass" : `ETB ${totalPrice.toLocaleString()}`}</span></div>
-        </div>
+        <h4 className="text-lg font-black text-slate-900">Spot Reserved Successfully!</h4>
+        <TicketPassCard event={event} order={order} />
+        <CalendarSyncButtons eventData={calendarData} orderNumber={order.orderNumber} />
         <Link href={`/events/${event.slug}`} style={{ backgroundColor: "var(--color-primary, #4F46E5)" }} className="inline-flex items-center gap-1.5 px-5 py-2.5 text-white font-bold text-xs rounded-xl hover:brightness-110 transition">
           <span>View Event Details</span><ArrowRight className="w-3.5 h-3.5" />
         </Link>

@@ -54,9 +54,13 @@ export function SponsorsMarquee({ sponsors }: Props) {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                 {strategic.map((s) => {
                   const hasLogo = Boolean(s.logoUrl && !failedLogos[s.id]);
+                  const safeHref = s.websiteUrl && /^https?:\/\//i.test(s.websiteUrl) ? s.websiteUrl : undefined;
+                  const CardTag = safeHref ? "a" : "div";
+                  const linkProps = safeHref ? { href: safeHref, target: "_blank", rel: "noopener noreferrer" } : {};
                   return (
-                    <div
+                    <CardTag
                       key={s.id}
+                      {...linkProps}
                       className="bg-slate-800/70 hover:bg-slate-800 border border-slate-700/70 rounded-2xl p-3.5 flex items-center gap-4 transition group shadow-xs"
                     >
                       {/* Logo Housing - Clean white rounded box to fit any white or transparent logo */}
@@ -86,7 +90,7 @@ export function SponsorsMarquee({ sponsors }: Props) {
                           Strategic Partner
                         </span>
                       </div>
-                    </div>
+                    </CardTag>
                   );
                 })}
               </div>
@@ -97,14 +101,18 @@ export function SponsorsMarquee({ sponsors }: Props) {
           {others.length > 0 && (
             <div>
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-3.5">
-                Platinum, Institutional & Media Partners
+                Platinum, Institutional &amp; Media Partners
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {others.map((s) => {
                   const hasLogo = Boolean(s.logoUrl && !failedLogos[s.id]);
+                  const safeHref = s.websiteUrl && /^https?:\/\//i.test(s.websiteUrl) ? s.websiteUrl : undefined;
+                  const CardTag = safeHref ? "a" : "div";
+                  const linkProps = safeHref ? { href: safeHref, target: "_blank", rel: "noopener noreferrer" } : {};
                   return (
-                    <div
+                    <CardTag
                       key={s.id}
+                      {...linkProps}
                       className="bg-slate-800/40 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-2.5 flex items-center gap-3 transition group"
                     >
                       {hasLogo && (
@@ -122,7 +130,7 @@ export function SponsorsMarquee({ sponsors }: Props) {
                       <span className="text-xs font-bold text-slate-300 group-hover:text-white truncate">
                         {s.name}
                       </span>
-                    </div>
+                    </CardTag>
                   );
                 })}
               </div>

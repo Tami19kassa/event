@@ -44,6 +44,12 @@ function isSafeMediaUrl(url?: string): boolean {
   return false;
 }
 
+function isSafeVideoUrl(url?: string): boolean {
+  if (!url) return true;
+  if (isSafeLink(url)) return true;
+  return /^data:video\/(mp4|webm);base64,[A-Za-z0-9+/=]+$/i.test(url.trim());
+}
+
 function sanitizeSlide(raw: any, idx: number): HeroSlide {
   return {
     id: typeof raw?.id === "string" && raw.id.trim() ? raw.id.trim() : `slide-${idx}`,
@@ -58,7 +64,7 @@ function sanitizeSlide(raw: any, idx: number): HeroSlide {
     datesText: String(raw?.datesText || "").slice(0, 100),
     venueText: String(raw?.venueText || "").slice(0, 150),
     mediaType: raw?.mediaType === "video" ? "video" : "image",
-    videoUrl: isSafeLink(raw?.videoUrl) ? raw?.videoUrl?.trim() || undefined : undefined,
+    videoUrl: isSafeVideoUrl(raw?.videoUrl) ? raw?.videoUrl?.trim() || undefined : undefined,
     posterUrl: isSafeMediaUrl(raw?.posterUrl) ? String(raw?.posterUrl || "") : "",
     visitorCtaText: String(raw?.visitorCtaText || "Get Visitor Pass").slice(0, 60),
     visitorCtaLink: isSafeLink(raw?.visitorCtaLink) ? String(raw?.visitorCtaLink || "/discover") : "/discover",

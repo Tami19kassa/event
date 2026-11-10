@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import { getExpoSlideById, getExpoSlides } from "@/lib/expo-settings";
-import { Calendar, MapPin, Building2, ArrowLeft, Ticket } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { extractYouTubeId, buildYouTubeBackgroundUrl } from "@/lib/youtube";
+import { ExpoMediaBackground } from "@/components/expo/ExpoMediaBackground";
+import { ExpoBookingCard } from "@/components/expo/ExpoBookingCard";
 
 export const dynamic = "force-dynamic";
 
@@ -23,18 +24,15 @@ export default async function DedicatedExpoPage({ params }: Props) {
     notFound();
   }
 
-  const youtubeId = expo.mediaType === "video" && expo.videoUrl ? extractYouTubeId(expo.videoUrl) : null;
-
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
-      {/* Top Banner Navigation */}
       <div className="bg-slate-900 border-b border-slate-800 text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <Link
             href="/"
             className="text-xs font-bold text-slate-300 hover:text-white flex items-center gap-1.5 transition"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to All Events & Expos
+            <ArrowLeft className="w-4 h-4" /> Back to All Events &amp; Expos
           </Link>
           <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
             Official B2B Trade Exhibition
@@ -42,27 +40,14 @@ export default async function DedicatedExpoPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Hero Media Section */}
-      <div className="relative bg-slate-950 text-white min-h-[400px] md:min-h-[480px] flex items-end">
-        {expo.mediaType === "video" && youtubeId ? (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <iframe
-              src={buildYouTubeBackgroundUrl(youtubeId)}
-              title={expo.title}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[160%] h-[160%] min-w-full min-h-full object-cover opacity-80 scale-[1.2] border-0"
-              tabIndex={-1}
-            />
-          </div>
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={expo.posterUrl}
-            alt={expo.title}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
-        )}
+      <div className="relative bg-slate-950 text-white min-h-[400px] md:min-h-[480px] flex items-end overflow-hidden">
+        <ExpoMediaBackground
+          mediaType={expo.mediaType}
+          videoUrl={expo.videoUrl}
+          posterUrl={expo.posterUrl}
+          title={expo.title}
+        />
 
-        {/* Subtle bottom shadow gradient to make text readable */}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 w-full z-10">
@@ -102,10 +87,8 @@ export default async function DedicatedExpoPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Main Content & Registration Actions */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: In-Depth Overview & Details */}
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-xs">
               <div>
@@ -132,38 +115,14 @@ export default async function DedicatedExpoPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Right Column: Instant Registration & Booking Card */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 shadow-sm sticky top-24">
-              <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider block">
-                Participation & Passes
-              </span>
-              <h3 className="text-lg font-black text-slate-900 leading-snug">
-                Reserve Your Place at {expo.title}
-              </h3>
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Choose between trade buyer passes or reserve dedicated booth exhibition space.
-              </p>
-
-              <div className="space-y-2.5 pt-2">
-                <Link
-                  href={expo.visitorCtaLink}
-                  style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-                  className="w-full py-3 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-2 hover:brightness-110"
-                >
-                  <Ticket className="w-4 h-4" />
-                  <span>{expo.visitorCtaText}</span>
-                </Link>
-
-                <Link
-                  href="/#calendar"
-                  className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
-                >
-                  <Building2 className="w-4 h-4" />
-                  <span>{expo.exhibitorCtaText}</span>
-                </Link>
-              </div>
-            </div>
+            <ExpoBookingCard
+              expoTitle={expo.title}
+              visitorCtaText={expo.visitorCtaText}
+              visitorCtaLink={expo.visitorCtaLink}
+              exhibitorCtaText={expo.exhibitorCtaText}
+              exhibitorCtaLink={expo.exhibitorCtaLink}
+            />
           </div>
         </div>
       </div>

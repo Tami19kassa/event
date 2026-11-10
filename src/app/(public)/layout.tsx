@@ -4,6 +4,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { CookieConsent } from "@/components/CookieConsent";
 import { getThemeSettings } from "@/lib/settings";
 import { getCategories } from "@/lib/events";
+import { getCookieSettings } from "@/lib/cookie-settings";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -13,9 +14,10 @@ export default async function PublicLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [theme, categories] = await Promise.all([
+  const [theme, categories, cookieSettings] = await Promise.all([
     getThemeSettings(),
     getCategories(),
+    getCookieSettings(),
   ]);
 
   return (
@@ -29,7 +31,7 @@ export default async function PublicLayout({
       <main className="flex-1 pb-16 md:pb-0">{children}</main>
       <Footer siteName={theme.siteName} />
       <BottomNav />
-      <CookieConsent />
+      <CookieConsent settings={cookieSettings} />
     </>
   );
 }

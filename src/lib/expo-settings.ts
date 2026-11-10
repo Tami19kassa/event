@@ -10,7 +10,13 @@ export async function getExpoSlides(): Promise<HeroSlide[]> {
     const setting = await prisma.siteSetting.findUnique({ where: { key: "expo_hero_slides" } });
     if (setting?.value) {
       const parsed = JSON.parse(setting.value);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map((slide: HeroSlide) =>
+          slide.videoUrl?.includes("dQw4w9WgXcQ")
+            ? { ...slide, mediaType: "image" as const, videoUrl: undefined }
+            : slide
+        );
+      }
     }
   } catch {}
   return defaultExpoSlides;

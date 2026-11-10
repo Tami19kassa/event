@@ -91,6 +91,10 @@ export function Footer({ siteName = "Utopia" }: Props) {
               Addis Ababa Events Guide
             </Link>
             <span className="text-slate-700">·</span>
+            <Link href="/privacy" className="hover:text-slate-300 transition">
+              Privacy &amp; Cookies
+            </Link>
+            <span className="text-slate-700">·</span>
             <span>East Africa Time (UTC+3)</span>
           </div>
         </div>

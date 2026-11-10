@@ -14,6 +14,7 @@ import {
   CreditCard,
   Layers,
   Building2,
+  Mail,
   X,
 } from "lucide-react";
 import clsx from "clsx";
@@ -31,6 +32,7 @@ const mainNavItems: NavItem[] = [
   { href: "/admin/events", label: "Events", icon: Calendar },
   { href: "/admin/categories", label: "Event Types", icon: Layers },
   { href: "/admin/orders", label: "Orders & Gate", icon: ShoppingCart },
+  { href: "/admin/inquiries", label: "B2B Inquiries", icon: Mail },
   { href: "/admin/users", label: "Users", icon: Users },
 ];
 
