@@ -20,12 +20,12 @@ export function RouteErrorFallback({
 }: Props) {
   return (
     <div className="min-h-[55vh] flex items-center justify-center px-4 py-16">
-      <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 text-center shadow-sm space-y-5">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
+      <div className="max-w-md w-full bg-white border border-slate-200 theme-radius-card p-8 text-center shadow-sm space-y-5">
+        <div className="w-14 h-14 mx-auto theme-radius-sm bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
           <AlertTriangle className="w-7 h-7" />
         </div>
         <div className="space-y-1.5">
-          <h1 className="text-xl font-black text-slate-900">{title}</h1>
+          <h1 className="text-xl font-display text-slate-900">{title}</h1>
           <p className="text-sm text-slate-500 leading-relaxed">{description}</p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">

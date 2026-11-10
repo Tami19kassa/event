@@ -18,11 +18,11 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
             <ScrollReveal variant="fade-up" durationMs={500}>
               <div className="flex items-center justify-between mb-6 md:mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-2xs">
-                    <Flame className="w-5 h-5 fill-amber-500 animate-pulse" />
+                  <div className="w-10 h-10 theme-radius-sm theme-badge-accent border flex items-center justify-center shadow-2xs">
+                    <Flame className="w-5 h-5 animate-pulse" />
                   </div>
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                    <h2 className="text-2xl md:text-3xl font-display text-slate-900">
                       Featured Highlights
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -61,7 +61,7 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
               <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
                 Happening Soon
               </span>
-              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-display text-slate-900">
                 Upcoming Events &amp; Expos
               </h2>
             </div>
@@ -96,7 +96,7 @@ export function FeaturedEventsSection({ featured, upcoming }: FeaturedProps) {
         <div className="mt-8 md:hidden text-center">
           <Link
             href="/discover"
-            className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 text-white font-bold text-xs rounded-2xl hover:bg-slate-800 transition shadow-md"
+            className="inline-flex items-center justify-center gap-2 w-full py-3.5 bg-slate-900 text-white font-bold text-xs theme-radius hover:bg-slate-800 transition shadow-md"
           >
             Explore all events &amp; expos <ArrowRight className="w-3.5 h-3.5" />
           </Link>

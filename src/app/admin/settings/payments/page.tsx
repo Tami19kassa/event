@@ -60,7 +60,7 @@ export default function AdminPaymentSettingsPage() {
         <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
           Financial Infrastructure
         </span>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-display text-slate-900">
           Payment Gateways &amp; Accounts
         </h1>
         <p className="text-slate-500 text-sm mt-1">

@@ -67,7 +67,7 @@ export function OrderRow({ order, actionInProgress, onCheckIn, onApprove }: RowP
             </span>
           )}
           {isGate && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
               <DoorOpen className="w-3 h-3" /> Pay at Gate
             </span>
           )}

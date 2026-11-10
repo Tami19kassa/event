@@ -63,7 +63,7 @@ export default function AdminUsersPage() {
           <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Accounts & Permissions
           </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">User Management</h1>
+          <h1 className="text-3xl font-display text-slate-900">User Management</h1>
           <p className="text-slate-500 text-sm mt-1">
             Manage platform administrators, event organizers, and attendees.
           </p>
@@ -102,7 +102,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white theme-radius-card border border-slate-200 shadow-sm overflow-hidden">
         {loading && users.length === 0 ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
             <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />
@@ -133,7 +133,7 @@ export default function AdminUsersPage() {
                   <tr key={u.id} className="hover:bg-slate-50/50 transition">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl theme-badge border font-black flex items-center justify-center text-sm shadow-sm">
+                        <div className="w-10 h-10 theme-radius-sm theme-badge border font-bold flex items-center justify-center text-sm shadow-sm">
                           {u.name?.charAt(0) || u.email.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -149,7 +149,7 @@ export default function AdminUsersPage() {
                       <span
                         className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full ${
                           u.role === "ADMIN"
-                            ? "bg-purple-100 text-purple-800"
+                            ? "bg-slate-900 text-white"
                             : u.role === "ORGANIZER"
                             ? "theme-badge border"
                             : "bg-slate-100 text-slate-700"

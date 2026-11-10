@@ -93,7 +93,7 @@ export function CheckoutModal({
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-xl w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+      <div className="bg-white theme-radius-modal max-w-xl w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
         {/* Mobile Pull Indicator */}
         <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto my-2.5 sm:hidden shrink-0" />
 
@@ -103,7 +103,7 @@ export function CheckoutModal({
             <span className="text-[11px] font-bold text-[var(--color-primary)] uppercase tracking-wider block">
               Direct Booking &amp; Pass
             </span>
-            <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
+            <h3 className="text-xl sm:text-2xl font-display text-slate-900 leading-tight">
               {completedOrder ? "Reservation Confirmed" : "Reserve Your Tickets"}
             </h3>
             <p className="text-xs text-slate-500 truncate max-w-[240px] sm:max-w-md">{event.title}</p>

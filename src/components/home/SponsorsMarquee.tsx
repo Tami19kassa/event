@@ -22,14 +22,14 @@ export function SponsorsMarquee({ sponsors }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-200/90 pb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl theme-badge border flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 theme-radius-sm theme-badge border flex items-center justify-center shrink-0">
                 <Award className="w-5 h-5" />
               </div>
               <div>
-                <span className="text-[10px] font-black text-[var(--color-primary)] uppercase tracking-widest block">
+                <span className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-widest block">
                   Official Expo Backing
                 </span>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-lg sm:text-xl font-display text-slate-900">
                   Commercial Sponsors &amp; Strategic Partners
                 </h3>
               </div>
@@ -37,9 +37,9 @@ export function SponsorsMarquee({ sponsors }: Props) {
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="inline-flex items-center gap-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-2.5 rounded-xl transition cursor-pointer self-start sm:self-auto shadow-xs active:scale-95"
+              className="inline-flex items-center gap-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-2.5 theme-radius transition cursor-pointer self-start sm:self-auto shadow-xs active:scale-95"
             >
-              <Handshake className="w-4 h-4 text-amber-400" />
+              <Handshake className="w-4 h-4" style={{ color: "var(--color-accent-on-dark, var(--color-accent))" }} />
               <span>Become a Sponsor</span>
             </button>
           </div>
@@ -59,7 +59,7 @@ export function SponsorsMarquee({ sponsors }: Props) {
                     <CardTag
                       key={s.id}
                       {...linkProps}
-                      className="bg-white hover:border-[var(--color-primary)] border border-slate-200/90 rounded-2xl p-4 flex items-center gap-4 transition group shadow-xs hover:shadow-md"
+                      className="bg-white hover:border-[var(--color-primary)] border border-slate-200/90 theme-radius-card p-4 flex items-center gap-4 transition group shadow-xs hover:shadow-md"
                     >
                       <div className="w-24 h-14 flex items-center justify-center shrink-0">
                         {hasLogo ? (
@@ -72,7 +72,7 @@ export function SponsorsMarquee({ sponsors }: Props) {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="w-14 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-base font-black text-slate-700">
+                          <div className="w-14 h-12 theme-radius-sm bg-slate-100 flex items-center justify-center text-base font-bold text-slate-700">
                             {s.name.slice(0, 2).toUpperCase()}
                           </div>
                         )}
@@ -83,7 +83,10 @@ export function SponsorsMarquee({ sponsors }: Props) {
                           <span className="truncate">{s.name}</span>
                           {safeHref && <ArrowUpRight className="w-3.5 h-3.5 shrink-0 opacity-60" />}
                         </span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mt-0.5">
+                        <span
+                          className="text-[10px] font-bold uppercase tracking-wider block mt-0.5"
+                          style={{ color: "var(--color-accent-ink, #7F5206)" }}
+                        >
                           Strategic Partner
                         </span>
                       </div>
@@ -109,7 +112,7 @@ export function SponsorsMarquee({ sponsors }: Props) {
                     <CardTag
                       key={s.id}
                       {...linkProps}
-                      className="bg-white hover:border-slate-300 border border-slate-200/90 rounded-xl px-3.5 py-2.5 flex items-center gap-3 transition group shadow-2xs hover:shadow-xs"
+                      className="bg-white hover:border-slate-300 border border-slate-200/90 theme-radius-sm px-3.5 py-2.5 flex items-center gap-3 transition group shadow-2xs hover:shadow-xs"
                     >
                       {hasLogo && (
                         <div className="w-11 h-9 flex items-center justify-center shrink-0">

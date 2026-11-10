@@ -67,12 +67,12 @@ export function EventCalendarSection({ events }: Props) {
                   borderColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.2)",
                   color: "var(--color-primary, #4F46E5)",
                 }}
-                className="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-black uppercase tracking-wider mb-2"
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-bold uppercase tracking-wider mb-2"
               >
                 <CalendarIcon className="w-3.5 h-3.5" />
                 <span>Live Event & Expo Calendar</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-display text-slate-900">
                 Upcoming Trade Shows & Event Schedule
               </h2>
               <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-2xl">
@@ -81,14 +81,14 @@ export function EventCalendarSection({ events }: Props) {
             </div>
 
             <div className="shrink-0 flex items-center gap-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3.5 py-1.5 rounded-full shadow-2xs self-start md:self-auto">
-              <Sparkles className="w-4 h-4 text-amber-500" />
+              <Sparkles className="w-4 h-4" style={{ color: "var(--color-accent-ink, #B45309)" }} />
               <span>{filteredEvents.length} events scheduled</span>
             </div>
           </div>
         </ScrollReveal>
 
         {/* Filter Bar */}
-        <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs space-y-3">
+        <div className="bg-white theme-radius-card border border-slate-200/90 p-4 shadow-xs space-y-3">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -97,7 +97,7 @@ export function EventCalendarSection({ events }: Props) {
                 placeholder="Search event name, venue (e.g. Millennium Hall)..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                className="w-full pl-9 pr-4 py-2 border border-slate-200 theme-radius-sm text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
             </div>
 
@@ -106,11 +106,8 @@ export function EventCalendarSection({ events }: Props) {
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  style={{
-                    backgroundColor: selectedCategory === cat ? "var(--color-primary, #4F46E5)" : undefined,
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                    selectedCategory === cat ? "text-white shadow-2xs" : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  className={`px-3 py-1.5 theme-radius-sm text-xs font-bold whitespace-nowrap transition cursor-pointer ${
+                    selectedCategory === cat ? "theme-nav-active" : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                   }`}
                 >
                   {cat === "ALL" ? "All Categories" : cat}

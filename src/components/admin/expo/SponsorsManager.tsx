@@ -59,18 +59,18 @@ export function SponsorsManager({ sponsors, onChange }: Props) {
   };
 
   return (
-    <section className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6">
+    <section className="bg-white theme-radius-card border border-slate-200 p-6 space-y-6">
       <div className="flex items-center gap-2.5 border-b border-slate-100 pb-4">
-        <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+        <div className="w-8 h-8 theme-radius-sm theme-badge-accent border flex items-center justify-center">
           <Award className="w-4 h-4" />
         </div>
         <div>
-          <h2 className="text-base font-extrabold text-slate-900">Commercial Sponsors &amp; Strategic Partners</h2>
+          <h2 className="text-base font-display text-slate-900">Commercial Sponsors &amp; Strategic Partners</h2>
           <p className="text-xs text-slate-500">Attach company logos, website links, and configure tiers.</p>
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+      <form onSubmit={handleSave} className="bg-slate-50 p-5 theme-radius-card border border-slate-200 space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
             {editingId ? "Edit Sponsor Details" : "Add New Sponsor Partner"}

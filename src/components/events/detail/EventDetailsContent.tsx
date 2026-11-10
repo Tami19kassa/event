@@ -8,7 +8,7 @@ export function EventDetailsContent({ event }: { event: Event }) {
     <div className="space-y-10">
       {/* About */}
       <section>
-        <h2 className="text-xl font-bold text-slate-900 mb-3">About this event</h2>
+        <h2 className="text-xl font-display text-slate-900 mb-3">About this event</h2>
         <div className="prose prose-slate max-w-none whitespace-pre-line text-slate-600 leading-relaxed text-sm md:text-base">
           {event.description}
         </div>
@@ -17,11 +17,11 @@ export function EventDetailsContent({ event }: { event: Event }) {
       {/* Agenda */}
       {event.agenda && event.agenda.length > 0 && (
         <section>
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Agenda Schedule</h2>
+          <h2 className="text-xl font-display text-slate-900 mb-4">Agenda Schedule</h2>
           <div className="space-y-3">
             {event.agenda.map((item, i) => (
-              <div key={i} className="flex gap-4 p-4 bg-slate-50 border border-slate-200/70 rounded-2xl">
-                <div className="text-xs font-bold text-[var(--color-primary)] w-20 shrink-0 uppercase tracking-wider">
+              <div key={i} className="flex gap-4 p-4 bg-slate-50 border border-slate-200/70 theme-radius-card">
+                <div className="text-xs font-bold theme-text-secondary w-20 shrink-0 uppercase tracking-wider">
                   {item.time}
                 </div>
                 <div>
@@ -39,16 +39,16 @@ export function EventDetailsContent({ event }: { event: Event }) {
       {/* Speakers */}
       {event.speakers.length > 0 && (
         <section>
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Featured Speakers</h2>
+          <h2 className="text-xl font-display text-slate-900 mb-4">Featured Speakers</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {event.speakers.map((speaker) => (
-              <div key={speaker.id} className="flex gap-4 p-4 border border-slate-200 rounded-2xl bg-white shadow-2xs">
+              <div key={speaker.id} className="flex gap-4 p-4 border border-slate-200 theme-radius-card bg-white shadow-2xs">
                 <Image
                   src={speaker.imageUrl}
                   alt={speaker.name}
                   width={64}
                   height={64}
-                  className="rounded-2xl object-cover w-16 h-16 shrink-0"
+                  className="theme-radius-sm object-cover w-16 h-16 shrink-0"
                 />
                 <div>
                   <div className="font-bold text-slate-900 text-sm">{speaker.name}</div>
@@ -65,13 +65,13 @@ export function EventDetailsContent({ event }: { event: Event }) {
 
       {/* Venue Location */}
       <section>
-        <h2 className="text-xl font-bold text-slate-900 mb-3">Venue & Hall</h2>
-        <div className="p-5 border border-slate-200 rounded-2xl bg-white shadow-2xs">
+        <h2 className="text-xl font-display text-slate-900 mb-3">Venue & Hall</h2>
+        <div className="p-5 border border-slate-200 theme-radius-card bg-white shadow-2xs">
           <div className="font-bold text-slate-900 text-base">{event.location.name}</div>
           {event.location.address && (
             <div className="text-xs text-slate-500 mt-1">{event.location.address}</div>
           )}
-          <div className="text-xs text-slate-600 font-medium mt-0.5">
+          <div className="text-xs theme-text-secondary font-medium mt-0.5">
             {event.location.city}, {event.location.country}
           </div>
           {event.format !== "online" && (
@@ -89,9 +89,9 @@ export function EventDetailsContent({ event }: { event: Event }) {
 
       {/* Organizer */}
       <section>
-        <h2 className="text-xl font-bold text-slate-900 mb-3">Official Organizer</h2>
-        <div className="flex items-center gap-3 p-4 border border-slate-200 rounded-2xl bg-white shadow-2xs">
-          <div className="w-12 h-12 rounded-2xl theme-badge border flex items-center justify-center font-black text-lg">
+        <h2 className="text-xl font-display text-slate-900 mb-3">Official Organizer</h2>
+        <div className="flex items-center gap-3 p-4 border border-slate-200 theme-radius-card bg-white shadow-2xs">
+          <div className="w-12 h-12 theme-radius-sm theme-badge border flex items-center justify-center font-display text-lg">
             {event.organizer.name.charAt(0)}
           </div>
           <div>

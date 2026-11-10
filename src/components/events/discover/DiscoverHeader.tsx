@@ -36,7 +36,7 @@ export function DiscoverHeader({
         <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
           Event Directory
         </span>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Discover Events</h1>
+        <h1 className="text-3xl font-display text-slate-900">Discover Events</h1>
         <p className="text-xs text-slate-500 mt-1">
           Conferences, trade exhibitions, festivals, and summits across Ethiopia.
         </p>
@@ -50,7 +50,7 @@ export function DiscoverHeader({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by event title, venue, city, or keywords..."
-            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] shadow-2xs"
+            className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] shadow-2xs"
           />
         </div>
 
@@ -60,7 +60,7 @@ export function DiscoverHeader({
               key={fmt}
               type="button"
               onClick={() => onSelectFormat(fmt)}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition cursor-pointer whitespace-nowrap ${
+              className={`px-3 py-2 theme-radius-sm text-xs font-bold transition cursor-pointer whitespace-nowrap ${
                 selectedFormat === fmt
                   ? "theme-nav-active"
                   : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"

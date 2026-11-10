@@ -3,6 +3,13 @@
 import { Layers } from "lucide-react";
 import { ThemeSettings } from "@/lib/theme-types";
 
+const GRADIENT_DIRECTIONS = [
+  { value: "to-br", label: "Diagonal ↘" },
+  { value: "to-r", label: "Horizontal →" },
+  { value: "to-b", label: "Vertical ↓" },
+  { value: "to-tr", label: "Diagonal ↗" },
+] as const;
+
 interface Props {
   settings: ThemeSettings;
   update: (key: keyof ThemeSettings, value: string) => void;
@@ -113,6 +120,40 @@ export function TypographyShapeSection({ settings, update }: Props) {
           })}
         </div>
       </div>
+
+      {settings.themeType === "gradient" && (
+        <div>
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            Gradient Direction
+          </label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {GRADIENT_DIRECTIONS.map((dir) => {
+              const active = (settings.gradientDirection || "to-br") === dir.value;
+              return (
+                <button
+                  key={dir.value}
+                  type="button"
+                  onClick={() => update("gradientDirection", dir.value)}
+                  style={
+                    active
+                      ? {
+                          borderColor: "var(--color-primary)",
+                          backgroundColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.08)",
+                          color: "var(--color-primary)",
+                        }
+                      : undefined
+                  }
+                  className={`py-2 px-2.5 text-xs font-bold rounded-xl border transition cursor-pointer ${
+                    active ? "" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {dir.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -30,7 +30,7 @@ export function CheckoutSuccessView({ event, order, onClose }: Props) {
         <CheckCircle2 className="w-8 h-8" />
       </div>
       <div>
-        <h3 className="text-2xl font-black text-slate-900 mb-1">
+        <h3 className="text-2xl font-display text-slate-900 mb-1">
           {isPayAtGate ? "Gate Reservation Confirmed!" : "Ticket Pass Ready!"}
         </h3>
         <p className="text-xs text-slate-500">

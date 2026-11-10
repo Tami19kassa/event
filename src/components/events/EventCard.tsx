@@ -46,7 +46,7 @@ export function EventCard({ event }: EventCardProps) {
     <Link
       href={`/events/${event.slug}`}
       prefetch={true}
-      className="group block bg-white theme-radius overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 flex flex-col h-full active:scale-[0.98]"
+      className="group block bg-white theme-radius-card overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 flex flex-col h-full active:scale-[0.98]"
     >
       <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <Image
@@ -65,7 +65,7 @@ export function EventCard({ event }: EventCardProps) {
             </span>
           )}
           {isAlmostSoldOut && (
-            <span className="px-2.5 py-1 text-xs font-semibold bg-amber-500 text-white rounded-full shadow-sm">
+            <span className="px-2.5 py-1 text-xs font-bold theme-pill-accent rounded-full shadow-sm">
               Selling fast
             </span>
           )}
@@ -98,12 +98,12 @@ export function EventCard({ event }: EventCardProps) {
             </span>
           </div>
 
-          <h3 className="font-bold text-slate-900 line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2 text-base leading-snug">
+          <h3 className="font-display text-slate-900 line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors mb-2 text-base leading-snug">
             {event.title}
           </h3>
 
           <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-4">
-            <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+            <MapPin className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }} />
             <span className="truncate">
               {event.location.city || event.location.name}
               {event.format === "online" ? " · Online Stream" : ""}

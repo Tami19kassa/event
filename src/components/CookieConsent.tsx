@@ -52,14 +52,14 @@ export function CookieConsent({ settings = defaultCookieSettings }: Props) {
 
   return (
     <div className="fixed bottom-20 md:bottom-4 left-0 right-0 z-50 px-3 sm:px-4 md:px-6 pointer-events-none">
-      <div className="max-w-4xl mx-auto bg-white border border-slate-200 rounded-2xl shadow-2xl p-4 sm:p-5 md:p-6 pointer-events-auto">
+      <div className="max-w-4xl mx-auto bg-white border border-slate-200 theme-radius-card shadow-2xl p-4 sm:p-5 md:p-6 pointer-events-auto">
         <div className="flex items-start gap-3 sm:gap-4">
-          <div className="hidden sm:flex w-10 h-10 rounded-xl theme-badge border items-center justify-center shrink-0">
+          <div className="hidden sm:flex w-10 h-10 theme-radius-sm theme-badge border items-center justify-center shrink-0">
             <Cookie className="w-5 h-5" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base mb-1">{settings.title}</h3>
+            <h3 className="font-display text-slate-900 text-sm sm:text-base mb-1">{settings.title}</h3>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
               {settings.description}{" "}
               <Link href={settings.privacyPolicyUrl || "/privacy"} className="text-[var(--color-primary)] font-semibold hover:underline">

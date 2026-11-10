@@ -33,10 +33,14 @@ export function StatsSection({
               durationMs={500}
             >
               <div className="flex flex-col items-center group">
-                <div className="w-10 h-10 rounded-2xl theme-badge border flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform duration-300">
+                <div
+                  className={`w-10 h-10 theme-radius-sm border flex items-center justify-center mb-2.5 group-hover:scale-110 transition-transform duration-300 ${
+                    idx % 2 === 1 ? "theme-badge-secondary" : "theme-badge"
+                  }`}
+                >
                   <stat.icon className="w-5 h-5" />
                 </div>
-                <div className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+                <div className="text-xl sm:text-2xl md:text-3xl font-display text-slate-900">
                   {stat.value}
                 </div>
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">

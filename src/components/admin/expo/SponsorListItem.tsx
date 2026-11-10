@@ -28,7 +28,7 @@ export function SponsorListItem({ sponsor: s, isEditing, onEdit, onDelete }: Pro
       <div className="flex items-center gap-3 min-w-0">
         <span
           className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 ${
-            s.tier === "STRATEGIC" ? "bg-amber-100 text-amber-900 border border-amber-200" : "bg-slate-100 text-slate-700"
+            s.tier === "STRATEGIC" ? "theme-badge-accent border" : "bg-slate-100 text-slate-700"
           }`}
         >
           {s.tier}

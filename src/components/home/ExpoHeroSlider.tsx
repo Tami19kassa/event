@@ -93,19 +93,19 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                     <Link href={`/expo/${slide.id}`} className="block group">
                       <h1
                         style={{ textShadow: "0 2px 10px rgba(0,0,0,0.9), 0 4px 30px rgba(0,0,0,0.8)" }}
-                        className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white group-hover:text-slate-200 transition-colors leading-[1.12] break-words"
+                        className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-white group-hover:text-slate-200 transition-colors leading-[1.12] break-words"
                       >
                         {slide.title}
                       </h1>
                     </Link>
 
                     <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-white font-medium">
-                      <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-xl border border-white/15 backdrop-blur-sm">
-                        <Calendar className="w-3.5 h-3.5 text-amber-300" />
+                      <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 theme-radius-sm border border-white/15 backdrop-blur-sm">
+                        <Calendar className="w-3.5 h-3.5" style={{ color: "var(--color-accent-on-dark, var(--color-accent))" }} />
                         <span>{slide.datesText}</span>
                       </span>
-                      <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 rounded-xl border border-white/15 backdrop-blur-sm">
-                        <MapPin className="w-3.5 h-3.5 text-rose-300" />
+                      <span className="flex items-center gap-1.5 bg-black/40 px-3 py-1.5 theme-radius-sm border border-white/15 backdrop-blur-sm">
+                        <MapPin className="w-3.5 h-3.5" style={{ color: "var(--color-secondary-on-dark, var(--color-secondary))" }} />
                         <span>{slide.venueText}</span>
                       </span>
                     </div>
@@ -133,7 +133,7 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                       {customExhibitorLink ? (
                         <Link
                           href={slide.exhibitorCtaLink}
-                          className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 rounded-xl border border-white/30 transition backdrop-blur-sm active:scale-95 text-xs sm:text-sm"
+                          className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 theme-radius border border-white/30 transition backdrop-blur-sm active:scale-95 text-xs sm:text-sm"
                         >
                           <span>{slide.exhibitorCtaText}</span>
                         </Link>
@@ -144,7 +144,7 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                             setSelectedExpoTitle(slide.title);
                             setInquiryModalOpen(true);
                           }}
-                          className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 rounded-xl border border-white/30 transition backdrop-blur-sm cursor-pointer active:scale-95 text-xs sm:text-sm"
+                          className="bg-black/40 hover:bg-black/60 text-white font-bold px-5 py-3 theme-radius border border-white/30 transition backdrop-blur-sm cursor-pointer active:scale-95 text-xs sm:text-sm"
                         >
                           <span>{slide.exhibitorCtaText}</span>
                         </button>

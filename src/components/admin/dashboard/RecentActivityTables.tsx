@@ -11,9 +11,9 @@ export function RecentActivityTables({ recentEvents, recentOrders }: Props) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Recent Events */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white theme-radius-card border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-          <h2 className="font-bold text-slate-900 text-base">Recent Events</h2>
+          <h2 className="font-display text-slate-900 text-base">Recent Events</h2>
           <Link href="/admin/events" className="text-xs font-bold text-[var(--color-primary)] hover:opacity-80 flex items-center gap-1">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>
@@ -39,9 +39,9 @@ export function RecentActivityTables({ recentEvents, recentOrders }: Props) {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white theme-radius-card border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-          <h2 className="font-bold text-slate-900 text-base">Recent Passes & Bookings</h2>
+          <h2 className="font-display text-slate-900 text-base">Recent Passes & Bookings</h2>
           <Link href="/admin/orders" className="text-xs font-bold text-[var(--color-primary)] hover:opacity-80 flex items-center gap-1">
             View all <ArrowRight className="w-3.5 h-3.5" />
           </Link>

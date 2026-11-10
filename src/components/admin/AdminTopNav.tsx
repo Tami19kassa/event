@@ -48,7 +48,7 @@ export function AdminTopNav({
         </Link>
 
         <div className="flex items-center gap-2 pl-3 border-l border-slate-200 text-xs">
-          <div className="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-xs">
+          <div className="w-7 h-7 rounded-full theme-bg-primary flex items-center justify-center font-bold text-xs shadow-xs">
             A
           </div>
           <div className="hidden sm:flex flex-col">

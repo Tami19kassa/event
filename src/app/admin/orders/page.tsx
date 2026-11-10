@@ -121,7 +121,7 @@ export default function AdminOrdersPage() {
           <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Attendee Verification &amp; Gate Tracking
           </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-display text-slate-900">
             Orders, Receipts &amp; Gate Check-In
           </h1>
         </div>
@@ -145,7 +145,7 @@ export default function AdminOrdersPage() {
 
       <OrdersFilterBar search={search} onSearchChange={setSearch} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} />
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white theme-radius-card border border-slate-200 shadow-sm overflow-hidden">
         {loading && orders.length === 0 ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
             <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />

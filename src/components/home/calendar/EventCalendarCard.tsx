@@ -31,7 +31,7 @@ export function EventCalendarCard({ event, onSelect }: Props) {
       tabIndex={0}
       onClick={() => onSelect(event)}
       onKeyDown={handleKeyDown}
-      className="group w-[270px] sm:w-[300px] h-[345px] bg-white rounded-3xl border border-slate-200/90 hover:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden select-none"
+      className="group w-[270px] sm:w-[300px] h-[345px] bg-white theme-radius-card border border-slate-200/90 hover:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden select-none"
     >
       <div className="relative h-28 bg-slate-900 shrink-0 overflow-hidden">
         {event.imageUrl && (
@@ -44,11 +44,11 @@ export function EventCalendarCard({ event, onSelect }: Props) {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/30 pointer-events-none" />
 
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md rounded-xl px-2.5 py-1.5 text-center shadow-md min-w-[46px]">
-          <span className="text-[9px] font-black uppercase tracking-wider text-[var(--color-primary)] block leading-none">
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md theme-radius-sm px-2.5 py-1.5 text-center shadow-md min-w-[46px]">
+          <span className="text-[9px] font-extrabold uppercase tracking-wider text-[var(--color-primary)] block leading-none">
             {dateInfo.month}
           </span>
-          <span className="text-base font-black text-slate-900 leading-tight block">
+          <span className="text-base font-extrabold text-slate-900 leading-tight block">
             {dateInfo.day}
           </span>
         </div>
@@ -71,14 +71,14 @@ export function EventCalendarCard({ event, onSelect }: Props) {
             </span>
           </div>
 
-          <h3 className="text-base font-black text-slate-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 leading-snug">
+          <h3 className="text-base font-display text-slate-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 leading-snug">
             {event.title}
           </h3>
         </div>
 
         <div className="space-y-1 text-xs text-slate-500 pt-2">
           <div className="flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 shrink-0 text-[var(--color-primary)]" />
+            <MapPin className="w-3.5 h-3.5 shrink-0" style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }} />
             <span className="truncate font-medium">
               {event.location.name || event.location.city}
             </span>
@@ -93,7 +93,7 @@ export function EventCalendarCard({ event, onSelect }: Props) {
       <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between shrink-0">
         <div>
           <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">Entry</span>
-          <span className="text-xs font-black text-slate-900">
+          <span className="text-xs font-extrabold text-slate-900">
             {minPrice === 0 ? "Free Pass" : `ETB ${minPrice.toLocaleString()}`}
           </span>
         </div>

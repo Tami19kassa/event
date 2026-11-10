@@ -38,7 +38,7 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
   const badgeStyle = isGate
     ? "bg-amber-400 text-slate-950"
     : isPending
-    ? "bg-blue-400 text-slate-950"
+    ? "theme-bg-primary"
     : "bg-emerald-400 text-slate-950";
 
   const badgeLabel = isGate
@@ -48,7 +48,7 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
     : "Verified Paid";
 
   return (
-    <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 text-left shadow-2xl relative overflow-hidden mb-5">
+    <div className="bg-slate-900 text-white theme-radius-card p-5 sm:p-6 text-left shadow-2xl relative overflow-hidden mb-5">
       <div className="flex items-center justify-between gap-2 mb-3">
         <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">
           Official Scannable Pass
@@ -60,11 +60,14 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
 
       <div className="flex items-start gap-4">
         <div className="flex-1 min-w-0">
-          <h4 className="text-lg sm:text-xl font-bold leading-snug mb-3">{event.title}</h4>
+          <h4 className="text-lg sm:text-xl font-display leading-snug mb-3">{event.title}</h4>
           <div className="grid grid-cols-2 gap-3 text-xs pt-3 border-t border-slate-800">
             <div>
               <span className="text-slate-400 block text-[10px]">PASS REFERENCE</span>
-              <span className="font-mono font-bold text-amber-300 break-all">
+              <span
+                className="font-mono font-bold break-all"
+                style={{ color: "var(--color-accent-on-dark, var(--color-accent))" }}
+              >
                 {order.orderNumber}
               </span>
             </div>

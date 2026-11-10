@@ -63,10 +63,10 @@ export function SponsorInquiryModal({ isOpen, onClose }: Props) {
       isOpen={isOpen}
       onClose={handleClose}
       eyebrow="Commercial Partnership"
-      eyebrowClassName="text-amber-600"
+      eyebrowClassName="theme-text-accent"
       title={submittedRef ? "Sponsorship Application Logged" : "Become an Official Sponsor"}
       icon={<Award className="w-4 h-4" />}
-      iconWrapperClassName="bg-amber-50 text-amber-600"
+      iconWrapperClassName="theme-badge-accent border"
       submittedRef={submittedRef}
       successTitle="Application Received"
       successDescription={

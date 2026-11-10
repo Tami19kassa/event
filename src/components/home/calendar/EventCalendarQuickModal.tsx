@@ -41,7 +41,7 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
       }}
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200 overscroll-none"
     >
-      <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+      <div className="bg-white theme-radius-modal max-w-lg w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
         {/* Mobile drag handle */}
         <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto my-2.5 sm:hidden shrink-0" />
 
@@ -63,7 +63,7 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
             </span>
           </div>
 
-          <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-snug pr-8 line-clamp-2">
+          <h3 className="text-lg sm:text-xl font-display text-slate-900 leading-snug pr-8 line-clamp-2">
             {event.title}
           </h3>
 
@@ -73,7 +73,7 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
               <span>{dateInfo.month} {dateInfo.day}, {dateInfo.year} ({dateInfo.time})</span>
             </span>
             <span className="flex items-center gap-1 font-medium">
-              <MapPin style={{ color: "var(--color-primary, #4F46E5)" }} className="w-3.5 h-3.5" />
+              <MapPin style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }} className="w-3.5 h-3.5" />
               <span className="truncate max-w-[200px]">{event.location.name || event.location.city}</span>
             </span>
           </div>
@@ -117,7 +117,7 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
             <div className="p-5 sm:p-6 space-y-4">
               {/* Event Cover Photo if available */}
               {event.imageUrl && (
-                <div className="rounded-xl overflow-hidden h-40 bg-slate-100">
+                <div className="theme-radius-sm overflow-hidden h-40 bg-slate-100">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
                 </div>
@@ -130,7 +130,7 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
                 </p>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-2 text-xs">
+              <div className="bg-slate-50 p-4 theme-radius-sm border border-slate-200/80 space-y-2 text-xs">
                 <div className="flex justify-between text-slate-600">
                   <span className="font-medium">Organizer</span>
                   <span className="font-bold text-slate-900">{event.organizer.name}</span>
@@ -148,7 +148,7 @@ export function EventCalendarQuickModal({ event, onClose }: Props) {
               <div className="pt-2">
                 <Link
                   href={`/events/${event.slug}`}
-                  className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition"
+                  className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs theme-radius flex items-center justify-center gap-1.5 transition"
                 >
                   <span>View Full Event Page & Speakers</span>
                   <ExternalLink className="w-3.5 h-3.5" />

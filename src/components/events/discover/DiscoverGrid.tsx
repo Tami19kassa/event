@@ -45,9 +45,9 @@ export function DiscoverGrid({
       )}
 
       {events.length === 0 ? (
-        <div className="p-16 text-center bg-white rounded-3xl border border-slate-200">
+        <div className="p-16 text-center bg-white theme-radius-card border border-slate-200">
           <Sparkles className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <h3 className="font-bold text-slate-800 text-base mb-1">No events match your criteria</h3>
+          <h3 className="font-display text-slate-800 text-base mb-1">No events match your criteria</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
             Try adjusting your search query, selecting another category, or clearing filters.
           </p>

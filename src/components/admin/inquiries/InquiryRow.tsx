@@ -36,9 +36,7 @@ export function InquiryRow({ inquiry, busy, onStatusChange, onDelete }: Props) {
       <td className="px-5 py-4">
         <span
           className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${
-            isExhibitor
-              ? "bg-blue-50 text-blue-700 border-blue-200"
-              : "bg-amber-50 text-amber-800 border-amber-200"
+            isExhibitor ? "theme-badge" : "theme-badge-accent"
           }`}
         >
           {isExhibitor ? <Building2 className="w-3 h-3" /> : <Award className="w-3 h-3" />}

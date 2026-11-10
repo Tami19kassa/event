@@ -60,7 +60,7 @@ export default function CookieSettingsPage() {
   return (
     <div className="p-6 md:p-8 max-w-3xl space-y-6">
       <div className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+        <h1 className="text-2xl font-display text-slate-900 flex items-center gap-2">
           <Cookie className="w-6 h-6 text-[var(--color-primary)]" />
           Cookie Consent
         </h1>
@@ -138,9 +138,9 @@ export default function CookieSettingsPage() {
         onUpdate={(key, val) => update(key as keyof CookieSettings, val)}
       />
 
-      <div className="flex gap-3 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-800">
-        <Info className="w-5 h-5 shrink-0 text-blue-500" />
-        <p className="text-xs leading-relaxed">
+      <div className="flex gap-3 p-4 theme-badge border theme-radius-sm text-sm">
+        <Info className="w-5 h-5 shrink-0" />
+        <p className="text-xs leading-relaxed text-slate-700">
           Essential cookies handle admin authentication and session integrity. Analytics and marketing preferences are persisted per visitor in browser storage and recorded via <span className="font-mono">/api/cookies/consent</span>.
         </p>
       </div>

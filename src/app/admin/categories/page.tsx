@@ -59,7 +59,7 @@ export default function AdminCategoriesPage() {
           <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Back-Office Operations
           </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-display text-slate-900">
             Event Types & Categories
           </h1>
           <p className="text-slate-500 text-sm mt-1">
@@ -98,7 +98,7 @@ export default function AdminCategoriesPage() {
         </div>
 
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white theme-radius-card border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100">
               <h2 className="font-bold text-slate-900 text-lg">Active Event Categories</h2>
               <p className="text-xs text-slate-400">{categories.length} categories configured</p>

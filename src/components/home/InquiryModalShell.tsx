@@ -51,17 +51,17 @@ export function InquiryModalShell({
       }}
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in overscroll-none"
     >
-      <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92dvh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+      <div className="bg-white theme-radius-modal max-w-lg w-full max-h-[92dvh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${iconWrapperClassName}`}>
+            <div className={`w-8 h-8 theme-radius-sm flex items-center justify-center ${iconWrapperClassName}`}>
               {icon}
             </div>
             <div>
               <span className={`text-[10px] font-bold uppercase tracking-widest block ${eyebrowClassName}`}>
                 {eyebrow}
               </span>
-              <h3 className="text-lg font-extrabold text-slate-900 leading-tight">{title}</h3>
+              <h3 className="text-lg font-display text-slate-900 leading-tight">{title}</h3>
             </div>
           </div>
           <button

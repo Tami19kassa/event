@@ -21,16 +21,16 @@ export default async function PrivacyPolicyPage() {
         <ArrowLeft className="w-3.5 h-3.5" /> Back to {theme.siteName}
       </Link>
 
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xs space-y-6">
+      <div className="bg-white theme-radius-card border border-slate-200 p-6 sm:p-10 shadow-xs space-y-6">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl theme-badge border flex items-center justify-center">
+          <div className="w-11 h-11 theme-radius-sm theme-badge border flex items-center justify-center">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
             <span className="text-[11px] font-bold uppercase tracking-widest text-[var(--color-primary)] block">
               Data &amp; Privacy Governance
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
+            <h1 className="text-2xl sm:text-3xl font-display text-slate-900">
               Privacy &amp; Cookie Policy
             </h1>
           </div>

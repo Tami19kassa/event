@@ -99,7 +99,7 @@ export default function AdminInquiriesPage() {
           <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Commercial Pipeline
           </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-display text-slate-900">
             B2B Exhibitor & Sponsor Inquiries
           </h1>
           <p className="text-slate-500 text-sm mt-1">
@@ -118,23 +118,23 @@ export default function AdminInquiriesPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+        <div className="bg-white theme-radius-card border border-slate-200 p-4">
           <span className="text-xs font-bold text-slate-400 uppercase block">New Unread</span>
-          <span className="text-2xl font-black text-[var(--color-primary)]">{newCount}</span>
+          <span className="text-2xl font-display text-[var(--color-primary)]">{newCount}</span>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
+        <div className="bg-white theme-radius-card border border-slate-200 p-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 uppercase block">Exhibitors</span>
-            <span className="text-2xl font-black text-slate-900">{exhibitorCount}</span>
+            <span className="text-2xl font-display text-slate-900">{exhibitorCount}</span>
           </div>
-          <Building2 className="w-5 h-5 text-blue-500" />
+          <Building2 className="w-5 h-5" style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }} />
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between">
+        <div className="bg-white theme-radius-card border border-slate-200 p-4 flex items-center justify-between">
           <div>
             <span className="text-xs font-bold text-slate-400 uppercase block">Sponsors</span>
-            <span className="text-2xl font-black text-slate-900">{sponsorCount}</span>
+            <span className="text-2xl font-display text-slate-900">{sponsorCount}</span>
           </div>
-          <Award className="w-5 h-5 text-amber-500" />
+          <Award className="w-5 h-5" style={{ color: "var(--color-accent-ink, #7F5206)" }} />
         </div>
       </div>
 
@@ -147,7 +147,7 @@ export default function AdminInquiriesPage() {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white theme-radius-card border border-slate-200 shadow-xs overflow-hidden">
         {loading && inquiries.length === 0 ? (
           <div className="p-16 text-center text-slate-400 text-sm">Loading B2B inquiries...</div>
         ) : filtered.length === 0 ? (

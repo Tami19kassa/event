@@ -76,7 +76,7 @@ export default function AdminEventsPage() {
           <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
             Catalog Management
           </span>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Events Management</h1>
+          <h1 className="text-3xl font-display text-slate-900">Events Management</h1>
           <p className="text-slate-500 text-sm mt-1">
             Toggle events live on the main page, monitor ticket sales, and manage your catalog.
           </p>
@@ -119,7 +119,7 @@ export default function AdminEventsPage() {
         </button>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white theme-radius-card border border-slate-200 shadow-sm overflow-hidden">
         {loading && events.length === 0 ? (
           <div className="p-16 flex flex-col items-center justify-center gap-3 text-slate-400">
             <RefreshCw className="w-6 h-6 animate-spin text-[var(--color-primary)]" />

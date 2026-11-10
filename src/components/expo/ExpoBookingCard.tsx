@@ -25,11 +25,11 @@ export function ExpoBookingCard({
 
   return (
     <>
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 shadow-sm sticky top-24">
+      <div className="bg-white theme-radius-card border border-slate-200 p-6 space-y-4 shadow-sm sticky top-24">
         <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block">
           Participation &amp; Passes
         </span>
-        <h3 className="text-lg font-black text-slate-900 leading-snug">
+        <h3 className="text-lg font-display text-slate-900 leading-snug">
           Reserve Your Place at {expoTitle}
         </h3>
         <p className="text-xs text-slate-500 leading-relaxed">
@@ -48,7 +48,7 @@ export function ExpoBookingCard({
           {isCustomLink ? (
             <Link
               href={exhibitorCtaLink}
-              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2"
+              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs theme-radius transition flex items-center justify-center gap-2"
             >
               <Building2 className="w-4 h-4" />
               <span>{exhibitorCtaText}</span>
@@ -57,7 +57,7 @@ export function ExpoBookingCard({
             <button
               type="button"
               onClick={() => setModalOpen(true)}
-              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs theme-radius transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <Building2 className="w-4 h-4" />
               <span>{exhibitorCtaText}</span>

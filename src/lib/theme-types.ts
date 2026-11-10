@@ -37,6 +37,16 @@ export const defaultThemeSettings: ThemeSettings = {
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/;
 const VALID_RADII = new Set(["none", "sm", "md", "lg", "xl"]);
 const VALID_BTN_STYLES = new Set(["filled", "soft", "outline"]);
+const VALID_GRADIENT_DIRS = new Set([
+  "to-br",
+  "to-r",
+  "to-b",
+  "to-tr",
+  "to-bl",
+  "to-l",
+  "to-tl",
+  "to-t",
+]);
 
 export function pickThemeFields(raw: Partial<ThemeSettings>): Partial<ThemeSettings> {
   const out: Partial<ThemeSettings> = {};
@@ -65,8 +75,8 @@ export function pickThemeFields(raw: Partial<ThemeSettings>): Partial<ThemeSetti
   if (typeof raw.gradientTo === "string" && HEX_COLOR_RE.test(raw.gradientTo.trim())) {
     out.gradientTo = raw.gradientTo.trim();
   }
-  if (typeof raw.gradientDirection === "string" && raw.gradientDirection.trim()) {
-    out.gradientDirection = raw.gradientDirection.trim().slice(0, 20);
+  if (typeof raw.gradientDirection === "string" && VALID_GRADIENT_DIRS.has(raw.gradientDirection.trim())) {
+    out.gradientDirection = raw.gradientDirection.trim();
   }
   if (typeof raw.borderRadius === "string" && VALID_RADII.has(raw.borderRadius)) {
     out.borderRadius = raw.borderRadius as ThemeSettings["borderRadius"];

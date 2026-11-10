@@ -13,6 +13,8 @@ export type FontPresetConfig = {
   sampleHeading: string;
   sansStack: string;
   displayStack: string;
+  displayWeight: "700" | "800";
+  displayTracking: string;
 };
 
 const ETHIOPIC_FALLBACK = 'var(--font-ui-ethiopic), ui-sans-serif, system-ui, sans-serif';
@@ -25,6 +27,8 @@ export const FONT_PRESETS: FontPresetConfig[] = [
     sampleHeading: "Modern Event Operations",
     sansStack: `var(--font-ui-inter), ${ETHIOPIC_FALLBACK}`,
     displayStack: `var(--font-ui-inter), ${ETHIOPIC_FALLBACK}`,
+    displayWeight: "800",
+    displayTracking: "-0.025em",
   },
   {
     key: "jakarta",
@@ -33,6 +37,8 @@ export const FONT_PRESETS: FontPresetConfig[] = [
     sampleHeading: "Modern Event Operations",
     sansStack: `var(--font-ui-jakarta), ${ETHIOPIC_FALLBACK}`,
     displayStack: `var(--font-ui-jakarta), ${ETHIOPIC_FALLBACK}`,
+    displayWeight: "800",
+    displayTracking: "-0.025em",
   },
   {
     key: "dm-sans",
@@ -41,6 +47,8 @@ export const FONT_PRESETS: FontPresetConfig[] = [
     sampleHeading: "Modern Event Operations",
     sansStack: `var(--font-ui-dm), ${ETHIOPIC_FALLBACK}`,
     displayStack: `var(--font-ui-dm), ${ETHIOPIC_FALLBACK}`,
+    displayWeight: "700",
+    displayTracking: "-0.025em",
   },
   {
     key: "outfit",
@@ -49,6 +57,8 @@ export const FONT_PRESETS: FontPresetConfig[] = [
     sampleHeading: "Modern Event Operations",
     sansStack: `var(--font-ui-outfit), ${ETHIOPIC_FALLBACK}`,
     displayStack: `var(--font-ui-outfit), ${ETHIOPIC_FALLBACK}`,
+    displayWeight: "800",
+    displayTracking: "-0.02em",
   },
   {
     key: "space-grotesk",
@@ -57,6 +67,8 @@ export const FONT_PRESETS: FontPresetConfig[] = [
     sampleHeading: "Modern Event Operations",
     sansStack: `var(--font-ui-inter), ${ETHIOPIC_FALLBACK}`,
     displayStack: `var(--font-ui-space), ${ETHIOPIC_FALLBACK}`,
+    displayWeight: "700",
+    displayTracking: "-0.02em",
   },
   {
     key: "playfair-inter",
@@ -65,6 +77,8 @@ export const FONT_PRESETS: FontPresetConfig[] = [
     sampleHeading: "Modern Event Operations",
     sansStack: `var(--font-ui-inter), ${ETHIOPIC_FALLBACK}`,
     displayStack: `var(--font-ui-playfair), Georgia, serif`,
+    displayWeight: "700",
+    displayTracking: "-0.015em",
   },
 ];
 

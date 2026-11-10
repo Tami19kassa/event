@@ -66,8 +66,12 @@ export function FontSelectorSection({ settings, update }: Props) {
 
               <div>
                 <div
-                  className="text-sm font-bold text-slate-900 leading-snug"
-                  style={{ fontFamily: preset.displayStack }}
+                  className="text-sm text-slate-900 leading-snug"
+                  style={{
+                    fontFamily: preset.displayStack,
+                    fontWeight: preset.displayWeight,
+                    letterSpacing: preset.displayTracking,
+                  }}
                 >
                   {preset.label}
                 </div>

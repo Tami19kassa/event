@@ -90,10 +90,10 @@ export function GateScannerBar({
   };
 
   return (
-    <div className="bg-slate-900 text-white rounded-3xl p-4 sm:p-5 space-y-3 shadow-md">
+    <div className="bg-slate-900 text-white theme-radius-card p-4 sm:p-5 space-y-3 shadow-md">
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 rounded-xl theme-bg-primary border border-white/15 flex items-center justify-center">
+          <div className="w-9 h-9 theme-radius-sm theme-bg-primary border border-white/15 flex items-center justify-center">
             <QrCode className="w-5 h-5" />
           </div>
           <div>
@@ -117,15 +117,15 @@ export function GateScannerBar({
             value={manualInput}
             onChange={(e) => setManualInput(e.target.value)}
             placeholder="Scan or enter EVT-... pass reference"
-            className="flex-1 px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            className="flex-1 px-3.5 py-2 bg-slate-800 border border-slate-700 theme-radius text-xs text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
-          <button type="submit" className="px-3.5 py-2 theme-btn-primary text-xs font-bold cursor-pointer">
+          <button type="submit" className="px-3.5 py-2 theme-btn-solid border border-white/20 text-xs font-bold cursor-pointer">
             Verify
           </button>
           <button
             type="button"
             onClick={cameraOpen ? stopCamera : startCamera}
-            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold rounded-xl flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold theme-radius flex items-center gap-1.5 cursor-pointer"
           >
             {cameraOpen ? <X className="w-4 h-4" /> : <Camera className="w-4 h-4" />}
             <span className="hidden sm:inline">{cameraOpen ? "Stop" : "Camera"}</span>

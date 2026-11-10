@@ -1,9 +1,16 @@
 "use client";
 
-import { Eye, Calendar, MapPin } from "lucide-react";
+import { Eye, Calendar, MapPin, Sparkles } from "lucide-react";
 import { ThemeSettings } from "@/lib/theme-types";
 import { getFontPreset } from "@/lib/theme-fonts";
-import { getContrastForeground, normalizeHex, radiusValue } from "@/lib/theme-colors";
+import {
+  cardRadiusValue,
+  getContrastForeground,
+  gradientAngle,
+  normalizeHex,
+  radiusValue,
+  readableInkOnLight,
+} from "@/lib/theme-colors";
 
 interface Props {
   settings: ThemeSettings;
@@ -11,14 +18,19 @@ interface Props {
 
 export function ThemeLivePreview({ settings }: Props) {
   const radiusPx = radiusValue(settings.borderRadius);
+  const cardRadiusPx = cardRadiusValue(settings.borderRadius);
   const primary = normalizeHex(settings.primaryColor, "#4F46E5");
   const secondary = normalizeHex(settings.secondaryColor, "#0D9488");
+  const accent = normalizeHex(settings.accentColor, "#F59E0B");
   const primaryFg = getContrastForeground(primary);
+  const accentFg = getContrastForeground(accent);
+  const secondaryInk = readableInkOnLight(secondary);
   const font = getFontPreset(settings.fontPreset);
+  const angle = gradientAngle(settings.gradientDirection);
 
   const surfaceBg =
     settings.themeType === "gradient"
-      ? `linear-gradient(135deg, ${primary}, ${secondary})`
+      ? `linear-gradient(${angle}, ${primary}, ${secondary})`
       : primary;
 
   const buttonStyles =
@@ -49,7 +61,14 @@ export function ThemeLivePreview({ settings }: Props) {
       <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
           <Eye className="w-5 h-5 text-[var(--color-primary)]" />
-          <h2 className="font-semibold text-slate-900" style={{ fontFamily: font.displayStack }}>
+          <h2
+            className="text-slate-900"
+            style={{
+              fontFamily: font.displayStack,
+              fontWeight: font.displayWeight,
+              letterSpacing: font.displayTracking,
+            }}
+          >
             Live Token Preview
           </h2>
         </div>
@@ -58,7 +77,7 @@ export function ThemeLivePreview({ settings }: Props) {
 
       <div
         className="p-5 overflow-hidden"
-        style={{ background: surfaceBg, color: primaryFg, borderRadius: radiusPx }}
+        style={{ background: surfaceBg, color: primaryFg, borderRadius: cardRadiusPx }}
       >
         {settings.logoDarkUrl || settings.logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -68,20 +87,38 @@ export function ThemeLivePreview({ settings }: Props) {
             className="h-8 w-auto object-contain mb-2 bg-white/15 rounded-lg px-2 py-1"
           />
         ) : null}
-        <span className="text-[10px] font-bold uppercase tracking-wider opacity-80 block">
-          {settings.themeType === "gradient" ? "Gradient Theme" : "Solid Theme"} · {font.label}
-        </span>
-        <h3 className="text-xl font-black mt-0.5" style={{ fontFamily: font.displayStack }}>
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 block">
+            {settings.themeType === "gradient" ? "Gradient Theme" : "Solid Theme"} · {font.label}
+          </span>
+          <span
+            className="px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1"
+            style={{ backgroundColor: accent, color: accentFg }}
+          >
+            <Sparkles className="w-2.5 h-2.5" /> Accent
+          </span>
+        </div>
+        <h3
+          className="text-xl mt-1"
+          style={{
+            fontFamily: font.displayStack,
+            fontWeight: font.displayWeight,
+            letterSpacing: font.displayTracking,
+          }}
+        >
           {settings.siteName || "Utopia"}
         </h3>
         <p className="text-xs opacity-85 mt-1">
-          Fonts, contrast, radius, and colors sync across public &amp; admin portals.
+          Fonts, contrast, card radius, and all 3 brand colors sync across public &amp; admin portals.
         </p>
       </div>
 
-      <div className="p-4 border border-slate-200 bg-slate-50 space-y-3" style={{ borderRadius: radiusPx }}>
+      <div className="p-4 border border-slate-200 bg-slate-50 space-y-3" style={{ borderRadius: cardRadiusPx }}>
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs font-bold text-slate-900" style={{ fontFamily: font.displayStack }}>
+          <span
+            className="text-xs text-slate-900"
+            style={{ fontFamily: font.displayStack, fontWeight: font.displayWeight }}
+          >
             Addis Tech Expo · ETB 500
           </span>
           <span
@@ -96,7 +133,7 @@ export function ThemeLivePreview({ settings }: Props) {
           Sat, Nov 28 · 6:00 PM
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500">
-          <MapPin className="w-3.5 h-3.5" style={{ color: secondary }} />
+          <MapPin className="w-3.5 h-3.5" style={{ color: secondaryInk }} />
           Skylight Convention Center
         </div>
         <button type="button" className="w-full py-2.5 text-xs font-bold transition" style={buttonStyles}>

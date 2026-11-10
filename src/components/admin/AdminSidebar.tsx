@@ -91,7 +91,7 @@ export function AdminSidebar({
             prefetch={true}
             onClick={onClose}
             className={clsx(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
+              "flex items-center gap-3 px-3 py-2 theme-radius-sm text-[13px] font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40",
               active
                 ? "theme-nav-active"
                 : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-200"

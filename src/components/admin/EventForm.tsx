@@ -143,7 +143,7 @@ export function EventForm({ initialData, mode, categories = [] }: Props) {
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-2xs">
+      <div className="flex flex-wrap gap-2 bg-white p-1.5 theme-radius-card border border-slate-200 shadow-2xs">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const active = activeTab === tab.key;
@@ -152,8 +152,8 @@ export function EventForm({ initialData, mode, categories = [] }: Props) {
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                active ? "theme-btn-primary shadow-xs" : "text-slate-600 hover:bg-slate-50"
+              className={`flex-1 min-w-[130px] flex items-center justify-center gap-2 px-3 py-2.5 theme-radius-sm text-xs font-bold transition cursor-pointer ${
+                active ? "theme-nav-active" : "text-slate-600 hover:bg-slate-50"
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" />

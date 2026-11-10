@@ -12,7 +12,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
             <span className="text-xs font-bold text-[var(--color-primary)] uppercase tracking-wider block mb-1">
               Curated Event Collections
             </span>
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl md:text-3xl font-display text-slate-900">
               Browse by Category
             </h2>
           </div>
@@ -42,7 +42,7 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
             <Link
               href={`/discover?category=${cat.slug}`}
               prefetch={true}
-              className="group p-5 bg-white rounded-2xl border border-slate-200/90 hover:border-[var(--color-primary)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center flex flex-col items-center justify-center gap-2 shadow-2xs h-full active:scale-95"
+              className="group p-5 bg-white theme-radius-card border border-slate-200/90 hover:border-[var(--color-primary)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center flex flex-col items-center justify-center gap-2 shadow-2xs h-full active:scale-95"
             >
               <span className="text-3xl group-hover:scale-115 transition-transform duration-300">
                 {cat.icon || "📌"}
