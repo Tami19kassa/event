@@ -8,10 +8,26 @@ export async function GET(req: NextRequest) {
   try {
     const isUIFormat = req.nextUrl.searchParams.get("format") === "ui";
     const statusParam = req.nextUrl.searchParams.get("status");
+    const session = await getSession();
 
     const where: any = {};
-    if (statusParam) {
-      where.status = statusParam;
+    if (!session) {
+      where.status = { in: ["PUBLISHED", "LIVE"] };
+    } else if (session.role === "ADMIN") {
+      if (statusParam) {
+        where.status = statusParam;
+      }
+    } else if (session.role === "ORGANIZER") {
+      if (statusParam === "PUBLISHED" || statusParam === "LIVE") {
+        where.status = statusParam;
+      } else {
+        where.OR = [
+          { status: { in: ["PUBLISHED", "LIVE"] } },
+          { organizerId: session.id },
+        ];
+      }
+    } else {
+      where.status = { in: ["PUBLISHED", "LIVE"] };
     }
 
     const events = await prisma.event.findMany({
@@ -109,16 +125,20 @@ export async function POST(req: NextRequest) {
         organizerId: organizerId || null,
         ticketTiers: ticketTiers?.length
           ? {
-              create: ticketTiers.map((t: any, i: number) => ({
-                name: t.name,
-                description: t.description || null,
-                price: Number(t.price) || 0,
-                currency: t.currency || "USD",
-                quantity: Number(t.quantity) || 100,
-                remaining: Number(t.remaining ?? t.quantity ?? 100),
-                earlyBird: t.earlyBird || false,
-                sortOrder: i,
-              })),
+              create: ticketTiers.map((t: any, i: number) => {
+                const qty = Math.max(1, Math.floor(Number(t.quantity) || 100));
+                const rem = Math.min(qty, Math.max(0, Math.floor(Number(t.remaining ?? qty))));
+                return {
+                  name: t.name,
+                  description: t.description || null,
+                  price: Math.max(0, Number(t.price) || 0),
+                  currency: t.currency || "ETB",
+                  quantity: qty,
+                  remaining: rem,
+                  earlyBird: Boolean(t.earlyBird),
+                  sortOrder: i,
+                };
+              }),
             }
           : undefined,
       },

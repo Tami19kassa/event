@@ -8,8 +8,18 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  if (session.role !== "ADMIN" && session.role !== "ORGANIZER") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   try {
+    const where =
+      session.role === "ADMIN"
+        ? {}
+        : { event: { organizerId: session.id } };
+
     const orders = await prisma.order.findMany({
+      where,
       include: {
         event: {
           select: {

@@ -54,6 +54,7 @@ export default function EditEventPage() {
           locationCountry: event.locationCountry || "Ethiopia",
           categoryId: event.categoryId || "",
           ticketTiers: (event.ticketTiers || []).map((t: any) => ({
+            id: t.id,
             name: t.name,
             price: t.price,
             quantity: t.quantity,

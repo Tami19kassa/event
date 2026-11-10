@@ -10,6 +10,7 @@ import { LocationSection } from "./events/LocationSection";
 import { TicketTiersSection } from "./events/TicketTiersSection";
 
 export type TicketTierInput = {
+  id?: string;
   name: string;
   price: number;
   quantity: number;

@@ -24,7 +24,8 @@ export function TicketSelector({ event }: TicketSelectorProps) {
     Object.fromEntries(event.ticketTiers.map((t) => [t.id, 0]))
   );
   const [promoCode, setPromoCode] = useState("");
-  const [promoApplied, setPromoApplied] = useState(false);
+  const [appliedPromoCode, setAppliedPromoCode] = useState("");
+  const [promoError, setPromoError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [gateways, setGateways] = useState<PaymentGatewayInfo>(defaultGateways);
 
@@ -46,10 +47,22 @@ export function TicketSelector({ event }: TicketSelectorProps) {
     });
   };
 
+  const promoApplied = appliedPromoCode === "SAVE10";
   const totalItems = Object.values(quantities).reduce((a, b) => a + b, 0);
   const subtotal = event.ticketTiers.reduce((sum, t) => sum + t.price * (quantities[t.id] || 0), 0);
-  const discount = promoApplied ? subtotal * 0.1 : 0;
-  const total = subtotal - discount;
+  const discount = promoApplied ? Math.round(subtotal * 0.1 * 100) / 100 : 0;
+  const total = Math.max(0, subtotal - discount);
+
+  const handleApplyPromo = () => {
+    const clean = promoCode.trim().toUpperCase();
+    if (clean === "SAVE10") {
+      setAppliedPromoCode("SAVE10");
+      setPromoError("");
+    } else {
+      setAppliedPromoCode("");
+      setPromoError(clean ? "Invalid discount code." : "");
+    }
+  };
 
   return (
     <>
@@ -130,27 +143,14 @@ export function TicketSelector({ event }: TicketSelectorProps) {
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-              <input
-                type="text"
-                value={promoCode}
-                onChange={(e) => setPromoCode(e.target.value)}
-                placeholder="Discount code (try SAVE10)"
-                className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl"
-              />
+              <input type="text" value={promoCode} onChange={(e) => setPromoCode(e.target.value)} placeholder="Discount code (try SAVE10)" className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-200 rounded-xl" />
             </div>
-            <button
-              type="button"
-              onClick={() => setPromoApplied(promoCode.trim().toLowerCase() === "save10")}
-              className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition cursor-pointer"
-            >
+            <button type="button" onClick={handleApplyPromo} className="px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-100 transition cursor-pointer">
               Apply
             </button>
           </div>
-          {promoApplied && (
-            <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5" /> 10% promotional discount applied!
-            </p>
-          )}
+          {promoError && <p className="text-xs text-rose-600 font-medium mt-2">{promoError}</p>}
+          {promoApplied && <p className="text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1"><Sparkles className="w-3.5 h-3.5" /> 10% promotional discount applied!</p>}
         </div>
 
         {/* Checkout CTA */}
@@ -162,12 +162,7 @@ export function TicketSelector({ event }: TicketSelectorProps) {
             </div>
           )}
 
-          <button
-            type="button"
-            disabled={totalItems === 0}
-            onClick={() => setIsModalOpen(true)}
-            className="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2 cursor-pointer"
-          >
+          <button type="button" disabled={totalItems === 0} onClick={() => setIsModalOpen(true)} className="w-full py-3.5 bg-indigo-600 text-white font-bold rounded-2xl hover:bg-indigo-700 transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md flex items-center justify-center gap-2 cursor-pointer">
             {totalItems === 0 ? "Select Tickets" : `Proceed to Booking · ETB ${total.toLocaleString()}`}
             {totalItems > 0 && <ArrowRight className="w-4 h-4" />}
           </button>
@@ -175,15 +170,7 @@ export function TicketSelector({ event }: TicketSelectorProps) {
       </div>
 
       {isModalOpen && (
-        <CheckoutModal
-          event={event}
-          quantities={quantities}
-          total={total}
-          discount={discount}
-          gatewaySettings={gateways}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={() => setQuantities(Object.fromEntries(event.ticketTiers.map((t) => [t.id, 0])))}
-        />
+        <CheckoutModal event={event} quantities={quantities} total={total} discount={discount} promoCode={appliedPromoCode} gatewaySettings={gateways} onClose={() => setIsModalOpen(false)} onSuccess={() => setQuantities(Object.fromEntries(event.ticketTiers.map((t) => [t.id, 0])))} />
       )}
     </>
   );

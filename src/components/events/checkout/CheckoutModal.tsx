@@ -11,6 +11,7 @@ interface CheckoutModalProps {
   quantities: Record<string, number>;
   total: number;
   discount: number;
+  promoCode?: string;
   gatewaySettings: PaymentGatewayInfo;
   onClose: () => void;
   onSuccess: () => void;
@@ -21,6 +22,7 @@ export function CheckoutModal({
   quantities,
   total,
   discount,
+  promoCode = "",
   gatewaySettings,
   onClose,
   onSuccess,
@@ -68,6 +70,7 @@ export function CheckoutModal({
           customerPhone,
           paymentMethod: total === 0 ? "FREE" : paymentMethod,
           receiptUrl: total === 0 || paymentMethod === "PAY_AT_GATE" ? "" : receiptUrl,
+          promoCode: promoCode || undefined,
         }),
       });
 

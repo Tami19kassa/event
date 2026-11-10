@@ -412,7 +412,7 @@ Discover the latest in AI, climate tech, web3, and product development. Featurin
         ticketTiers: {
           create: ticketTiers.map((t, i) => ({
             ...t,
-            currency: "USD",
+            currency: "ETB",
             sortOrder: i,
           })),
         },

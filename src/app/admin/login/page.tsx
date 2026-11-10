@@ -6,7 +6,7 @@ import { Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@eventhub.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -124,7 +124,7 @@ export default function AdminLoginPage() {
           </form>
 
           <div className="mt-6 pt-5 border-t border-slate-100 text-center text-xs text-slate-400">
-            Default: admin@eventhub.com / admin123
+            Authorized event administrators &amp; organizers only.
           </div>
         </div>
       </div>

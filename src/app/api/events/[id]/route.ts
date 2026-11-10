@@ -21,6 +21,16 @@ export async function GET(_req: NextRequest, { params }: Params) {
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
+
+    if (event.status !== "PUBLISHED" && event.status !== "LIVE") {
+      const session = await getSession();
+      const canViewDraft =
+        session && (session.role === "ADMIN" || event.organizerId === session.id);
+      if (!canViewDraft) {
+        return NextResponse.json({ error: "Event not found" }, { status: 404 });
+      }
+    }
+
     return NextResponse.json(event);
   } catch (err) {
     console.error(err);
@@ -30,13 +40,26 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
 export async function PUT(req: NextRequest, { params }: Params) {
   const session = await getSession();
-  if (!session) {
+  if (!session || (session.role !== "ADMIN" && session.role !== "ORGANIZER")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   try {
+    const existing = await prisma.event.findUnique({
+      where: { id },
+      include: { ticketTiers: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    if (session.role !== "ADMIN" && existing.organizerId !== session.id) {
+      return NextResponse.json({ error: "Forbidden: You do not own this event" }, { status: 403 });
+    }
+
     const body = await req.json();
     const data: Record<string, any> = {};
 
@@ -50,37 +73,71 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (body.timezone !== undefined) data.timezone = body.timezone;
     if (body.format !== undefined) data.format = body.format;
     if (body.status !== undefined) data.status = body.status;
-    if (body.capacity !== undefined) data.capacity = Number(body.capacity);
+    if (body.capacity !== undefined) data.capacity = Math.max(1, Number(body.capacity));
     if (body.isFeatured !== undefined) data.isFeatured = Boolean(body.isFeatured);
     if (body.locationName !== undefined) data.locationName = body.locationName;
     if (body.locationAddress !== undefined) data.locationAddress = body.locationAddress;
     if (body.locationCity !== undefined) data.locationCity = body.locationCity;
     if (body.locationCountry !== undefined) data.locationCountry = body.locationCountry;
-    if (body.categoryId !== undefined) data.categoryId = body.categoryId;
+    if (body.categoryId !== undefined) data.categoryId = body.categoryId || null;
 
-    const event = await prisma.event.update({
-      where: { id },
-      data,
-    });
+    const event = await prisma.$transaction(async (tx) => {
+      const updatedEvent = await tx.event.update({ where: { id }, data });
 
-    if (Array.isArray(body.ticketTiers)) {
-      await prisma.ticketTier.deleteMany({ where: { eventId: id } });
-      if (body.ticketTiers.length > 0) {
-        await prisma.ticketTier.createMany({
-          data: body.ticketTiers.map((t: any, i: number) => ({
-            eventId: id,
-            name: t.name,
-            description: t.description || null,
-            price: Number(t.price) || 0,
-            currency: t.currency || "ETB",
-            quantity: Number(t.quantity) || 100,
-            remaining: Number(t.remaining ?? t.quantity) || 100,
-            earlyBird: t.earlyBird || false,
-            sortOrder: i,
-          })),
+      if (Array.isArray(body.ticketTiers)) {
+        const existingMap = new Map(existing.ticketTiers.map((t) => [t.id, t]));
+        const incomingIds = new Set<string>(
+          body.ticketTiers
+            .filter((t: any) => typeof t?.id === "string" && t.id)
+            .map((t: any) => String(t.id))
+        );
+
+        await tx.ticketTier.deleteMany({
+          where: { eventId: id, id: { notIn: Array.from(incomingIds) } },
         });
+
+        for (let i = 0; i < body.ticketTiers.length; i++) {
+          const t = body.ticketTiers[i];
+          const qty = Math.max(1, Math.floor(Number(t.quantity) || 100));
+          const price = Math.max(0, Number(t.price) || 0);
+          const prev = t?.id ? existingMap.get(t.id) : undefined;
+
+          if (prev) {
+            const qtyDelta = qty - prev.quantity;
+            const nextRemaining = Math.max(0, Math.min(qty, prev.remaining + qtyDelta));
+            await tx.ticketTier.update({
+              where: { id: prev.id },
+              data: {
+                name: t.name,
+                description: t.description || null,
+                price,
+                currency: t.currency || prev.currency || "ETB",
+                quantity: qty,
+                remaining: nextRemaining,
+                earlyBird: Boolean(t.earlyBird),
+                sortOrder: i,
+              },
+            });
+          } else {
+            await tx.ticketTier.create({
+              data: {
+                eventId: id,
+                name: t.name,
+                description: t.description || null,
+                price,
+                currency: t.currency || "ETB",
+                quantity: qty,
+                remaining: Math.min(qty, Math.max(0, Math.floor(Number(t.remaining ?? qty)))),
+                earlyBird: Boolean(t.earlyBird),
+                sortOrder: i,
+              },
+            });
+          }
+        }
       }
-    }
+
+      return updatedEvent;
+    });
 
     revalidatePath("/");
     revalidatePath("/discover");
@@ -88,7 +145,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
     const updated = await prisma.event.findUnique({
       where: { id },
-      include: { ticketTiers: true, category: true },
+      include: { ticketTiers: { orderBy: { sortOrder: "asc" } }, category: true },
     });
 
     return NextResponse.json(updated);

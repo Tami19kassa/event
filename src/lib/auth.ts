@@ -18,7 +18,8 @@ export async function login(
   password: string
 ): Promise<{ success: true; user: SessionUser } | { success: false; error: string }> {
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
 
     if (!user || !user.passwordHash) {
       return { success: false, error: "Invalid email or password" };

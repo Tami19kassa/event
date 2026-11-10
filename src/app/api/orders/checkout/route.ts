@@ -2,10 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getPaymentSettings } from "@/lib/payment-verification";
-import { generateOrderNumber, resolvePaymentVerification } from "@/lib/checkout-helpers";
+import {
+  calculatePromoDiscount,
+  generateOrderNumber,
+  resolvePaymentVerification,
+  validateCheckoutItems,
+} from "@/lib/checkout-helpers";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limit = checkRateLimit(`checkout:${ip}`, 10, 10 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: `Too many booking requests. Please try again in ${limit.retryAfterSeconds}s.` },
+        { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+      );
+    }
+
     const body = await req.json();
     const {
       eventId,
@@ -15,122 +30,94 @@ export async function POST(req: NextRequest) {
       customerPhone,
       paymentMethod = "TELEBIRR",
       receiptUrl = "",
+      promoCode = "",
     } = body;
 
     if (!eventId || !items || !Array.isArray(items) || items.length === 0) {
-      return NextResponse.json(
-        { error: "Event ID and at least one ticket item are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Event ID and at least one ticket item are required" }, { status: 400 });
     }
 
-    if (!customerEmail || !customerEmail.includes("@")) {
-      return NextResponse.json(
-        { error: "A valid customer email is required" },
-        { status: 400 }
-      );
+    const normalizedEmail = typeof customerEmail === "string" ? customerEmail.trim().toLowerCase() : "";
+    if (!normalizedEmail || !normalizedEmail.includes("@")) {
+      return NextResponse.json({ error: "A valid customer email is required" }, { status: 400 });
+    }
+
+    if (!["TELEBIRR", "CBE", "PAY_AT_GATE", "FREE"].includes(paymentMethod)) {
+      return NextResponse.json({ error: "Unsupported payment method" }, { status: 400 });
     }
 
     const settings = await getPaymentSettings();
     if (paymentMethod === "PAY_AT_GATE" && !settings.allowPayAtGate) {
-      return NextResponse.json(
-        { error: "Pay at Gate is not enabled for this platform." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Pay at Gate is not enabled for this platform." }, { status: 400 });
     }
 
-    // 1. Fetch event and validate requested tickets BEFORE opening transaction
     const event = await prisma.event.findUnique({
       where: { id: eventId },
       include: { ticketTiers: true },
     });
 
-    if (!event) {
-      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    if (!event || (event.status !== "PUBLISHED" && event.status !== "LIVE")) {
+      return NextResponse.json({ error: "Event is not open for ticket booking" }, { status: 404 });
     }
 
-    let totalAmount = 0;
-    let totalTicketsCount = 0;
-    const orderItemsToCreate: Array<{
-      ticketTierId: string;
-      ticketName: string;
-      quantity: number;
-      unitPrice: number;
-    }> = [];
-
-    for (const item of items) {
-      if (!item.ticketTierId || !item.quantity || item.quantity <= 0) continue;
-      const tier = event.ticketTiers.find((t) => t.id === item.ticketTierId);
-      if (!tier) {
-        return NextResponse.json(
-          { error: `Ticket tier "${item.ticketTierId}" does not exist` },
-          { status: 400 }
-        );
-      }
-      if (tier.remaining < item.quantity) {
-        return NextResponse.json(
-          { error: `Only ${tier.remaining} ticket(s) remaining for "${tier.name}".` },
-          { status: 400 }
-        );
-      }
-
-      const lineTotal = Number(tier.price) * Number(item.quantity);
-      totalAmount += lineTotal;
-      totalTicketsCount += Number(item.quantity);
-      orderItemsToCreate.push({
-        ticketTierId: tier.id,
-        ticketName: tier.name,
-        quantity: Number(item.quantity),
-        unitPrice: Number(tier.price),
-      });
+    if (new Date(event.endDate).getTime() < Date.now() - 60 * 60 * 1000) {
+      return NextResponse.json({ error: "Booking has closed because this event has ended." }, { status: 400 });
     }
 
-    if (orderItemsToCreate.length === 0) {
-      return NextResponse.json({ error: "No tickets selected" }, { status: 400 });
+    const openUnpaidCount = await prisma.order.count({
+      where: {
+        eventId: event.id,
+        customerEmail: normalizedEmail,
+        status: { in: ["PENDING_VERIFICATION", "RESERVED_PAY_AT_GATE"] },
+      },
+    });
+    if (openUnpaidCount >= 3) {
+      return NextResponse.json(
+        { error: "You already have 3 pending reservations for this event. Complete or wait for verification first." },
+        { status: 429 }
+      );
     }
 
-    // 2. Perform receipt scraping / payment verification OUTSIDE transaction
-    // This avoids holding open a Prisma interactive transaction during external HTTP fetch
+    const { subtotal, totalTicketsCount, orderItems } = validateCheckoutItems(items, event.ticketTiers);
+    const { discountAmount } = calculatePromoDiscount(subtotal, promoCode);
+    const totalAmount = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100);
+
     const paymentResult = await resolvePaymentVerification({
-      paymentMethod: paymentMethod as any,
+      paymentMethod: paymentMethod as "TELEBIRR" | "CBE" | "PAY_AT_GATE" | "FREE",
       totalAmount,
       receiptUrl,
     });
 
     const orderNumber = generateOrderNumber();
 
-    // 3. Fast atomic database transaction with generous timeout for TiDB Cloud latency
     const createdOrder = await prisma.$transaction(
       async (tx) => {
-        for (const item of orderItemsToCreate) {
-          const tier = await tx.ticketTier.findUnique({
-            where: { id: item.ticketTierId },
-          });
-          if (!tier || tier.remaining < item.quantity) {
-            throw new Error(`Insufficient tickets remaining for "${item.ticketName}".`);
-          }
-          await tx.ticketTier.update({
-            where: { id: item.ticketTierId },
+        for (const item of orderItems) {
+          const dec = await tx.ticketTier.updateMany({
+            where: { id: item.ticketTierId, eventId: event.id, remaining: { gte: item.quantity } },
             data: { remaining: { decrement: item.quantity } },
           });
+          if (dec.count === 0) {
+            throw new Error(`Insufficient tickets remaining for "${item.ticketName}".`);
+          }
         }
 
         const order = await tx.order.create({
           data: {
             orderNumber,
             eventId: event.id,
-            customerEmail,
-            customerName: customerName || null,
-            customerPhone: customerPhone || null,
+            customerEmail: normalizedEmail,
+            customerName: typeof customerName === "string" ? customerName.trim().slice(0, 120) || null : null,
+            customerPhone: typeof customerPhone === "string" ? customerPhone.trim().slice(0, 40) || null : null,
             totalAmount,
             currency: settings.currency || "ETB",
             status: paymentResult.status,
             paymentMethod,
-            receiptUrl: receiptUrl || null,
+            receiptUrl: receiptUrl ? String(receiptUrl).slice(0, 500) : null,
             transactionRef: paymentResult.transactionRef || null,
             verifiedAt: paymentResult.status === "COMPLETED" ? new Date() : null,
             checkedIn: false,
-            items: { create: orderItemsToCreate },
+            items: { create: orderItems },
           },
           include: {
             items: true,

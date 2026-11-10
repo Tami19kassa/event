@@ -20,9 +20,7 @@ export const defaultPaymentSettings: PaymentSettings = {
 
 export async function getPaymentSettings(): Promise<PaymentSettings> {
   try {
-    const setting = await prisma.siteSetting.findUnique({
-      where: { key: "payment_settings" },
-    });
+    const setting = await prisma.siteSetting.findUnique({ where: { key: "payment_settings" } });
     if (setting?.value) {
       return { ...defaultPaymentSettings, ...JSON.parse(setting.value) };
     }
@@ -33,13 +31,11 @@ export async function getPaymentSettings(): Promise<PaymentSettings> {
 export async function savePaymentSettings(settings: Partial<PaymentSettings>): Promise<PaymentSettings> {
   const current = await getPaymentSettings();
   const updated = { ...current, ...settings };
-
   await prisma.siteSetting.upsert({
     where: { key: "payment_settings" },
     update: { value: JSON.stringify(updated) },
     create: { key: "payment_settings", value: JSON.stringify(updated) },
   });
-
   return updated;
 }
 
@@ -50,29 +46,58 @@ export type VerificationResult = {
   message: string;
 };
 
-/**
- * Extracts a transaction reference or receipt ID from a URL or raw string
- */
 export function extractTransactionRef(input: string): string {
   if (!input) return "";
   const trimmed = input.trim();
-
-  // If Telebirr receipt URL: https://transactioninfo.ethiotelecom.et/receipt/DK90W608P4
-  const telebirrMatch = trimmed.match(/\/receipt\/([a-zA-Z0-9]+)/i);
+  const telebirrMatch = trimmed.match(/\/receipt\/([a-zA-Z0-9_-]+)/i);
   if (telebirrMatch) return telebirrMatch[1].toUpperCase();
-
-  // If CBE receipt URL: https://mbreciept.cbe.com.et/v2-hfHCxNV6JF7DhAbgHI8i
   const cbeMatch = trimmed.match(/mbreciept\.cbe\.com\.et\/([a-zA-Z0-9_-]+)/i);
   if (cbeMatch) return cbeMatch[1];
-
-  // Raw alphanumeric code
-  const codeMatch = trimmed.match(/[a-zA-Z0-9_-]{6,30}/);
-  return codeMatch ? codeMatch[0] : trimmed;
+  const codeMatch = trimmed.match(/^[a-zA-Z0-9_-]{8,40}$/);
+  return codeMatch ? codeMatch[0] : "";
 }
 
-/**
- * Verifies Ethiopian payment receipts from CBE and Telebirr
- */
+function buildSafeReceiptUrl(method: "TELEBIRR" | "CBE", rawInput: string, ref: string): string {
+  const trimmed = rawInput.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    const parsed = new URL(trimmed);
+    const host = parsed.hostname.toLowerCase();
+    if (method === "TELEBIRR" && host !== "transactioninfo.ethiotelecom.et") {
+      throw new Error("Invalid Telebirr URL domain. Use transactioninfo.ethiotelecom.et or paste the receipt ID.");
+    }
+    if (method === "CBE" && !["mbreciept.cbe.com.et", "mb.cbe.com.et", "apps.cbe.com.et"].includes(host)) {
+      throw new Error("Invalid CBE receipt domain. Use an official CBE receipt link or paste the reference ID.");
+    }
+  }
+  return method === "TELEBIRR"
+    ? `https://transactioninfo.ethiotelecom.et/receipt/${encodeURIComponent(ref)}`
+    : `https://mbreciept.cbe.com.et/${encodeURIComponent(ref)}`;
+}
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/gi, " ").replace(/\s+/g, " ");
+}
+
+function receiptMatchesAmountAndReceiver(text: string, expectedAmount: number, account: string): boolean {
+  const cleanAccount = account.replace(/\D/g, "");
+  const suffix = cleanAccount.length >= 4 ? cleanAccount.slice(-Math.min(8, cleanAccount.length)) : "";
+  const last4 = cleanAccount.slice(-4);
+  const digitsOnlyText = text.replace(/\D/g, "");
+  const accountMatch = Boolean(suffix && (digitsOnlyText.includes(suffix) || text.includes(last4)));
+
+  const numRegex = /(?:^|[^0-9.])(\d[\d,]*(?:\.\d{1,2})?)(?=[^0-9.]|$)/g;
+  let amountMatch = false;
+  let m: RegExpExecArray | null;
+  while ((m = numRegex.exec(text)) !== null) {
+    const val = parseFloat(m[1].replace(/,/g, ""));
+    if (!Number.isNaN(val) && Math.abs(val - expectedAmount) < 0.01) {
+      amountMatch = true;
+      break;
+    }
+  }
+  return accountMatch && amountMatch;
+}
+
 export async function verifyPaymentReceipt(
   method: "TELEBIRR" | "CBE" | "PAY_AT_GATE",
   receiptUrlOrRef: string,
@@ -93,11 +118,17 @@ export async function verifyPaymentReceipt(
       success: false,
       status: "REJECTED",
       transactionRef: "",
-      message: "Invalid receipt URL or transaction reference provided.",
+      message: "Invalid receipt URL or transaction code (minimum 8 alphanumeric characters required).",
     };
   }
 
-  // 1. Prevent duplicate reuse of receipts
+  let safeUrl: string;
+  try {
+    safeUrl = buildSafeReceiptUrl(method, receiptUrlOrRef, transactionRef);
+  } catch (err: any) {
+    return { success: false, status: "REJECTED", transactionRef, message: err.message };
+  }
+
   const existingOrder = await prisma.order.findFirst({
     where: {
       transactionRef,
@@ -115,83 +146,37 @@ export async function verifyPaymentReceipt(
   }
 
   const settings = await getPaymentSettings();
+  const targetAccount = method === "TELEBIRR" ? settings.telebirrNumber : settings.cbeAccount;
 
-  // 2. Automated Web Scraping / Verification Attempt
-  if (method === "TELEBIRR") {
-    try {
-      const url = receiptUrlOrRef.startsWith("http")
-        ? receiptUrlOrRef
-        : `https://transactioninfo.ethiotelecom.et/receipt/${transactionRef}`;
+  try {
+    const res = await fetch(safeUrl, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
+      signal: AbortSignal.timeout(4500),
+    });
 
-      const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-        signal: AbortSignal.timeout(4500),
-      });
-
-      if (res.ok) {
-        const html = await res.text();
-        const isSuccess = html.includes("Success") || html.includes("successful") || html.includes("COMPLETED");
-
-        if (isSuccess) {
+    if (res.ok) {
+      const html = await res.text();
+      if (!html.includes("502 Bad Gateway")) {
+        const plainText = stripHtml(html);
+        const settled = /\b(completed|successful|success|settled)\b/i.test(plainText);
+        if (settled && receiptMatchesAmountAndReceiver(plainText, expectedAmount, targetAccount)) {
           return {
             success: true,
             status: "COMPLETED",
             transactionRef,
-            message: "Telebirr transaction verified successfully via Ethio Telecom portal.",
+            message: `${method === "TELEBIRR" ? "Telebirr" : "CBE"} transaction amount and receiver verified.`,
           };
         }
       }
-    } catch (err) {
-      // Telebirr gateway timeout or offline
     }
-
-    // Graceful fallback: If portal is slow or unreachable, queue for instant admin check
-    return {
-      success: true,
-      status: "PENDING_VERIFICATION",
-      transactionRef,
-      message: "Telebirr receipt submitted. Queued for confirmation.",
-    };
-  }
-
-  if (method === "CBE") {
-    try {
-      const url = receiptUrlOrRef.startsWith("http")
-        ? receiptUrlOrRef
-        : `https://mbreciept.cbe.com.et/${transactionRef}`;
-
-      const res = await fetch(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-        signal: AbortSignal.timeout(4500),
-      });
-
-      if (res.ok) {
-        const html = await res.text();
-        if (html.length > 500 && !html.includes("502 Bad Gateway")) {
-          return {
-            success: true,
-            status: "COMPLETED",
-            transactionRef,
-            message: "CBE mobile banking receipt verified successfully via CBE viewer.",
-          };
-        }
-      }
-    } catch (err) {
-      // CBE gateway 502 / timeout
-    }
-
-    return {
-      success: true,
-      status: "PENDING_VERIFICATION",
-      transactionRef,
-      message: "CBE receipt reference submitted. Queued for confirmation.",
-    };
+  } catch {
+    // External bank viewer timeout or temporary outage — queue for admin verification
   }
 
   return {
-    success: false,
-    status: "REJECTED",
+    success: true,
+    status: "PENDING_VERIFICATION",
     transactionRef,
-    message: "Unknown payment method.",
+    message: `${method === "TELEBIRR" ? "Telebirr" : "CBE"} receipt submitted and queued for admin verification.`,
   };
 }

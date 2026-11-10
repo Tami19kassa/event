@@ -70,8 +70,11 @@ export async function getFeaturedEvents(): Promise<Event[]> {
  */
 export async function getEventBySlug(slug: string): Promise<Event | null> {
   try {
-    const dbEvent = await prisma.event.findUnique({
-      where: { slug },
+    const dbEvent = await prisma.event.findFirst({
+      where: {
+        slug,
+        status: { in: ["PUBLISHED", "LIVE"] },
+      },
       include: {
         category: true,
         organizer: true,
