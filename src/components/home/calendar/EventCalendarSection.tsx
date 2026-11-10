@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Event } from "@/types/event";
-import { EventCalendarCard } from "./EventCalendarCard";
+import { EventCalendarDeck } from "./EventCalendarDeck";
 import { EventCalendarQuickModal } from "./EventCalendarQuickModal";
 import { Calendar as CalendarIcon, Search, Sparkles, Filter } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
@@ -44,25 +44,19 @@ export function EventCalendarSection({ events }: Props) {
           const matchLoc = (e.location?.name || "").toLowerCase().includes(q) || (e.location?.city || "").toLowerCase().includes(q);
           if (!matchTitle && !matchLoc) return false;
         }
-
-        if (selectedCategory !== "ALL" && e.category !== selectedCategory) {
-          return false;
-        }
-
+        if (selectedCategory !== "ALL" && e.category !== selectedCategory) return false;
         if (selectedMonth !== "ALL") {
           const d = new Date(e.startDate);
-          const mStr = `${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-          if (mStr !== selectedMonth) return false;
+          if (`${monthNames[d.getMonth()]} ${d.getFullYear()}` !== selectedMonth) return false;
         }
-
         return true;
       })
       .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
   }, [events, search, selectedCategory, selectedMonth]);
 
   return (
-    <section className="py-12 md:py-18 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/80 border-t border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-7">
+    <section className="py-12 md:py-16 bg-gradient-to-b from-slate-50/50 via-white to-slate-50/80 border-t border-slate-200/80 overflow-x-clip">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Section Header */}
         <ScrollReveal variant="fade-up" durationMs={500}>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -82,7 +76,7 @@ export function EventCalendarSection({ events }: Props) {
                 Upcoming Trade Shows & Event Schedule
               </h2>
               <p className="text-slate-500 text-xs sm:text-sm mt-1 max-w-2xl">
-                Check dates, venues, live days-left countdowns, and reserve your delegate or visitor pass instantly.
+                Scroll to unstack upcoming dates horizontally — click any pass to view details and reserve your place.
               </p>
             </div>
 
@@ -107,7 +101,6 @@ export function EventCalendarSection({ events }: Props) {
               />
             </div>
 
-            {/* Category Filter */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
               {categories.slice(0, 5).map((cat) => (
                 <button
@@ -117,9 +110,7 @@ export function EventCalendarSection({ events }: Props) {
                     backgroundColor: selectedCategory === cat ? "var(--color-primary, #4F46E5)" : undefined,
                   }}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
-                    selectedCategory === cat
-                      ? "text-white shadow-2xs"
-                      : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                    selectedCategory === cat ? "text-white shadow-2xs" : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                   }`}
                 >
                   {cat === "ALL" ? "All Categories" : cat}
@@ -128,7 +119,6 @@ export function EventCalendarSection({ events }: Props) {
             </div>
           </div>
 
-          {/* Month Pills */}
           {months.length > 2 && (
             <div className="flex items-center gap-2 pt-2 border-t border-slate-100 overflow-x-auto no-scrollbar">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0 flex items-center gap-1">
@@ -139,9 +129,7 @@ export function EventCalendarSection({ events }: Props) {
                   key={m}
                   onClick={() => setSelectedMonth(m)}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold whitespace-nowrap transition cursor-pointer ${
-                    selectedMonth === m
-                      ? "bg-slate-900 text-white"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                    selectedMonth === m ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                   }`}
                 >
                   {m === "ALL" ? "All Dates" : m}
@@ -151,7 +139,7 @@ export function EventCalendarSection({ events }: Props) {
           )}
         </div>
 
-        {/* Calendar Event Cards */}
+        {/* Scroll-Driven Horizontal Stacked Yo-Yo Deck */}
         {filteredEvents.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-8 space-y-2">
             <CalendarIcon className="w-10 h-10 text-slate-300 mx-auto" />
@@ -170,15 +158,10 @@ export function EventCalendarSection({ events }: Props) {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-3.5">
-            {filteredEvents.map((evt) => (
-              <EventCalendarCard
-                key={evt.id}
-                event={evt}
-                onSelect={(selected) => setActiveModalEvent(selected)}
-              />
-            ))}
-          </div>
+          <EventCalendarDeck
+            events={filteredEvents}
+            onSelect={(selected) => setActiveModalEvent(selected)}
+          />
         )}
       </div>
 

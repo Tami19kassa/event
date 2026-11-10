@@ -2,7 +2,7 @@
 
 import { Event } from "@/types/event";
 import { calculateDaysLeft, formatEventDateBlock } from "@/lib/date-utils";
-import { MapPin, Clock, ArrowRight, Users } from "lucide-react";
+import { MapPin, Clock, ArrowRight } from "lucide-react";
 
 interface Props {
   event: Event;
@@ -21,100 +21,83 @@ export function EventCalendarCard({ event, onSelect }: Props) {
   return (
     <div
       onClick={() => onSelect(event)}
-      className="group bg-white rounded-2xl border border-slate-200/90 hover:border-slate-400/80 p-4 sm:p-5 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden"
+      className="group w-[270px] sm:w-[300px] h-[345px] bg-white rounded-3xl border border-slate-200/90 hover:border-slate-400 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col overflow-hidden select-none"
     >
-      {/* Accent left highlight on hover */}
-      <div
-        style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-        className="absolute left-0 top-0 bottom-0 w-1 opacity-0 group-hover:opacity-100 transition-opacity"
-      />
+      {/* Top Image & Date/Countdown Header */}
+      <div className="relative h-28 bg-slate-900 shrink-0 overflow-hidden">
+        {event.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={event.imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/30 pointer-events-none" />
 
-      {/* Left Date Block + Info */}
-      <div className="flex items-start gap-4 w-full sm:w-auto">
-        {/* Modern Date Calendar Box */}
-        <div
-          style={{
-            backgroundColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.08)",
-            borderColor: "rgba(var(--color-primary-rgb, 79, 70, 229), 0.2)",
-          }}
-          className="shrink-0 flex flex-col items-center justify-center w-14 h-16 sm:w-16 sm:h-18 rounded-2xl border text-center shadow-2xs group-hover:brightness-95 transition-all duration-200"
-        >
+        {/* Date Block (Top Left) */}
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md rounded-xl px-2.5 py-1.5 text-center shadow-md min-w-[46px]">
           <span
             style={{ color: "var(--color-primary, #4F46E5)" }}
-            className="text-[10px] font-black tracking-wider uppercase"
+            className="text-[9px] font-black uppercase tracking-wider block leading-none"
           >
             {dateInfo.month}
           </span>
-          <span className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+          <span className="text-base font-black text-slate-900 leading-tight block">
             {dateInfo.day}
-          </span>
-          <span className="text-[9px] font-semibold text-slate-500">
-            {dateInfo.weekday}
           </span>
         </div>
 
-        {/* Event Details */}
-        <div className="space-y-1.5 flex-1 min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${countdown.colorClass}`}>
-              {countdown.label}
-            </span>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+        {/* Countdown Urgency Pill (Top Right) */}
+        <span
+          className={`absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full border shadow-sm backdrop-blur-md ${countdown.colorClass}`}
+        >
+          {countdown.label}
+        </span>
+      </div>
+
+      {/* Card Body */}
+      <div className="p-4 flex-1 flex flex-col justify-between min-h-0">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
               {event.category}
             </span>
-            {event.format === "hybrid" && (
-              <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                Hybrid
-              </span>
-            )}
+            <span className="text-[10px] font-semibold text-slate-400">
+              {dateInfo.weekday}, {dateInfo.year}
+            </span>
           </div>
 
-          <h3
-            style={{ color: undefined }}
-            className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-1"
-          >
+          <h3 className="text-base font-black text-slate-900 group-hover:text-[var(--color-primary)] transition-colors line-clamp-2 leading-snug">
             {event.title}
           </h3>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-            <span className="flex items-center gap-1">
-              <MapPin
-                style={{ color: "var(--color-primary, #4F46E5)" }}
-                className="w-3.5 h-3.5 shrink-0"
-              />
-              <span className="truncate max-w-[200px] sm:max-w-[260px]">
-                {event.location.name || event.location.city}
-              </span>
-            </span>
-
-            <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span>{dateInfo.time}</span>
-            </span>
-
-            {event.attendeesCount > 0 && (
-              <span className="hidden md:flex items-center gap-1 text-slate-400">
-                <Users className="w-3.5 h-3.5" />
-                <span>{event.attendeesCount} taking place</span>
-              </span>
-            )}
+        <div className="space-y-1 text-xs text-slate-500 pt-2">
+          <div className="flex items-center gap-1.5">
+            <MapPin style={{ color: "var(--color-primary, #4F46E5)" }} className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate font-medium">{event.location.name || event.location.city}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span>{dateInfo.time}</span>
           </div>
         </div>
       </div>
 
-      {/* Right Pricing & Quick Take Place CTA */}
-      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 shrink-0">
-        <div className="text-left sm:text-right">
-          <span className="text-[10px] uppercase font-semibold text-slate-400 block">Entry Pass</span>
-          <span className="text-sm font-extrabold text-slate-900">
-            {minPrice === 0 ? "Free Access" : `ETB ${minPrice.toLocaleString()}`}
+      {/* Card Footer CTA */}
+      <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between shrink-0">
+        <div>
+          <span className="text-[9px] uppercase font-bold text-slate-400 block leading-none">Entry</span>
+          <span className="text-xs font-black text-slate-900">
+            {minPrice === 0 ? "Free Pass" : `ETB ${minPrice.toLocaleString()}`}
           </span>
         </div>
 
         <button
           type="button"
           style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
-          className="px-4 py-2 rounded-xl text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer hover:brightness-110 active:scale-95"
+          className="px-3.5 py-2 rounded-xl text-white text-xs font-bold shadow-xs flex items-center gap-1 hover:brightness-110 active:scale-95 transition cursor-pointer"
         >
           <span>Take Place</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

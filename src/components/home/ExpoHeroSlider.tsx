@@ -63,12 +63,12 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
           onTouchEnd={() => { setTimeout(() => { isUserScrolling.current = false; }, 800); }}
           className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar w-full"
         >
-          {activeSlides.map((slide, sIdx) => {
+          {activeSlides.map((slide) => {
             const ytId = slide.mediaType === "video" && slide.videoUrl ? extractYouTubeId(slide.videoUrl) : null;
             return (
               <div
                 key={slide.id}
-                className="min-w-full w-full shrink-0 snap-start relative min-h-[580px] md:min-h-[660px] flex items-end pb-16 md:pb-20"
+                className="min-w-full w-full shrink-0 snap-start relative min-h-[560px] md:min-h-[650px] flex items-end pb-16 md:pb-20"
               >
                 {slide.mediaType === "video" && ytId ? (
                   <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -84,28 +84,22 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                   <img src={slide.posterUrl} alt={slide.title} className="absolute inset-0 w-full h-full object-cover object-center" />
                 )}
 
-                {/* Subtle bottom shadow gradient to keep typography crisp without hiding image */}
+                {/* Subtle bottom atmospheric fade for crisp typography without hiding image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/30 to-transparent pointer-events-none" />
 
-                {/* Direct Cardless Text Overlay */}
+                {/* Cardless Text Directly on Top of Image */}
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full z-10">
                   <div className="max-w-3xl space-y-3.5">
                     <div className="flex flex-wrap items-center gap-2.5">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 text-white text-xs font-bold border border-white/20 backdrop-blur-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/40 text-white text-xs font-bold border border-white/20 backdrop-blur-sm">
                         {slide.badgeText}
                       </span>
-                      <div className="flex items-center gap-1.5 text-xs font-mono font-bold bg-black/40 px-3 py-1 rounded-full border border-white/20 backdrop-blur-sm">
-                        <span style={{ color: "var(--color-primary, #4F46E5)" }}>{String(sIdx + 1).padStart(2, "0")}</span>
-                        <span className="text-slate-400">/</span>
-                        <span className="text-white">{String(total).padStart(2, "0")}</span>
-                      </div>
                     </div>
 
                     <Link href={`/expo/${slide.id}`} className="block group">
                       <h1
                         style={{ textShadow: "0 2px 10px rgba(0,0,0,0.9), 0 4px 30px rgba(0,0,0,0.8)" }}
-                        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white group-hover:text-slate-200 transition-colors leading-[1.1]"
+                        className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white group-hover:text-slate-200 transition-colors leading-[1.12] break-words"
                       >
                         {slide.title}
                       </h1>
@@ -129,7 +123,7 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                       {slide.subtitle}
                     </p>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2">
                       <Link
                         href={slide.visitorCtaLink}
                         style={{ backgroundColor: "var(--color-primary, #4F46E5)" }}
@@ -150,7 +144,7 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
                       </button>
                       <Link
                         href={`/expo/${slide.id}`}
-                        className="text-slate-200 hover:text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 py-3 px-3 hover:underline"
+                        className="text-slate-200 hover:text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 py-2.5 px-3 hover:underline"
                       >
                         <BookOpen className="w-4 h-4" />
                         <span>Read In-Depth Details</span>
@@ -163,27 +157,26 @@ export function ExpoHeroSlider({ slides, intervalSeconds = 7 }: Props) {
           })}
         </div>
 
-        {/* Bottom Floating Pagination */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20">
-          {activeSlides.map((s, sIdx) => (
-            <button
-              key={s.id}
-              onClick={() => scrollToIndex(sIdx)}
-              className="cursor-pointer transition-all duration-300"
-              aria-label={`Jump to slide ${sIdx + 1}`}
-            >
-              <div
-                style={{
-                  backgroundColor: sIdx === index ? "var(--color-primary, #4F46E5)" : "rgba(255,255,255,0.4)",
-                }}
-                className={`h-1.5 rounded-full transition-all duration-300 ${sIdx === index ? "w-6" : "w-2 hover:bg-white/80"}`}
-              />
-            </button>
-          ))}
-          <span className="text-[11px] font-mono font-bold text-white pl-1">
-            {String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
-          </span>
-        </div>
+        {/* Minimalist Bottom Slide Dots (No Numbers) */}
+        {total > 1 && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 bg-black/45 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/15">
+            {activeSlides.map((s, sIdx) => (
+              <button
+                key={s.id}
+                onClick={() => scrollToIndex(sIdx)}
+                className="cursor-pointer transition-all duration-300 py-0.5"
+                aria-label={`Go to slide ${sIdx + 1}`}
+              >
+                <div
+                  style={{
+                    backgroundColor: sIdx === index ? "var(--color-primary, #4F46E5)" : "rgba(255,255,255,0.45)",
+                  }}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${sIdx === index ? "w-7" : "w-2 hover:bg-white/85"}`}
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       <ExhibitorInquiryModal
