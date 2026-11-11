@@ -5,8 +5,13 @@ import { EventForm } from "@/components/admin/EventForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function NewEventPage() {
-  const [session, categories, payments] = await Promise.all([
+interface PageProps {
+  searchParams?: Promise<{ categoryId?: string }>;
+}
+
+export default async function NewEventPage({ searchParams }: PageProps) {
+  const [params, session, categories, payments] = await Promise.all([
+    searchParams ? searchParams.catch(() => ({} as { categoryId?: string })) : Promise.resolve({} as { categoryId?: string }),
     getSession(),
     withDbRetry(() =>
       prisma.category.findMany({
@@ -17,10 +22,16 @@ export default async function NewEventPage() {
     getPublicPaymentSettings(),
   ]);
 
+  const initialCategoryId =
+    params?.categoryId && categories.some((c) => c.id === params.categoryId)
+      ? params.categoryId
+      : undefined;
+
   return (
     <div className="p-5 sm:p-6 md:p-8">
       <EventForm
         mode="create"
+        initialData={initialCategoryId ? { categoryId: initialCategoryId } : undefined}
         categories={categories}
         currency={payments.currency || "ETB"}
         canCreateCategory={session?.role === "ADMIN"}

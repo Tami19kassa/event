@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import { prisma } from "./prisma";
+import { prisma, withDbRetry } from "./prisma";
 import { CACHE_TAGS } from "./cache-tags";
 import { Event, Category } from "@/types/event";
 import { events as mockEvents, categories as mockCategories } from "./mock-data";
@@ -99,18 +99,20 @@ export const getEventBySlug = cache(
 
 async function readCategoriesFromDb(): Promise<Category[]> {
   try {
-    const dbCategories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: {
-            events: {
-              where: { status: { in: ["PUBLISHED", "LIVE"] } },
+    const dbCategories = await withDbRetry(() =>
+      prisma.category.findMany({
+        include: {
+          _count: {
+            select: {
+              events: {
+                where: { status: { in: ["PUBLISHED", "LIVE"] } },
+              },
             },
           },
         },
-      },
-      orderBy: { name: "asc" },
-    });
+        orderBy: { name: "asc" },
+      })
+    );
 
     if (dbCategories && dbCategories.length > 0) {
       return dbCategories.map((c) => ({

@@ -24,10 +24,10 @@ function resolveRouteMeta(pathname: string): { section: string; title: string } 
   if (pathname.startsWith("/admin/events/") && pathname.endsWith("/edit")) {
     return { section: "Events", title: "Edit Event" };
   }
-  if (pathname.startsWith("/admin/events")) return { section: "Operations", title: "Events" };
-  if (pathname.startsWith("/admin/categories")) return { section: "Operations", title: "Event Types" };
+  if (pathname.startsWith("/admin/events")) return { section: "Catalog & Media", title: "Events" };
+  if (pathname.startsWith("/admin/categories")) return { section: "Catalog & Media", title: "Event Types" };
   if (pathname.startsWith("/admin/orders")) return { section: "Operations", title: "Orders & Gate" };
-  if (pathname.startsWith("/admin/media")) return { section: "Operations", title: "Media & Stories" };
+  if (pathname.startsWith("/admin/media")) return { section: "Catalog & Media", title: "Media & Stories" };
   if (pathname.startsWith("/admin/inquiries")) return { section: "Operations", title: "B2B Inquiries" };
   if (pathname.startsWith("/admin/users")) return { section: "Operations", title: "Users" };
   if (pathname === "/admin/settings/expo") return { section: "Settings", title: "Expo & Hero Slider" };

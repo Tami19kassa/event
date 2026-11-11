@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { getCategories } from "@/lib/events";
+import { fetchAdminCategories, slugifyCategoryName } from "@/lib/categories-admin";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const scope = req.nextUrl.searchParams.get("scope");
+    if (scope === "admin") {
+      const session = await getSession();
+      if (!session || (session.role !== "ADMIN" && session.role !== "ORGANIZER")) {
+        return NextResponse.json({ error: "Authorization required" }, { status: 403 });
+      }
+      const adminCategories = await fetchAdminCategories();
+      return NextResponse.json(adminCategories);
+    }
     const categories = await getCategories();
     return NextResponse.json(categories);
   } catch (error) {
@@ -24,34 +34,33 @@ export async function POST(req: NextRequest) {
 
   try {
     const { name, slug, icon } = await req.json();
+    const trimmedName = String(name || "").trim();
 
-    if (!name || !name.trim()) {
-      return NextResponse.json({ error: "Category name is required" }, { status: 400 });
+    if (!trimmedName) {
+      return NextResponse.json({ error: "Event type name is required" }, { status: 400 });
     }
 
-    const generatedSlug = (slug || name)
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    const generatedSlug = slugifyCategoryName(String(slug || trimmedName));
+    if (!generatedSlug) {
+      return NextResponse.json({ error: "Please provide a valid URL slug" }, { status: 400 });
+    }
 
-    const existing = await prisma.category.findUnique({
-      where: { slug: generatedSlug },
-    });
+    const existing = await withDbRetry(() =>
+      prisma.category.findUnique({ where: { slug: generatedSlug } })
+    );
 
     if (existing) {
       return NextResponse.json(
-        { error: `Category slug "${generatedSlug}" is already taken.` },
-        { status: 400 }
+        { error: `An event type with slug "/${generatedSlug}" already exists.` },
+        { status: 409 }
       );
     }
 
     const category = await prisma.category.create({
       data: {
-        name: name.trim(),
+        name: trimmedName.slice(0, 80),
         slug: generatedSlug,
-        icon: icon?.trim() || "📌",
+        icon: String(icon || "").trim() || "📌",
       },
     });
 
@@ -62,6 +71,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(category, { status: 201 });
   } catch (err: any) {
     console.error("Create category error:", err);
-    return NextResponse.json({ error: err.message || "Failed to create category" }, { status: 500 });
+    if (err?.code === "P2002") {
+      return NextResponse.json({ error: "Event type slug already exists." }, { status: 409 });
+    }
+    return NextResponse.json({ error: err.message || "Failed to create event type" }, { status: 500 });
   }
 }
