@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { fetchAdminInquiriesSnapshot } from "@/lib/inquiries-admin";
 
 const VALID_TYPES = new Set(["EXHIBITOR", "SPONSOR"]);
 
@@ -16,6 +17,13 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const scope = req.nextUrl.searchParams.get("scope");
+    if (scope === "admin") {
+      const limit = Math.min(300, Math.max(1, Number(req.nextUrl.searchParams.get("limit")) || 300));
+      const snapshot = await fetchAdminInquiriesSnapshot(limit);
+      return NextResponse.json(snapshot);
+    }
+
     const typeParam = req.nextUrl.searchParams.get("type")?.toUpperCase();
     const statusParam = req.nextUrl.searchParams.get("status")?.toUpperCase();
     const where: Record<string, string> = {};
@@ -25,10 +33,13 @@ export async function GET(req: NextRequest) {
       where.status = statusParam;
     }
 
-    const inquiries = await prisma.inquiry.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
+    const inquiries = await withDbRetry(() =>
+      prisma.inquiry.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: 300,
+      })
+    );
 
     return NextResponse.json(inquiries);
   } catch (err) {
@@ -68,22 +79,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Please provide a valid corporate email address." }, { status: 400 });
     }
 
-    const inquiry = await prisma.inquiry.create({
-      data: {
-        type,
-        companyName,
-        contactName,
-        email,
-        phone,
-        expoTitle,
-        selection,
-        notes,
-        status: "NEW",
-      },
-      select: { id: true, type: true, companyName: true, createdAt: true },
-    });
+    const inquiry = await withDbRetry(() =>
+      prisma.inquiry.create({
+        data: {
+          type,
+          companyName,
+          contactName,
+          email,
+          phone,
+          expoTitle,
+          selection,
+          notes,
+          status: "NEW",
+        },
+        select: { id: true, type: true, companyName: true, createdAt: true },
+      })
+    );
 
     revalidatePath("/admin/inquiries");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin");
     return NextResponse.json({ success: true, inquiry }, { status: 201 });
   } catch (err) {
     console.error("Create inquiry error:", err);
