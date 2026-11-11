@@ -29,7 +29,7 @@ function resolveRouteMeta(pathname: string): { section: string; title: string } 
   if (pathname.startsWith("/admin/orders")) return { section: "Operations", title: "Orders & Gate" };
   if (pathname.startsWith("/admin/media")) return { section: "Catalog & Media", title: "Media & Stories" };
   if (pathname.startsWith("/admin/inquiries")) return { section: "Operations", title: "B2B Inquiries" };
-  if (pathname.startsWith("/admin/users")) return { section: "Operations", title: "Users" };
+  if (pathname.startsWith("/admin/users")) return { section: "Admin & Settings", title: "Users" };
   if (pathname === "/admin/settings/expo") return { section: "Settings", title: "Expo & Hero Slider" };
   if (pathname === "/admin/settings/payments") return { section: "Settings", title: "Payment Gateways" };
   if (pathname === "/admin/settings/cookies") return { section: "Settings", title: "Cookies" };
