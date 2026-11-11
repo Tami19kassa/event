@@ -13,8 +13,9 @@ import {
 } from "@/lib/orders-admin-helpers";
 import { OrdersStats } from "./OrdersStats";
 import { OrdersFilterBar } from "./OrdersFilterBar";
+import { GatePassBanner } from "./GatePassBanner";
+import { QrScannerModal } from "./QrScannerModal";
 import { OrdersTable } from "./OrdersTable";
-import { GateScannerBar } from "./GateScannerBar";
 import { OrderDetailDrawer } from "./OrderDetailDrawer";
 
 interface WorkspaceProps {
@@ -40,6 +41,7 @@ export function OrdersWorkspace({
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState(initialScanCode);
   const [scanCode, setScanCode] = useState(initialScanCode);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>(initialStatusFilter);
   const [eventId, setEventId] = useState(initialEventId);
   const [actionInProgress, setActionInProgress] = useState<string | null>(null);
@@ -100,8 +102,14 @@ export function OrdersWorkspace({
   const filtered = useMemo(() => filterAdminOrders(orders, { search, statusFilter, eventId }), [orders, search, statusFilter, eventId]);
   const inspectedOrder = useMemo(() => (inspectedOrderId ? orders.find((o) => o.id === inspectedOrderId) || null : null), [orders, inspectedOrderId]);
 
+  const handleResolvedScan = (code: string) => {
+    setScanCode(code);
+    setSearch(code);
+    setStatusFilter("ALL");
+  };
+
   return (
-    <div className="p-5 sm:p-6 md:p-8 space-y-5 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 md:px-8 md:py-6 space-y-4 max-w-7xl mx-auto">
       {toast && (
         <div className="fixed top-6 right-6 z-50 px-4 py-3 bg-emerald-600 text-white text-xs sm:text-sm font-bold theme-radius shadow-2xl flex items-center gap-2.5 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
@@ -113,7 +121,7 @@ export function OrdersWorkspace({
         <div>
           <span className="text-xs font-bold uppercase tracking-wider block mb-0.5" style={{ color: "var(--color-secondary-ink, var(--color-secondary))" }}>Operations</span>
           <h1 className="text-2xl font-display text-slate-900">Orders &amp; Gate</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Verify Telebirr &amp; CBE bank receipts, collect Pay at Gate fees, and check in attendees.</p>
+          <p className="text-xs text-slate-500 mt-0.5">Verify Telebirr &amp; CBE bank receipts, collect Pay at Gate fees, and admit attendees.</p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button type="button" onClick={() => { downloadOrdersCsvFile(filtered, currency); showToast(`Exported ${filtered.length} order${filtered.length === 1 ? "" : "s"} to CSV.`); }} disabled={filtered.length === 0} className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-slate-200 theme-radius-sm text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs disabled:opacity-50">
@@ -134,16 +142,20 @@ export function OrdersWorkspace({
 
       <OrdersStats summary={summary} currency={currency} activeFilter={statusFilter} onSelectFilter={setStatusFilter} />
 
-      <GateScannerBar
+      <OrdersFilterBar
+        summary={summary} search={search}
+        onSearchChange={(val) => { setSearch(val); if (!val.trim()) setScanCode(""); }}
+        onLookupPass={handleResolvedScan} onOpenCamera={() => setScannerOpen(true)}
+        statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} eventId={eventId} onEventIdChange={setEventId} events={events}
+      />
+
+      <GatePassBanner
         orders={orders} scanCode={scanCode} currency={currency} canManageReceipts={canManageReceipts} actionInProgress={actionInProgress}
-        onScanResolved={(code) => { setScanCode(code); setSearch(code); setStatusFilter("ALL"); }}
         onClearScan={() => { setScanCode(""); setSearch(""); }}
         onCheckIn={(id, ref) => handleGateCheckIn(id, ref, false)}
         onApproveReceipt={(id, ref) => handleUpdateStatus(id, ref, "COMPLETED")}
         onInspectOrder={(ord) => setInspectedOrderId(ord.id)}
       />
-
-      <OrdersFilterBar summary={summary} search={search} onSearchChange={setSearch} statusFilter={statusFilter} onStatusFilterChange={setStatusFilter} eventId={eventId} onEventIdChange={setEventId} events={events} />
 
       {summary.totalCount > orders.length && (
         <p className="text-xs text-slate-500">Showing latest {orders.length.toLocaleString()} of {summary.totalCount.toLocaleString()} orders. Top summary cards reflect full totals.</p>
@@ -151,6 +163,7 @@ export function OrdersWorkspace({
 
       <OrdersTable orders={filtered} currency={currency} canManageReceipts={canManageReceipts} actionInProgress={actionInProgress} onCheckIn={(id, ref) => handleGateCheckIn(id, ref, false)} onApprove={(id, ref) => handleUpdateStatus(id, ref, "COMPLETED")} onInspect={(row) => setInspectedOrderId(row.id)} />
 
+      <QrScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onDetected={handleResolvedScan} />
       <OrderDetailDrawer order={inspectedOrder} currency={currency} canManageReceipts={canManageReceipts} actionInProgress={actionInProgress} onClose={() => setInspectedOrderId(null)} onUpdateStatus={handleUpdateStatus} onCheckIn={handleGateCheckIn} />
     </div>
   );

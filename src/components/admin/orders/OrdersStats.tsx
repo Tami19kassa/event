@@ -84,7 +84,7 @@ export function OrdersStats({
             key={card.key}
             type="button"
             onClick={() => onSelectFilter(selected ? "ALL" : card.key)}
-            className={`text-left bg-white px-4 py-3.5 theme-radius-card border shadow-2xs flex items-center justify-between gap-3 transition cursor-pointer ${
+            className={`text-left bg-white px-4 py-3 theme-radius-card border shadow-2xs flex items-center justify-between gap-3 transition cursor-pointer ${
               selected
                 ? "border-[var(--color-primary)] ring-2 ring-[var(--color-primary)]/15"
                 : "border-slate-200 hover:border-slate-300"
