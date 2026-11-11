@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { fetchAdminOrdersSnapshot } from "@/lib/orders-admin";
 
 export async function GET(req: NextRequest) {
   const session = await getSession();
@@ -13,6 +14,17 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const scope = req.nextUrl.searchParams.get("scope");
+    if (scope === "admin") {
+      const limit = Math.min(250, Math.max(1, Number(req.nextUrl.searchParams.get("limit")) || 250));
+      const snapshot = await fetchAdminOrdersSnapshot({
+        role: session.role,
+        userId: session.id,
+        limit,
+      });
+      return NextResponse.json(snapshot);
+    }
+
     const page = Math.max(1, Number(req.nextUrl.searchParams.get("page")) || 1);
     const limit = Math.min(250, Math.max(1, Number(req.nextUrl.searchParams.get("limit")) || 150));
 
@@ -22,23 +34,26 @@ export async function GET(req: NextRequest) {
         : { event: { organizerId: session.id } };
 
     const [total, orders] = await Promise.all([
-      prisma.order.count({ where }),
-      prisma.order.findMany({
-        where,
-        include: {
-          event: {
-            select: {
-              title: true,
-              slug: true,
-              startDate: true,
+      withDbRetry(() => prisma.order.count({ where })),
+      withDbRetry(() =>
+        prisma.order.findMany({
+          where,
+          include: {
+            event: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                startDate: true,
+              },
             },
+            items: true,
           },
-          items: true,
-        },
-        orderBy: { createdAt: "desc" },
-        take: limit,
-        skip: (page - 1) * limit,
-      }),
+          orderBy: { createdAt: "desc" },
+          take: limit,
+          skip: (page - 1) * limit,
+        })
+      ),
     ]);
 
     return NextResponse.json(orders, {

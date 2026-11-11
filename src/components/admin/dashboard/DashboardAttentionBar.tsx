@@ -22,14 +22,14 @@ export function DashboardAttentionBar({
     pendingVerificationCount > 0 && {
       key: "receipts",
       text: `${pendingVerificationCount} receipt${pendingVerificationCount === 1 ? "" : "s"} to verify`,
-      href: "/admin/orders",
+      href: "/admin/orders?status=PENDING_VERIFICATION",
       icon: Clock,
       pillClass: "theme-badge-accent",
     },
     gatePendingCount > 0 && {
       key: "gate",
       text: `${gatePendingCount} Pay at Gate (${currency} ${pendingGateRevenue.toLocaleString()})`,
-      href: "/admin/orders",
+      href: "/admin/orders?status=RESERVED_PAY_AT_GATE",
       icon: DoorOpen,
       pillClass: "theme-badge-secondary",
     },

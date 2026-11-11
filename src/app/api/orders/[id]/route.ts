@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
@@ -38,66 +38,73 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Invalid order status" }, { status: 400 });
     }
 
-    const updated = await prisma.$transaction(async (tx) => {
-      const existing = await tx.order.findUnique({
-        where: { id },
-        include: { items: true },
-      });
-
-      if (!existing) {
-        throw new Error("NOT_FOUND");
-      }
-
-      const wasHolding = STOCK_HOLDING_STATUSES.has(existing.status);
-      const wasReleased = RELEASED_STATUSES.has(existing.status);
-      const willHold = STOCK_HOLDING_STATUSES.has(status);
-      const willRelease = RELEASED_STATUSES.has(status);
-      const totalTickets = existing.items.reduce((sum, item) => sum + item.quantity, 0);
-
-      // Restore inventory cleanly when cancelling/failing an active reservation
-      if (wasHolding && willRelease) {
-        for (const item of existing.items) {
-          if (item.ticketTierId) {
-            await tx.ticketTier.updateMany({
-              where: { id: item.ticketTierId },
-              data: { remaining: { increment: item.quantity } },
-            });
-          }
-        }
-        if (totalTickets > 0) {
-          await tx.event.update({
-            where: { id: existing.eventId },
-            data: { attendeesCount: { decrement: totalTickets } },
+    const updated = await withDbRetry(() =>
+      prisma.$transaction(
+        async (tx) => {
+          const existing = await tx.order.findUnique({
+            where: { id },
+            include: { items: true },
           });
-        }
-      } else if (wasReleased && willHold) {
-        for (const item of existing.items) {
-          if (item.ticketTierId) {
-            const dec = await tx.ticketTier.updateMany({
-              where: { id: item.ticketTierId, remaining: { gte: item.quantity } },
-              data: { remaining: { decrement: item.quantity } },
-            });
-            if (dec.count === 0) {
-              throw new Error(`INSUFFICIENT_STOCK:${item.ticketName}`);
+
+          if (!existing) {
+            throw new Error("NOT_FOUND");
+          }
+
+          const wasHolding = STOCK_HOLDING_STATUSES.has(existing.status);
+          const wasReleased = RELEASED_STATUSES.has(existing.status);
+          const willHold = STOCK_HOLDING_STATUSES.has(status);
+          const willRelease = RELEASED_STATUSES.has(status);
+          const totalTickets = existing.items.reduce((sum, item) => sum + item.quantity, 0);
+
+          if (wasHolding && willRelease) {
+            for (const item of existing.items) {
+              if (item.ticketTierId) {
+                await tx.ticketTier.updateMany({
+                  where: { id: item.ticketTierId },
+                  data: { remaining: { increment: item.quantity } },
+                });
+              }
+            }
+            if (totalTickets > 0) {
+              await tx.event.update({
+                where: { id: existing.eventId },
+                data: { attendeesCount: { decrement: totalTickets } },
+              });
+            }
+          } else if (wasReleased && willHold) {
+            for (const item of existing.items) {
+              if (item.ticketTierId) {
+                const dec = await tx.ticketTier.updateMany({
+                  where: { id: item.ticketTierId, remaining: { gte: item.quantity } },
+                  data: { remaining: { decrement: item.quantity } },
+                });
+                if (dec.count === 0) {
+                  throw new Error(`INSUFFICIENT_STOCK:${item.ticketName}`);
+                }
+              }
+            }
+            if (totalTickets > 0) {
+              await tx.event.update({
+                where: { id: existing.eventId },
+                data: { attendeesCount: { increment: totalTickets } },
+              });
             }
           }
-        }
-        if (totalTickets > 0) {
-          await tx.event.update({
-            where: { id: existing.eventId },
-            data: { attendeesCount: { increment: totalTickets } },
-          });
-        }
-      }
 
-      return tx.order.update({
-        where: { id },
-        data: {
-          status,
-          verifiedAt: status === "COMPLETED" ? existing.verifiedAt || new Date() : existing.verifiedAt,
+          return tx.order.update({
+            where: { id },
+            data: {
+              status,
+              verifiedAt:
+                status === "COMPLETED" ? existing.verifiedAt || new Date() : existing.verifiedAt,
+              checkedIn: willRelease ? false : existing.checkedIn,
+              checkedInAt: willRelease ? null : existing.checkedInAt,
+            },
+          });
         },
-      });
-    });
+        { maxWait: 10000, timeout: 20000 }
+      )
+    );
 
     revalidateCacheTags(CACHE_TAGS.events);
     revalidatePath("/");

@@ -1,6 +1,6 @@
 import { getSession } from "@/lib/auth";
 import { getLiveThemeSettings } from "@/lib/settings";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { AdminLayoutShell } from "@/components/admin/AdminLayoutShell";
 import { AdminThemeScope } from "@/components/admin/AdminThemeScope";
 
@@ -23,14 +23,22 @@ export default async function AdminLayout({
 
   let ordersAttention = 0;
   let newInquiries = 0;
+  const orderScope =
+    session.role === "ADMIN" ? {} : { event: { organizerId: session.id } };
 
   try {
     const [pendingReceipts, gateAwaiting, unreadInquiries] = await Promise.all([
-      prisma.order.count({ where: { status: "PENDING_VERIFICATION" } }),
-      prisma.order.count({
-        where: { status: "RESERVED_PAY_AT_GATE", checkedIn: false },
-      }),
-      prisma.inquiry.count({ where: { status: "NEW" } }),
+      withDbRetry(() =>
+        prisma.order.count({ where: { ...orderScope, status: "PENDING_VERIFICATION" } })
+      ),
+      withDbRetry(() =>
+        prisma.order.count({
+          where: { ...orderScope, status: "RESERVED_PAY_AT_GATE", checkedIn: false },
+        })
+      ),
+      session.role === "ADMIN"
+        ? withDbRetry(() => prisma.inquiry.count({ where: { status: "NEW" } }))
+        : Promise.resolve(0),
     ]);
     ordersAttention = pendingReceipts + gateAwaiting;
     newInquiries = unreadInquiries;
