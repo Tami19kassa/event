@@ -14,6 +14,7 @@ import { EventTemplateBar } from "./events/EventTemplateBar";
 import { EventLivePreviewSidebar } from "./events/EventLivePreviewSidebar";
 import { emptyEventForm, getTomorrowMorningSchedule, makeClientKey, slugifyEventTitle, type EventFormData, type TicketTierInput } from "@/lib/event-form-types";
 import { buildEventSubmitPayload, computeEventTabIssues, reorderArrayItem, validateEventFormData } from "@/lib/event-form-submit";
+import type { OrganizerSelectOption } from "@/lib/events-admin";
 
 interface Props {
   initialData?: Partial<EventFormData> & { id?: string };
@@ -21,9 +22,10 @@ interface Props {
   categories?: Array<{ id: string; name: string }>;
   currency?: string;
   canCreateCategory?: boolean;
+  organizerOptions?: OrganizerSelectOption[];
 }
 
-export function EventForm({ initialData, mode, categories = [], currency = "ETB", canCreateCategory = false }: Props) {
+export function EventForm({ initialData, mode, categories = [], currency = "ETB", canCreateCategory = false, organizerOptions = [] }: Props) {
   const router = useRouter();
   const [activeCategories, setActiveCategories] = useState(categories);
   const [activeTab, setActiveTab] = useState<EventFormTabKey>("basics");
@@ -152,6 +154,7 @@ export function EventForm({ initialData, mode, categories = [], currency = "ETB"
               categories={activeCategories}
               canCreateCategory={canCreateCategory}
               onCategoryAdded={(cat) => setActiveCategories((prev) => [...prev, cat])}
+              organizerOptions={organizerOptions}
             />
           )}
           {activeTab === "schedule" && (

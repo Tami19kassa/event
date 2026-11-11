@@ -1,6 +1,15 @@
 import type { AdminEventRow } from "./AdminEventsTable";
 import type { EventStatusFilter } from "./EventsFilterBar";
 
+export function formatEventDateAddis(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Africa/Addis_Ababa",
+  }).format(new Date(iso));
+}
+
 export function getEventStatusPill(status: string) {
   if (status === "LIVE") {
     return {

@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { mapPrismaEventToUI } from "@/lib/event-mapper";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
-import { sanitizeAgendaInput, sanitizeSpeakersInput } from "@/lib/event-write-helpers";
+import {
+  resolveValidOrganizerId,
+  sanitizeAgendaInput,
+  sanitizeSpeakersInput,
+} from "@/lib/event-write-helpers";
 
 const VALID_STATUSES = new Set(["DRAFT", "PUBLISHED", "LIVE", "ENDED", "CANCELLED"]);
 const VALID_FORMATS = new Set(["IN_PERSON", "ONLINE", "HYBRID"]);
 
 export async function GET(req: NextRequest) {
   try {
+    const scope = req.nextUrl.searchParams.get("scope");
     const isUIFormat = req.nextUrl.searchParams.get("format") === "ui";
     const statusParam = req.nextUrl.searchParams.get("status");
     const pageParam = req.nextUrl.searchParams.get("page");
@@ -22,39 +27,43 @@ export async function GET(req: NextRequest) {
 
     const where: any = {};
     if (!session) {
+      if (scope === "admin") return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       where.status = { in: ["PUBLISHED", "LIVE"] };
     } else if (session.role === "ADMIN") {
       if (statusParam) where.status = statusParam;
     } else if (session.role === "ORGANIZER") {
-      if (statusParam === "PUBLISHED" || statusParam === "LIVE") {
+      if (scope === "admin") {
+        where.organizerId = session.id;
+        if (statusParam) where.status = statusParam;
+      } else if (statusParam === "PUBLISHED" || statusParam === "LIVE") {
         where.status = statusParam;
       } else {
-        where.OR = [
-          { status: { in: ["PUBLISHED", "LIVE"] } },
-          { organizerId: session.id },
-        ];
+        where.OR = [{ status: { in: ["PUBLISHED", "LIVE"] } }, { organizerId: session.id }];
       }
     } else {
+      if (scope === "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
       where.status = { in: ["PUBLISHED", "LIVE"] };
     }
 
-    const [total, events] = await Promise.all([
-      prisma.event.count({ where }),
-      prisma.event.findMany({
-        where,
-        include: {
-          category: true,
-          organizer: { select: { id: true, name: true, email: true, avatarUrl: true } },
-          ticketTiers: { orderBy: { sortOrder: "asc" } },
-          speakers: { orderBy: { sortOrder: "asc" } },
-          agendaItems: { orderBy: { sortOrder: "asc" } },
-          _count: { select: { orders: true } },
-        },
-        orderBy: { startDate: "desc" },
-        take: limit,
-        skip: (page - 1) * limit,
-      }),
-    ]);
+    const [total, events] = await withDbRetry(() =>
+      Promise.all([
+        prisma.event.count({ where }),
+        prisma.event.findMany({
+          where,
+          include: {
+            category: true,
+            organizer: { select: { id: true, name: true, email: true, avatarUrl: true } },
+            ticketTiers: { orderBy: { sortOrder: "asc" } },
+            speakers: { orderBy: { sortOrder: "asc" } },
+            agendaItems: { orderBy: { sortOrder: "asc" } },
+            _count: { select: { orders: true } },
+          },
+          orderBy: { startDate: "desc" },
+          take: limit,
+          skip: (page - 1) * limit,
+        }),
+      ])
+    );
 
     const payload = isUIFormat ? events.map(mapPrismaEventToUI) : events;
     return NextResponse.json(payload, {
@@ -85,7 +94,7 @@ export async function POST(req: NextRequest) {
       title, slug, shortDescription, description, imageUrl,
       startDate, endDate, timezone, format, status, capacity, isFeatured,
       locationName, locationAddress, locationCity, locationCountry, categoryId,
-      ticketTiers, speakers, agendaItems,
+      organizerId, ticketTiers, speakers, agendaItems,
     } = body;
 
     if (!title?.trim() || !startDate || !endDate) {
@@ -101,12 +110,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const baseSlug = String(slug || title)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-    const safeSlug = baseSlug || `event-${Date.now()}`;
+    let ownerId = session.id;
+    if (session.role === "ADMIN" && typeof organizerId === "string" && organizerId.trim()) {
+      const resolved = await resolveValidOrganizerId(organizerId);
+      if ("error" in resolved) {
+        return NextResponse.json({ error: resolved.error }, { status: 400 });
+      }
+      ownerId = resolved.organizerId;
+    }
 
+    const baseSlug = String(slug || title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    const safeSlug = baseSlug || `event-${Date.now()}`;
     const rawFormat = typeof format === "string" ? format.toUpperCase().replace("-", "_") : "IN_PERSON";
     const safeFormat = VALID_FORMATS.has(rawFormat) ? rawFormat : "IN_PERSON";
     const rawStatus = typeof status === "string" ? status.toUpperCase() : "DRAFT";
@@ -134,32 +148,34 @@ export async function POST(req: NextRequest) {
     const sanitizedSpeakers = sanitizeSpeakersInput(speakers);
     const sanitizedAgenda = sanitizeAgendaInput(agendaItems);
 
-    const event = await prisma.event.create({
-      data: {
-        title: title.trim(),
-        slug: safeSlug,
-        shortDescription: shortDescription?.trim() || null,
-        description: description?.trim() || null,
-        imageUrl: imageUrl || null,
-        startDate: start,
-        endDate: end,
-        timezone: timezone || "Africa/Addis_Ababa",
-        format: safeFormat,
-        status: safeStatus,
-        capacity: Math.max(1, Number(capacity) || 100),
-        isFeatured: Boolean(isFeatured),
-        locationName: locationName?.trim() || null,
-        locationAddress: locationAddress?.trim() || null,
-        locationCity: locationCity?.trim() || null,
-        locationCountry: locationCountry?.trim() || null,
-        categoryId: categoryId || null,
-        organizerId: session.id,
-        ticketTiers: cleanTiers.length ? { create: cleanTiers } : undefined,
-        speakers: sanitizedSpeakers.length ? { create: sanitizedSpeakers } : undefined,
-        agendaItems: sanitizedAgenda.length ? { create: sanitizedAgenda } : undefined,
-      },
-      include: { ticketTiers: true, category: true, speakers: true, agendaItems: true },
-    });
+    const event = await withDbRetry(() =>
+      prisma.event.create({
+        data: {
+          title: title.trim(),
+          slug: safeSlug,
+          shortDescription: shortDescription?.trim() || null,
+          description: description?.trim() || null,
+          imageUrl: imageUrl || null,
+          startDate: start,
+          endDate: end,
+          timezone: timezone || "Africa/Addis_Ababa",
+          format: safeFormat,
+          status: safeStatus,
+          capacity: Math.max(1, Number(capacity) || 100),
+          isFeatured: Boolean(isFeatured),
+          locationName: locationName?.trim() || null,
+          locationAddress: locationAddress?.trim() || null,
+          locationCity: locationCity?.trim() || null,
+          locationCountry: locationCountry?.trim() || null,
+          categoryId: categoryId || null,
+          organizerId: ownerId,
+          ticketTiers: cleanTiers.length ? { create: cleanTiers } : undefined,
+          speakers: sanitizedSpeakers.length ? { create: sanitizedSpeakers } : undefined,
+          agendaItems: sanitizedAgenda.length ? { create: sanitizedAgenda } : undefined,
+        },
+        include: { ticketTiers: true, category: true, speakers: true, agendaItems: true },
+      })
+    );
 
     revalidateCacheTags(CACHE_TAGS.events, CACHE_TAGS.categories);
     revalidatePath("/");

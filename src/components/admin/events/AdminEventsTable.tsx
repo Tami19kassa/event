@@ -17,6 +17,7 @@ export type AdminEventRow = {
   attendeesCount: number;
   capacity: number;
   category?: { id: string; name: string } | null;
+  organizer?: { id: string; name: string | null; email: string } | null;
   _count?: { orders: number };
   ticketTiers: { id?: string; price: number; remaining: number; quantity: number }[];
 };
@@ -25,20 +26,28 @@ interface TableProps {
   events: AdminEventRow[];
   currency: string;
   busyId?: string | null;
+  confirmDeleteId?: string | null;
+  showOrganizer?: boolean;
   onToggleStatus: (evt: AdminEventRow) => void;
   onToggleFeatured: (evt: AdminEventRow) => void;
   onDuplicate: (evt: AdminEventRow) => void;
-  onDelete: (evt: AdminEventRow) => void;
+  onRequestDelete: (evt: AdminEventRow) => void;
+  onCancelDelete: () => void;
+  onConfirmDelete: (evt: AdminEventRow) => void;
 }
 
 export function AdminEventsTable({
   events,
   currency,
   busyId,
+  confirmDeleteId,
+  showOrganizer = false,
   onToggleStatus,
   onToggleFeatured,
   onDuplicate,
-  onDelete,
+  onRequestDelete,
+  onCancelDelete,
+  onConfirmDelete,
 }: TableProps) {
   return (
     <div className="overflow-x-auto">
@@ -60,10 +69,14 @@ export function AdminEventsTable({
               evt={evt}
               currency={currency}
               rowBusy={busyId === evt.id}
+              confirmingDelete={confirmDeleteId === evt.id}
+              showOrganizer={showOrganizer}
               onToggleStatus={onToggleStatus}
               onToggleFeatured={onToggleFeatured}
               onDuplicate={onDuplicate}
-              onDelete={onDelete}
+              onRequestDelete={onRequestDelete}
+              onCancelDelete={onCancelDelete}
+              onConfirmDelete={onConfirmDelete}
             />
           ))}
         </tbody>

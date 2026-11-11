@@ -37,6 +37,7 @@ export function AdminLayoutShell({
         logoUrl={logoUrl}
         logoDarkUrl={logoDarkUrl}
         navBadges={navBadges}
+        userRole={user?.role}
       />
 
       <div className="md:pl-64 pl-0 transition-all duration-300 min-h-screen flex flex-col">

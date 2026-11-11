@@ -1,8 +1,10 @@
-import { notFound } from "next/navigation";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { formatInEventTimezone } from "@/lib/event-form-types";
+import { fetchOrganizerSelectOptions } from "@/lib/events-admin";
 import { EventForm } from "@/components/admin/EventForm";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +14,17 @@ interface PageProps {
 }
 
 export default async function EditEventPage({ params }: PageProps) {
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login");
+  }
+  if (session.role !== "ADMIN" && session.role !== "ORGANIZER") {
+    redirect("/");
+  }
+
+  const isAdmin = session.role === "ADMIN";
   const { id } = await params;
-  const [session, event, categories, payments] = await Promise.all([
-    getSession(),
+  const [event, categories, payments, organizerOptions] = await Promise.all([
     withDbRetry(() =>
       prisma.event.findUnique({
         where: { id },
@@ -32,17 +42,24 @@ export default async function EditEventPage({ params }: PageProps) {
       })
     ).catch(() => []),
     getPublicPaymentSettings(),
+    isAdmin ? fetchOrganizerSelectOptions() : Promise.resolve([]),
   ]);
 
   if (!event) {
     notFound();
   }
 
-  if (session && session.role !== "ADMIN" && event.organizerId !== session.id) {
+  if (!isAdmin && event.organizerId !== session.id) {
     return (
-      <div className="p-8 max-w-4xl mx-auto">
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 theme-radius text-sm font-medium">
-          Forbidden: You do not have permission to edit this event.
+      <div className="p-8 max-w-4xl mx-auto space-y-4">
+        <div className="p-5 bg-rose-50 border border-rose-200 text-rose-800 theme-radius text-sm font-medium flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <span>Forbidden: You do not have permission to edit this event.</span>
+          <Link
+            href="/admin/events"
+            className="inline-flex items-center px-3.5 py-2 bg-white border border-rose-200 text-rose-700 font-bold text-xs theme-radius-sm hover:bg-rose-100/50 transition shrink-0"
+          >
+            Back to My Events
+          </Link>
         </div>
       </div>
     );
@@ -68,6 +85,7 @@ export default async function EditEventPage({ params }: PageProps) {
     locationCity: event.locationCity || "Addis Ababa",
     locationCountry: event.locationCountry || "Ethiopia",
     categoryId: event.categoryId || "",
+    organizerId: event.organizerId || session.id,
     ticketTiers: event.ticketTiers.map((t) => ({
       id: t.id,
       name: t.name,
@@ -101,7 +119,8 @@ export default async function EditEventPage({ params }: PageProps) {
         initialData={initialData}
         categories={categories}
         currency={payments.currency || "ETB"}
-        canCreateCategory={session?.role === "ADMIN"}
+        canCreateCategory={isAdmin}
+        organizerOptions={organizerOptions}
       />
     </div>
   );

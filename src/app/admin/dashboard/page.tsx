@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Plus } from "lucide-react";
+import { getSession } from "@/lib/auth";
 import { getLiveThemeSettings } from "@/lib/settings";
 import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { getAdminDashboardSnapshot } from "@/lib/admin-dashboard-data";
@@ -11,10 +13,19 @@ import { RecentActivityTables } from "@/components/admin/dashboard/RecentActivit
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login");
+  }
+  if (session.role !== "ADMIN" && session.role !== "ORGANIZER") {
+    redirect("/");
+  }
+
+  const isAdmin = session.role === "ADMIN";
   const [theme, payments, data] = await Promise.all([
     getLiveThemeSettings(),
     getPublicPaymentSettings(),
-    getAdminDashboardSnapshot(),
+    getAdminDashboardSnapshot({ role: session.role, userId: session.id }),
   ]);
 
   const currency = payments.currency || "ETB";
@@ -27,7 +38,7 @@ export default async function AdminDashboardPage() {
         <div>
           <h1 className="text-2xl font-display text-slate-900">Dashboard</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            {shortCity} · {currency} currency · {data.upcomingEventsCount} upcoming event
+            {isAdmin ? "Platform overview" : "My event portfolio"} · {shortCity} · {currency} currency · {data.upcomingEventsCount} upcoming event
             {data.upcomingEventsCount === 1 ? "" : "s"}
           </p>
         </div>
@@ -42,6 +53,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <DashboardAttentionBar
+        isAdmin={isAdmin}
         pendingVerificationCount={data.pendingVerificationCount}
         gatePendingCount={data.gatePendingCount}
         pendingGateRevenue={data.pendingGateRevenue}
@@ -51,6 +63,7 @@ export default async function AdminDashboardPage() {
       />
 
       <DashboardMetrics
+        isAdmin={isAdmin}
         publishedEventsCount={data.publishedEventsCount}
         draftEventsCount={data.draftEventsCount}
         upcomingEventsCount={data.upcomingEventsCount}
@@ -60,6 +73,8 @@ export default async function AdminDashboardPage() {
         totalTierClaimed={data.totalTierClaimed}
         totalTierCapacity={data.totalTierCapacity}
         checkedInOrdersCount={data.checkedInOrdersCount}
+        gatePendingCount={data.gatePendingCount}
+        totalAttendees={data.totalAttendees}
         totalInquiriesCount={data.totalInquiriesCount}
         newInquiriesCount={data.newInquiriesCount}
         currency={currency}

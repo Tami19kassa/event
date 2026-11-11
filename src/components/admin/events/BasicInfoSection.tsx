@@ -1,9 +1,10 @@
 "use client";
 
-import { FileText, Link2, RotateCcw, ListPlus } from "lucide-react";
+import { FileText, Link2, RotateCcw, ListPlus, UserCheck } from "lucide-react";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { CategoryQuickSelect } from "./CategoryQuickSelect";
 import { slugifyEventTitle, type EventFormData } from "@/lib/event-form-types";
+import type { OrganizerSelectOption } from "@/lib/events-admin";
 
 interface Props {
   form: EventFormData;
@@ -13,6 +14,7 @@ interface Props {
   categories: Array<{ id: string; name: string }>;
   canCreateCategory: boolean;
   onCategoryAdded: (cat: { id: string; name: string }) => void;
+  organizerOptions?: OrganizerSelectOption[];
 }
 
 const DESCRIPTION_OUTLINE =
@@ -26,6 +28,7 @@ export function BasicInfoSection({
   categories,
   canCreateCategory,
   onCategoryAdded,
+  organizerOptions = [],
 }: Props) {
   const taglineLen = form.shortDescription.trim().length;
 
@@ -98,6 +101,26 @@ export function BasicInfoSection({
           onCategoryAdded={onCategoryAdded}
         />
       </div>
+
+      {organizerOptions.length > 0 && (
+        <div>
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+            Event Owner / Organizer
+          </label>
+          <select
+            value={form.organizerId || ""}
+            onChange={(e) => update("organizerId", e.target.value)}
+            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 theme-radius-sm text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          >
+            {organizerOptions.map((opt) => (
+              <option key={opt.id} value={opt.id}>
+                {opt.name ? `${opt.name} (${opt.email})` : opt.email} · {opt.role}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <div>
         <div className="flex items-center justify-between gap-2 mb-1.5">

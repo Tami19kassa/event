@@ -46,6 +46,7 @@ export type EventFormData = {
   locationCity: string;
   locationCountry: string;
   categoryId: string;
+  organizerId?: string;
   ticketTiers: TicketTierInput[];
   speakers: SpeakerInput[];
   agendaItems: AgendaItemInput[];

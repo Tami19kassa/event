@@ -1,9 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import type { RecentEventRow } from "@/components/admin/dashboard/RecentEventsPanel";
 import type { RecentOrderRow } from "@/components/admin/dashboard/RecentOrdersPanel";
 import {
   buildDailySeries,
   buildPaymentMix,
+  summarizeDashboardEventAndOrderSlices,
   type DailyOrderPoint,
   type PaymentChannelSlice,
 } from "./admin-dashboard-aggregates";
@@ -35,7 +36,10 @@ export interface DashboardSnapshot {
   recentOrders: RecentOrderRow[];
 }
 
-export async function getAdminDashboardSnapshot(): Promise<DashboardSnapshot> {
+export async function getAdminDashboardSnapshot(scope: {
+  role: string;
+  userId: string;
+}): Promise<DashboardSnapshot> {
   const empty: DashboardSnapshot = {
     totalEventsCount: 0,
     publishedEventsCount: 0,
@@ -62,107 +66,79 @@ export async function getAdminDashboardSnapshot(): Promise<DashboardSnapshot> {
   };
 
   try {
+    const isAdmin = scope.role === "ADMIN";
+    const eventScope = isAdmin ? {} : { organizerId: scope.userId };
+    const orderScope = isAdmin ? {} : { event: { organizerId: scope.userId } };
+    const tierScope = isAdmin ? {} : { event: { organizerId: scope.userId } };
     const now = new Date();
     const twoWeeksAgo = new Date(now);
     twoWeeksAgo.setUTCHours(0, 0, 0, 0);
     twoWeeksAgo.setUTCDate(twoWeeksAgo.getUTCDate() - 13);
 
-    const [
-      totalEventsCount,
-      publishedEventsCount,
-      draftEventsCount,
-      upcomingEventsCount,
-      completedOrdersCount,
-      pendingVerificationCount,
-      gatePendingCount,
-      checkedInOrdersCount,
-      revenueAgg,
-      gateRevenueAgg,
-      attendeeAgg,
-      tierAgg,
-      totalInquiriesCount,
-      newInquiriesCount,
-      publishedMediaCount,
-      draftMediaCount,
-      allOrderSlices,
-      recentEvents,
-      recentOrders,
-    ] = await Promise.all([
-      prisma.event.count(),
-      prisma.event.count({ where: { status: { in: ["PUBLISHED", "LIVE"] } } }),
-      prisma.event.count({ where: { status: "DRAFT" } }),
-      prisma.event.count({
-        where: { status: { in: ["PUBLISHED", "LIVE"] }, endDate: { gte: now } },
-      }),
-      prisma.order.count({ where: { status: "COMPLETED" } }),
-      prisma.order.count({ where: { status: "PENDING_VERIFICATION" } }),
-      prisma.order.count({ where: { status: "RESERVED_PAY_AT_GATE", checkedIn: false } }),
-      prisma.order.count({ where: { checkedIn: true } }),
-      prisma.order.aggregate({ where: { status: "COMPLETED" }, _sum: { totalAmount: true } }),
-      prisma.order.aggregate({
-        where: { status: "RESERVED_PAY_AT_GATE", checkedIn: false },
-        _sum: { totalAmount: true },
-      }),
-      prisma.event.aggregate({ _sum: { attendeesCount: true } }),
-      prisma.ticketTier.aggregate({ _sum: { quantity: true, remaining: true } }),
-      prisma.inquiry.count(),
-      prisma.inquiry.count({ where: { status: "NEW" } }),
-      prisma.mediaPost.count({ where: { status: "PUBLISHED" } }),
-      prisma.mediaPost.count({ where: { status: "DRAFT" } }),
-      prisma.order.findMany({
-        select: { createdAt: true, totalAmount: true, paymentMethod: true, status: true },
-        orderBy: { createdAt: "asc" },
-      }),
-      prisma.event.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          slug: true,
-          title: true,
-          status: true,
-          startDate: true,
-          locationCity: true,
-          category: { select: { name: true } },
-          ticketTiers: { select: { quantity: true, remaining: true } },
-        },
-      }),
-      prisma.order.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          orderNumber: true,
-          status: true,
-          paymentMethod: true,
-          totalAmount: true,
-          currency: true,
-          customerName: true,
-          checkedIn: true,
-          createdAt: true,
-          event: { select: { title: true, slug: true } },
-          items: { select: { quantity: true } },
-        },
-      }),
-    ]);
+    const [eventRows, allOrderSlices, tierAgg, recentEvents, recentOrders, adminCounts] =
+      await Promise.all([
+        withDbRetry(() =>
+          prisma.event.findMany({
+            where: eventScope,
+            select: { status: true, endDate: true, attendeesCount: true },
+          })
+        ),
+        withDbRetry(() =>
+          prisma.order.findMany({
+            where: orderScope,
+            select: { createdAt: true, totalAmount: true, paymentMethod: true, status: true, checkedIn: true },
+            orderBy: { createdAt: "asc" },
+          })
+        ),
+        withDbRetry(() =>
+          prisma.ticketTier.aggregate({ where: tierScope, _sum: { quantity: true, remaining: true } })
+        ),
+        withDbRetry(() =>
+          prisma.event.findMany({
+            where: eventScope,
+            take: 5,
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true, slug: true, title: true, status: true, startDate: true, locationCity: true,
+              category: { select: { name: true } },
+              ticketTiers: { select: { quantity: true, remaining: true } },
+            },
+          })
+        ),
+        withDbRetry(() =>
+          prisma.order.findMany({
+            where: orderScope,
+            take: 5,
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true, orderNumber: true, status: true, paymentMethod: true, totalAmount: true,
+              currency: true, customerName: true, checkedIn: true, createdAt: true,
+              event: { select: { title: true, slug: true } },
+              items: { select: { quantity: true } },
+            },
+          })
+        ),
+        isAdmin
+          ? withDbRetry(() =>
+              Promise.all([
+                prisma.inquiry.count(),
+                prisma.inquiry.count({ where: { status: "NEW" } }),
+                prisma.mediaPost.count({ where: { status: "PUBLISHED" } }),
+                prisma.mediaPost.count({ where: { status: "DRAFT" } }),
+              ])
+            )
+          : Promise.resolve<[number, number, number, number]>([0, 0, 0, 0]),
+      ]);
 
+    const totals = summarizeDashboardEventAndOrderSlices(eventRows, allOrderSlices, now);
     const totalTierCapacity = tierAgg._sum.quantity || 0;
     const totalTierRemaining = Math.min(totalTierCapacity, tierAgg._sum.remaining || 0);
     const totalTierClaimed = Math.max(0, totalTierCapacity - totalTierRemaining);
     const windowOrders = allOrderSlices.filter((o) => new Date(o.createdAt) >= twoWeeksAgo);
+    const [totalInquiriesCount, newInquiriesCount, publishedMediaCount, draftMediaCount] = adminCounts;
 
     return {
-      totalEventsCount,
-      publishedEventsCount,
-      draftEventsCount,
-      upcomingEventsCount,
-      completedOrdersCount,
-      pendingVerificationCount,
-      gatePendingCount,
-      checkedInOrdersCount,
-      verifiedRevenue: revenueAgg._sum.totalAmount || 0,
-      pendingGateRevenue: gateRevenueAgg._sum.totalAmount || 0,
-      totalAttendees: attendeeAgg._sum.attendeesCount || 0,
+      ...totals,
       totalTierCapacity,
       totalTierRemaining,
       totalTierClaimed,

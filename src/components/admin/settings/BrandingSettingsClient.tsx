@@ -113,7 +113,7 @@ export function BrandingSettingsClient({ initialSettings }: Props) {
           <button
             type="button"
             onClick={() => setLivePreview((v) => !v)}
-            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold border transition flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-2.5 theme-radius-sm text-xs font-bold border transition flex items-center gap-1.5 cursor-pointer ${
               livePreview
                 ? "theme-badge"
                 : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -134,33 +134,37 @@ export function BrandingSettingsClient({ initialSettings }: Props) {
         </div>
       </div>
 
-      <div className="p-4 bg-slate-900 text-white theme-radius-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="p-4 bg-white border border-slate-200 theme-radius-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
         <div className="flex items-center gap-3 text-xs">
-          <div className="w-8 h-8 theme-radius-sm bg-white/10 flex items-center justify-center shrink-0">
-            <Building2 className="w-4 h-4" style={{ color: "var(--color-accent-on-dark, var(--color-accent))" }} />
+          <div className="w-9 h-9 theme-radius-sm theme-icon-secondary border flex items-center justify-center shrink-0">
+            <Building2 className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-bold block">Looking to update homepage hero slides, videos, or sponsors?</span>
-            <span className="text-slate-400">Homepage media carousels are managed in Expo &amp; Hero Slider.</span>
+            <span className="font-bold text-slate-900 block">
+              Looking to update homepage hero slides, videos, or sponsors?
+            </span>
+            <span className="text-slate-500">
+              Homepage media carousels are managed in Expo &amp; Hero Slider.
+            </span>
           </div>
         </div>
         <Link
           href="/admin/settings/expo"
-          className="inline-flex items-center gap-1.5 text-xs font-bold bg-white text-slate-900 px-3.5 py-2 rounded-xl hover:bg-slate-100 transition shrink-0 self-start sm:self-auto"
+          className="inline-flex items-center gap-1.5 text-xs font-bold bg-slate-50 border border-slate-200 text-slate-800 px-3.5 py-2 theme-radius-sm hover:border-[var(--color-secondary)] hover:text-[var(--color-secondary-ink,var(--color-secondary))] transition shrink-0 self-start sm:self-auto"
         >
           Expo &amp; Hero Slider <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>
 
       {saved && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-center gap-3 text-sm">
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 theme-radius flex items-center gap-3 text-sm">
           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
           <span>Branding &amp; font settings saved across all public and admin pages.</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-center gap-3 text-sm">
+        <div className="p-4 bg-rose-50 border border-rose-200 text-rose-800 theme-radius flex items-center gap-3 text-sm">
           <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
           <span>{error}</span>
         </div>

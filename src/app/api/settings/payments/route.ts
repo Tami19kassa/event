@@ -18,9 +18,35 @@ export async function PUT(req: NextRequest) {
 
   try {
     const body = await req.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return NextResponse.json({ error: "Invalid payment settings payload." }, { status: 400 });
+    }
+
+    const requiredFields: Array<[keyof typeof body, string]> = [
+      ["cbeAccount", "CBE Account Number"],
+      ["cbeAccountName", "CBE Account Holder Name"],
+      ["telebirrNumber", "Telebirr Number"],
+      ["telebirrAccountName", "Telebirr Registered Name"],
+    ];
+    for (const [key, label] of requiredFields) {
+      if (key in body && (typeof body[key] !== "string" || !body[key].trim())) {
+        return NextResponse.json({ error: `${label} cannot be empty.` }, { status: 400 });
+      }
+    }
+    if ("currency" in body) {
+      const code = typeof body.currency === "string" ? body.currency.trim().toUpperCase() : "";
+      if (!/^[A-Z]{3,5}$/.test(code)) {
+        return NextResponse.json(
+          { error: "Currency code must be 3 to 5 uppercase letters (e.g. ETB, USD)." },
+          { status: 400 }
+        );
+      }
+    }
+
     const updated = await savePaymentSettings(body);
     revalidateCacheTags(CACHE_TAGS.payments);
     revalidatePath("/", "layout");
+    revalidatePath("/admin/settings/payments");
     return NextResponse.json(updated);
   } catch (err) {
     console.error("Save payment settings error:", err);

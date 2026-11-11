@@ -1,4 +1,24 @@
 import type { Prisma } from "@prisma/client";
+import { prisma, withDbRetry } from "./prisma";
+
+export async function resolveValidOrganizerId(
+  candidateId: unknown
+): Promise<{ organizerId: string } | { error: string }> {
+  const trimmed = typeof candidateId === "string" ? candidateId.trim() : "";
+  if (!trimmed) {
+    return { error: "Selected organizer account is invalid." };
+  }
+  const target = await withDbRetry(() =>
+    prisma.user.findUnique({
+      where: { id: trimmed },
+      select: { id: true, role: true },
+    })
+  );
+  if (!target || (target.role !== "ADMIN" && target.role !== "ORGANIZER")) {
+    return { error: "Selected owner must be an Admin or Organizer account." };
+  }
+  return { organizerId: target.id };
+}
 
 export function sanitizeSpeakersInput(raw: unknown) {
   if (!Array.isArray(raw)) return [];

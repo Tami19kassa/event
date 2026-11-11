@@ -3,10 +3,17 @@ import { verifySessionToken } from "./lib/session";
 
 const SESSION_COOKIE = "eventhub_session";
 
+const ADMIN_ONLY_PREFIXES = [
+  "/admin/users",
+  "/admin/categories",
+  "/admin/media",
+  "/admin/inquiries",
+  "/admin/settings",
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Only protect /admin routes
   if (!pathname.startsWith("/admin")) {
     return NextResponse.next();
   }
@@ -16,20 +23,24 @@ export async function middleware(request: NextRequest) {
   const hasAdminAccess =
     verifiedUser && (verifiedUser.role === "ADMIN" || verifiedUser.role === "ORGANIZER");
 
-  // Allow login page
   if (pathname === "/admin/login") {
     if (hasAdminAccess) {
-      // Already logged in → redirect to dashboard
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
     return NextResponse.next();
   }
 
-  // Protect all other /admin routes
   if (!hasAdminAccess) {
     const loginUrl = new URL("/admin/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (
+    verifiedUser.role !== "ADMIN" &&
+    ADMIN_ONLY_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + "/"))
+  ) {
+    return NextResponse.redirect(new URL("/admin/dashboard", request.url));
   }
 
   return NextResponse.next();

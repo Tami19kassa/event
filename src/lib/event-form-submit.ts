@@ -67,6 +67,7 @@ export function buildEventSubmitPayload(
     locationAddress: form.locationAddress.trim() || null,
     locationCity: form.locationCity.trim() || null,
     locationCountry: form.locationCountry.trim() || null,
+    organizerId: form.organizerId?.trim() || undefined,
     startDate: localDateTimeToIso(form.startDate, form.timezone),
     endDate: localDateTimeToIso(form.endDate, form.timezone),
     ticketTiers: form.ticketTiers.map(({ clientKey: _ck, soldCount: _sc, ...t }) => ({

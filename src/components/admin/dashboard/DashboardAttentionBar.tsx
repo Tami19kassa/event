@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, DoorOpen, FileEdit, Mail } from "lucide-react";
 
 interface AttentionProps {
+  isAdmin?: boolean;
   pendingVerificationCount: number;
   gatePendingCount: number;
   pendingGateRevenue: number;
@@ -11,6 +12,7 @@ interface AttentionProps {
 }
 
 export function DashboardAttentionBar({
+  isAdmin = true,
   pendingVerificationCount,
   gatePendingCount,
   pendingGateRevenue,
@@ -33,7 +35,7 @@ export function DashboardAttentionBar({
       icon: DoorOpen,
       pillClass: "theme-badge-secondary",
     },
-    newInquiriesCount > 0 && {
+    isAdmin && newInquiriesCount > 0 && {
       key: "inquiries",
       text: `${newInquiriesCount} new B2B lead${newInquiriesCount === 1 ? "" : "s"}`,
       href: "/admin/inquiries",

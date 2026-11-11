@@ -4,7 +4,11 @@ import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
-import { syncEventSpeakersAndAgenda, syncEventTicketTiers } from "@/lib/event-write-helpers";
+import {
+  resolveValidOrganizerId,
+  syncEventSpeakersAndAgenda,
+  syncEventTicketTiers,
+} from "@/lib/event-write-helpers";
 
 type Params = { params: Promise<{ id: string }> };
 
@@ -14,17 +18,19 @@ const VALID_FORMATS = new Set(["IN_PERSON", "ONLINE", "HYBRID"]);
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
-    const event = await prisma.event.findUnique({
-      where: { id },
-      include: {
-        category: true,
-        organizer: { select: { id: true, name: true, email: true } },
-        ticketTiers: { orderBy: { sortOrder: "asc" } },
-        speakers: { orderBy: { sortOrder: "asc" } },
-        agendaItems: { orderBy: { sortOrder: "asc" } },
-        _count: { select: { orders: true } },
-      },
-    });
+    const event = await withDbRetry(() =>
+      prisma.event.findUnique({
+        where: { id },
+        include: {
+          category: true,
+          organizer: { select: { id: true, name: true, email: true } },
+          ticketTiers: { orderBy: { sortOrder: "asc" } },
+          speakers: { orderBy: { sortOrder: "asc" } },
+          agendaItems: { orderBy: { sortOrder: "asc" } },
+          _count: { select: { orders: true } },
+        },
+      })
+    );
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
 
     if (event.status !== "PUBLISHED" && event.status !== "LIVE") {
@@ -97,21 +103,28 @@ export async function PUT(req: NextRequest, { params }: Params) {
     if (body.capacity !== undefined) data.capacity = Math.max(1, Number(body.capacity));
     if (body.isFeatured !== undefined) data.isFeatured = Boolean(body.isFeatured);
     if (body.categoryId !== undefined) data.categoryId = body.categoryId || null;
+    if (session.role === "ADMIN" && typeof body.organizerId === "string" && body.organizerId.trim()) {
+      if (body.organizerId.trim() !== existing.organizerId) {
+        const resolved = await resolveValidOrganizerId(body.organizerId);
+        if ("error" in resolved) {
+          return NextResponse.json({ error: resolved.error }, { status: 400 });
+        }
+        data.organizerId = resolved.organizerId;
+      }
+    }
 
-    const event = await prisma.$transaction(
-      async (tx) => {
-        const updatedEvent = await tx.event.update({ where: { id }, data });
-        await syncEventTicketTiers(tx, id, existing.ticketTiers, body.ticketTiers);
-        await syncEventSpeakersAndAgenda(
-          tx,
-          id,
-          body.speakers,
-          body.agendaItems,
-          existing._count
-        );
-        return updatedEvent;
-      },
-      { maxWait: 10000, timeout: 20000 }
+    const event = await withDbRetry(() =>
+      prisma.$transaction(
+        async (tx) => {
+          const updatedEvent = await tx.event.update({ where: { id }, data });
+          await syncEventTicketTiers(tx, id, existing.ticketTiers, body.ticketTiers);
+          await syncEventSpeakersAndAgenda(
+            tx, id, body.speakers, body.agendaItems, existing._count
+          );
+          return updatedEvent;
+        },
+        { maxWait: 10000, timeout: 20000 }
+      )
     );
 
     revalidateCacheTags(CACHE_TAGS.events, CACHE_TAGS.categories);
@@ -128,6 +141,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
           speakers: { orderBy: { sortOrder: "asc" } },
           agendaItems: { orderBy: { sortOrder: "asc" } },
           category: true,
+          organizer: { select: { id: true, name: true, email: true } },
           _count: { select: { orders: true } },
         },
       })
@@ -144,19 +158,24 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session || (session.role !== "ADMIN" && session.role !== "ORGANIZER")) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const { id } = await params;
 
   try {
-    const event = await prisma.event.findUnique({
-      where: { id },
-      select: { slug: true, title: true, _count: { select: { orders: true } } },
-    });
+    const event = await withDbRetry(() =>
+      prisma.event.findUnique({
+        where: { id },
+        select: { slug: true, title: true, organizerId: true, _count: { select: { orders: true } } },
+      })
+    );
     if (!event) {
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+    if (session.role !== "ADMIN" && event.organizerId !== session.id) {
+      return NextResponse.json({ error: "Forbidden: You do not own this event" }, { status: 403 });
     }
     if (event._count.orders > 0) {
       return NextResponse.json(
@@ -167,7 +186,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
       );
     }
 
-    await prisma.event.delete({ where: { id } });
+    await withDbRetry(() => prisma.event.delete({ where: { id } }));
 
     revalidateCacheTags(CACHE_TAGS.events, CACHE_TAGS.categories);
     revalidatePath("/");

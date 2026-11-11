@@ -19,7 +19,7 @@ export default async function AdminInquiriesPage({ searchParams }: PageProps) {
     redirect("/admin/login");
   }
   if (session.role !== "ADMIN") {
-    redirect("/");
+    redirect(session.role === "ORGANIZER" ? "/admin/dashboard" : "/");
   }
 
   const [sp, snapshot] = await Promise.all([searchParams, fetchAdminInquiriesSnapshot()]);

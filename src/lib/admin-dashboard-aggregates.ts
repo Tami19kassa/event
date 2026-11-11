@@ -69,3 +69,55 @@ export function buildPaymentMix(
 
   return Object.values(map);
 }
+
+export function summarizeDashboardEventAndOrderSlices(
+  eventRows: Array<{ status: string; endDate: Date; attendeesCount: number }>,
+  orderSlices: Array<{ totalAmount: number; status: string; checkedIn: boolean }>,
+  now: Date
+) {
+  let publishedEventsCount = 0;
+  let draftEventsCount = 0;
+  let upcomingEventsCount = 0;
+  let totalAttendees = 0;
+  for (const ev of eventRows) {
+    totalAttendees += ev.attendeesCount || 0;
+    if (ev.status === "DRAFT") draftEventsCount++;
+    if (ev.status === "PUBLISHED" || ev.status === "LIVE") {
+      publishedEventsCount++;
+      if (new Date(ev.endDate) >= now) upcomingEventsCount++;
+    }
+  }
+
+  let completedOrdersCount = 0;
+  let pendingVerificationCount = 0;
+  let gatePendingCount = 0;
+  let checkedInOrdersCount = 0;
+  let verifiedRevenue = 0;
+  let pendingGateRevenue = 0;
+  for (const ord of orderSlices) {
+    if (ord.status === "COMPLETED") {
+      completedOrdersCount++;
+      verifiedRevenue += ord.totalAmount || 0;
+    } else if (ord.status === "PENDING_VERIFICATION") {
+      pendingVerificationCount++;
+    } else if (ord.status === "RESERVED_PAY_AT_GATE" && !ord.checkedIn) {
+      gatePendingCount++;
+      pendingGateRevenue += ord.totalAmount || 0;
+    }
+    if (ord.checkedIn) checkedInOrdersCount++;
+  }
+
+  return {
+    totalEventsCount: eventRows.length,
+    publishedEventsCount,
+    draftEventsCount,
+    upcomingEventsCount,
+    totalAttendees,
+    completedOrdersCount,
+    pendingVerificationCount,
+    gatePendingCount,
+    checkedInOrdersCount,
+    verifiedRevenue,
+    pendingGateRevenue,
+  };
+}

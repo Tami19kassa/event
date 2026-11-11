@@ -1,6 +1,8 @@
+import { redirect } from "next/navigation";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { getPublicPaymentSettings } from "@/lib/payment-settings";
+import { fetchOrganizerSelectOptions } from "@/lib/events-admin";
 import { EventForm } from "@/components/admin/EventForm";
 
 export const dynamic = "force-dynamic";
@@ -10,9 +12,19 @@ interface PageProps {
 }
 
 export default async function NewEventPage({ searchParams }: PageProps) {
-  const [params, session, categories, payments] = await Promise.all([
-    searchParams ? searchParams.catch(() => ({} as { categoryId?: string })) : Promise.resolve({} as { categoryId?: string }),
-    getSession(),
+  const session = await getSession();
+  if (!session) {
+    redirect("/admin/login");
+  }
+  if (session.role !== "ADMIN" && session.role !== "ORGANIZER") {
+    redirect("/");
+  }
+
+  const isAdmin = session.role === "ADMIN";
+  const [params, categories, payments, organizerOptions] = await Promise.all([
+    searchParams
+      ? searchParams.catch(() => ({} as { categoryId?: string }))
+      : Promise.resolve({} as { categoryId?: string }),
     withDbRetry(() =>
       prisma.category.findMany({
         select: { id: true, name: true },
@@ -20,6 +32,7 @@ export default async function NewEventPage({ searchParams }: PageProps) {
       })
     ).catch(() => []),
     getPublicPaymentSettings(),
+    isAdmin ? fetchOrganizerSelectOptions() : Promise.resolve([]),
   ]);
 
   const initialCategoryId =
@@ -31,10 +44,14 @@ export default async function NewEventPage({ searchParams }: PageProps) {
     <div className="p-5 sm:p-6 md:p-8">
       <EventForm
         mode="create"
-        initialData={initialCategoryId ? { categoryId: initialCategoryId } : undefined}
+        initialData={{
+          ...(initialCategoryId ? { categoryId: initialCategoryId } : {}),
+          organizerId: session.id,
+        }}
         categories={categories}
         currency={payments.currency || "ETB"}
-        canCreateCategory={session?.role === "ADMIN"}
+        canCreateCategory={isAdmin}
+        organizerOptions={organizerOptions}
       />
     </div>
   );

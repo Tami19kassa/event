@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Calendar, Ticket, Coins, Mail } from "lucide-react";
+import { Calendar, Ticket, Coins, Mail, DoorOpen } from "lucide-react";
 
 interface MetricsProps {
+  isAdmin?: boolean;
   publishedEventsCount: number;
   draftEventsCount: number;
   upcomingEventsCount: number;
@@ -11,12 +12,15 @@ interface MetricsProps {
   totalTierClaimed: number;
   totalTierCapacity: number;
   checkedInOrdersCount: number;
+  gatePendingCount?: number;
+  totalAttendees?: number;
   totalInquiriesCount: number;
   newInquiriesCount: number;
   currency: string;
 }
 
 export function DashboardMetrics({
+  isAdmin = true,
   publishedEventsCount,
   draftEventsCount,
   upcomingEventsCount,
@@ -26,6 +30,8 @@ export function DashboardMetrics({
   totalTierClaimed,
   totalTierCapacity,
   checkedInOrdersCount,
+  gatePendingCount = 0,
+  totalAttendees = 0,
   totalInquiriesCount,
   newInquiriesCount,
   currency,
@@ -33,9 +39,39 @@ export function DashboardMetrics({
   const claimedPct =
     totalTierCapacity > 0 ? Math.round((totalTierClaimed / totalTierCapacity) * 100) : 0;
 
+  const fourthCard = isAdmin
+    ? {
+        label: "B2B Inquiries",
+        value: totalInquiriesCount.toLocaleString(),
+        subtext:
+          newInquiriesCount > 0
+            ? `${newInquiriesCount} unread request${newInquiriesCount === 1 ? "" : "s"}`
+            : "All exhibitor & sponsor leads reviewed",
+        icon: Mail,
+        iconTone:
+          newInquiriesCount > 0
+            ? "theme-icon-accent"
+            : "bg-slate-50 text-slate-600 border-slate-200/80",
+        href: "/admin/inquiries",
+      }
+    : {
+        label: "Gate Check-Ins",
+        value: checkedInOrdersCount.toLocaleString(),
+        subtext:
+          gatePendingCount > 0
+            ? `${gatePendingCount} pay at gate awaiting entry`
+            : `${totalAttendees.toLocaleString()} attendees across events`,
+        icon: DoorOpen,
+        iconTone:
+          gatePendingCount > 0
+            ? "theme-icon-accent"
+            : "bg-slate-50 text-slate-600 border-slate-200/80",
+        href: "/admin/orders?status=RESERVED_PAY_AT_GATE",
+      };
+
   const stats = [
     {
-      label: "Published Events",
+      label: isAdmin ? "Published Events" : "My Published Events",
       value: publishedEventsCount.toLocaleString(),
       subtext:
         draftEventsCount > 0
@@ -64,20 +100,7 @@ export function DashboardMetrics({
       iconTone: "theme-icon-accent",
       href: "/admin/orders",
     },
-    {
-      label: "B2B Inquiries",
-      value: totalInquiriesCount.toLocaleString(),
-      subtext:
-        newInquiriesCount > 0
-          ? `${newInquiriesCount} unread request${newInquiriesCount === 1 ? "" : "s"}`
-          : "All exhibitor & sponsor leads reviewed",
-      icon: Mail,
-      iconTone:
-        newInquiriesCount > 0
-          ? "theme-icon-accent"
-          : "bg-slate-50 text-slate-600 border-slate-200/80",
-      href: "/admin/inquiries",
-    },
+    fourthCard,
   ];
 
   return (

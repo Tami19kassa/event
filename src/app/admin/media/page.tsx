@@ -11,7 +11,7 @@ export default async function AdminMediaPage() {
     redirect("/admin/login");
   }
   if (session.role !== "ADMIN") {
-    redirect("/");
+    redirect(session.role === "ORGANIZER" ? "/admin/dashboard" : "/");
   }
 
   const snapshot = await fetchAdminMediaSnapshot();

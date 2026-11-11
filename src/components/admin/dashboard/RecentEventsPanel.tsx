@@ -1,6 +1,14 @@
 import Link from "next/link";
-import { format } from "date-fns";
 import { ArrowRight, ExternalLink, Pencil } from "lucide-react";
+
+function formatEventDateAddis(date: Date | string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Africa/Addis_Ababa",
+  }).format(new Date(date));
+}
 
 export type RecentEventRow = {
   id: string;
@@ -87,7 +95,7 @@ export function RecentEventsPanel({
 
                   <div className="text-xs text-slate-500 flex items-center justify-between gap-2">
                     <span className="truncate">
-                      {evt.locationCity || shortCity} · {format(new Date(evt.startDate), "MMM d, yyyy")}
+                      {evt.locationCity || shortCity} · {formatEventDateAddis(evt.startDate)}
                     </span>
                     {totalQty > 0 && (
                       <span className="tabular-nums font-semibold text-slate-700 shrink-0">

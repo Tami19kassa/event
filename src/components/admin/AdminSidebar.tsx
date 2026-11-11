@@ -15,6 +15,7 @@ interface SidebarProps {
   logoUrl?: string | null;
   logoDarkUrl?: string | null;
   navBadges?: AdminNavBadges;
+  userRole?: string;
 }
 
 export function AdminSidebar({
@@ -24,9 +25,15 @@ export function AdminSidebar({
   logoUrl,
   logoDarkUrl,
   navBadges,
+  userRole,
 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const isAdmin = userRole === "ADMIN";
+  const visibleGroups = ADMIN_NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.adminOnly || isAdmin),
+  })).filter((group) => group.items.length > 0);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -69,7 +76,7 @@ export function AdminSidebar({
             logoUrl={logoUrl}
             logoDarkUrl={logoDarkUrl}
             variant="sidebar"
-            subtitle="Admin Workspace"
+            subtitle={isAdmin ? "Admin Workspace" : "Organizer Portal"}
           />
           <button
             onClick={onClose}
@@ -82,7 +89,7 @@ export function AdminSidebar({
         </div>
 
         <nav className="sidebar-scrollbar flex-1 py-5 px-3.5 overflow-y-auto space-y-6">
-          {ADMIN_NAV_GROUPS.map((group) => (
+          {visibleGroups.map((group) => (
             <div key={group.title} className="space-y-1.5">
               <div
                 style={{ color: "var(--admin-sidebar-group, rgba(241,245,249,0.48))" }}

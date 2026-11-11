@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import { prisma } from "./prisma";
+import { prisma, withDbRetry } from "./prisma";
 import { CACHE_TAGS } from "./cache-tags";
 import { revalidateCacheTags } from "./cache-revalidate";
 import { defaultCookieSettings, type CookieSettings } from "./cookie-types";
@@ -8,7 +8,9 @@ import { defaultCookieSettings, type CookieSettings } from "./cookie-types";
 export { defaultCookieSettings, type CookieSettings };
 
 async function fetchCookieSettingsStrict(): Promise<CookieSettings> {
-  const setting = await prisma.siteSetting.findUnique({ where: { key: "cookies" } });
+  const setting = await withDbRetry(() =>
+    prisma.siteSetting.findUnique({ where: { key: "cookies" } })
+  );
   if (!setting?.value) return defaultCookieSettings;
   try {
     return { ...defaultCookieSettings, ...JSON.parse(setting.value) };
@@ -16,6 +18,14 @@ async function fetchCookieSettingsStrict(): Promise<CookieSettings> {
     return defaultCookieSettings;
   }
 }
+
+export const getLiveCookieSettings = cache(async (): Promise<CookieSettings> => {
+  try {
+    return await fetchCookieSettingsStrict();
+  } catch {
+    return defaultCookieSettings;
+  }
+});
 
 const getCachedCookieSettings = unstable_cache(
   fetchCookieSettingsStrict,
@@ -37,11 +47,13 @@ export async function saveCookieSettings(
   const current = await fetchCookieSettingsStrict();
   const updated: CookieSettings = { ...current, ...settings };
 
-  await prisma.siteSetting.upsert({
-    where: { key: "cookies" },
-    update: { value: JSON.stringify(updated) },
-    create: { key: "cookies", value: JSON.stringify(updated) },
-  });
+  await withDbRetry(() =>
+    prisma.siteSetting.upsert({
+      where: { key: "cookies" },
+      update: { value: JSON.stringify(updated) },
+      create: { key: "cookies", value: JSON.stringify(updated) },
+    })
+  );
 
   revalidateCacheTags(CACHE_TAGS.cookies);
   return updated;
