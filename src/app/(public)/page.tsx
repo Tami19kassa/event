@@ -20,7 +20,7 @@ export default async function HomePage() {
       getExpoSlides(),
       getSponsors(),
       getExpoScrollInterval(),
-      getHomepageMediaPosts(3),
+      getHomepageMediaPosts(6),
     ]);
 
   const activeExpos = expoSlides.filter((s) => s.isActive).length;

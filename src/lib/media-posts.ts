@@ -1,6 +1,6 @@
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import { prisma } from "./prisma";
+import { prisma, withDbRetry } from "./prisma";
 import { CACHE_TAGS } from "./cache-tags";
 import { sanitizePublicHttpUrl } from "./theme-types";
 import {
@@ -10,6 +10,7 @@ import {
   type MediaPostItem,
   type MediaStatus,
 } from "./media-types";
+import type { AdminMediaSummary, MediaEventOption } from "./media-admin-helpers";
 
 const EVENT_SELECT = {
   id: true,
@@ -57,12 +58,14 @@ export function mapMediaPost(row: any): MediaPostItem {
 
 async function readPublishedMediaPosts(): Promise<MediaPostItem[]> {
   try {
-    const rows = await prisma.mediaPost.findMany({
-      where: { status: "PUBLISHED" },
-      include: { event: { select: EVENT_SELECT } },
-      orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }],
-      take: 60,
-    });
+    const rows = await withDbRetry(() =>
+      prisma.mediaPost.findMany({
+        where: { status: "PUBLISHED" },
+        include: { event: { select: EVENT_SELECT } },
+        orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }],
+        take: 60,
+      })
+    );
     return rows.map(mapMediaPost);
   } catch (err) {
     console.error("Failed to load media posts:", err);
@@ -77,17 +80,19 @@ export const getPublishedMediaPosts = cache(
   })
 );
 
-export const getHomepageMediaPosts = cache(async (limit = 3): Promise<MediaPostItem[]> => {
+export const getHomepageMediaPosts = cache(async (limit = 6): Promise<MediaPostItem[]> => {
   const all = await getPublishedMediaPosts();
-  return all.filter((p) => p.isFeatured).slice(0, limit);
+  return all.slice(0, limit);
 });
 
 export const getMediaPostBySlug = cache(async (slug: string): Promise<MediaPostItem | null> => {
   try {
-    const row = await prisma.mediaPost.findFirst({
-      where: { slug, status: "PUBLISHED" },
-      include: { event: { select: EVENT_SELECT } },
-    });
+    const row = await withDbRetry(() =>
+      prisma.mediaPost.findFirst({
+        where: { slug, status: "PUBLISHED" },
+        include: { event: { select: EVENT_SELECT } },
+      })
+    );
     return row ? mapMediaPost(row) : null;
   } catch {
     return null;
@@ -99,14 +104,51 @@ export const getEventMediaPosts = cache(async (eventId: string): Promise<MediaPo
   return all.filter((p) => p.eventId === eventId).slice(0, 3);
 });
 
+export async function fetchAdminMediaSnapshot(limit = 200): Promise<{
+  posts: MediaPostItem[];
+  events: MediaEventOption[];
+  summary: AdminMediaSummary;
+}> {
+  const [
+    totalCount, publishedCount, draftCount, videoCount, articleCount, externalCount, featuredCount,
+    rows, eventRows,
+  ] = await Promise.all([
+    withDbRetry(() => prisma.mediaPost.count()),
+    withDbRetry(() => prisma.mediaPost.count({ where: { status: "PUBLISHED" } })),
+    withDbRetry(() => prisma.mediaPost.count({ where: { status: "DRAFT" } })),
+    withDbRetry(() => prisma.mediaPost.count({ where: { kind: "VIDEO_VLOG" } })),
+    withDbRetry(() => prisma.mediaPost.count({ where: { kind: "ARTICLE" } })),
+    withDbRetry(() => prisma.mediaPost.count({ where: { kind: "EXTERNAL_LINK" } })),
+    withDbRetry(() => prisma.mediaPost.count({ where: { isFeatured: true } })),
+    withDbRetry(() =>
+      prisma.mediaPost.findMany({
+        include: { event: { select: EVENT_SELECT } },
+        orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }],
+        take: limit,
+      })
+    ),
+    withDbRetry(() =>
+      prisma.event.findMany({
+        select: { id: true, title: true },
+        orderBy: { startDate: "desc" },
+        take: 100,
+      })
+    ),
+  ]);
+
+  return {
+    posts: rows.map(mapMediaPost),
+    events: eventRows.map((ev) => ({ id: ev.id, title: ev.title })),
+    summary: { totalCount, publishedCount, draftCount, videoCount, articleCount, externalCount, featuredCount },
+  };
+}
+
 const VALID_KINDS = new Set<MediaKind>(["VIDEO_VLOG", "ARTICLE", "EXTERNAL_LINK"]);
 const VALID_STATUS = new Set<MediaStatus>(["DRAFT", "PUBLISHED"]);
 
 export function sanitizeMediaWriteInput(raw: Record<string, any>) {
   const title = typeof raw.title === "string" ? raw.title.trim().slice(0, 160) : "";
-  if (!title) {
-    return { error: "Title is required." } as const;
-  }
+  if (!title) return { error: "Title is required." } as const;
 
   const kind: MediaKind = VALID_KINDS.has(raw.kind) ? raw.kind : "VIDEO_VLOG";
   const status: MediaStatus = VALID_STATUS.has(raw.status) ? raw.status : "PUBLISHED";
@@ -129,13 +171,11 @@ export function sanitizeMediaWriteInput(raw: Record<string, any>) {
       status,
       excerpt: typeof raw.excerpt === "string" ? raw.excerpt.trim().slice(0, 400) || null : null,
       content: typeof raw.content === "string" ? raw.content.trim().slice(0, 25000) || null : null,
-      categoryTag:
-        typeof raw.categoryTag === "string" ? raw.categoryTag.trim().slice(0, 40) || null : null,
+      categoryTag: typeof raw.categoryTag === "string" ? raw.categoryTag.trim().slice(0, 40) || null : null,
       coverImageUrl: sanitizeAssetOrVideoUrl(raw.coverImageUrl) || null,
       videoUrl: videoUrl || null,
       externalUrl: externalUrl || null,
-      externalLabel:
-        typeof raw.externalLabel === "string" ? raw.externalLabel.trim().slice(0, 60) || null : null,
+      externalLabel: typeof raw.externalLabel === "string" ? raw.externalLabel.trim().slice(0, 60) || null : null,
       duration: typeof raw.duration === "string" ? raw.duration.trim().slice(0, 20) || null : null,
       isFeatured: Boolean(raw.isFeatured),
       eventId: typeof raw.eventId === "string" && raw.eventId.trim() ? raw.eventId.trim() : null,

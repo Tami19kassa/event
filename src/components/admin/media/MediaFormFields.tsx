@@ -1,6 +1,7 @@
 "use client";
 
 import type { MediaKind, MediaStatus } from "@/lib/media-types";
+import type { MediaEventOption } from "@/lib/media-admin-helpers";
 import { MediaSourceInputs } from "./MediaSourceInputs";
 
 export type MediaFormState = {
@@ -20,11 +21,9 @@ export type MediaFormState = {
   status: MediaStatus;
 };
 
-type EventOption = { id: string; title: string };
-
 type Props = {
   form: MediaFormState;
-  events: EventOption[];
+  events: MediaEventOption[];
   onChange: <K extends keyof MediaFormState>(key: K, val: MediaFormState[K]) => void;
 };
 
@@ -42,7 +41,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
             value={form.title}
             onChange={(e) => onChange("title", e.target.value)}
             placeholder="e.g. Addis Tech Expo Keynote Recap"
-            className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            className="w-full px-3.5 py-2.5 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
 
@@ -55,7 +54,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
             value={form.categoryTag}
             onChange={(e) => onChange("categoryTag", e.target.value)}
             placeholder="Expo Recap, Vlog, Press Coverage..."
-            className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+            className="w-full px-3.5 py-2.5 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       </div>
@@ -72,7 +71,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
           value={form.excerpt}
           onChange={(e) => onChange("excerpt", e.target.value)}
           placeholder="Concise summary shown on cards and previews..."
-          className="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs sm:text-sm resize-none"
+          className="w-full px-3.5 py-2 border border-slate-200 theme-radius-sm text-xs sm:text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
         />
       </div>
 
@@ -86,7 +85,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
             value={form.content}
             onChange={(e) => onChange("content", e.target.value)}
             placeholder="Write editorial commentary, speaker notes, or recap details..."
-            className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs sm:text-sm"
+            className="w-full px-3.5 py-2.5 border border-slate-200 theme-radius-sm text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
           />
         </div>
       )}
@@ -97,7 +96,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
           <select
             value={form.eventId}
             onChange={(e) => onChange("eventId", e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium"
+            className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-xs font-medium cursor-pointer"
           >
             <option value="">None (Standalone)</option>
             {events.map((ev) => (
@@ -113,7 +112,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
           <select
             value={form.status}
             onChange={(e) => onChange("status", e.target.value as MediaStatus)}
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold"
+            className="w-full px-3 py-2 bg-white border border-slate-200 theme-radius-sm text-xs font-bold cursor-pointer"
           >
             <option value="PUBLISHED">Published (Public)</option>
             <option value="DRAFT">Draft (Hidden)</option>
@@ -128,7 +127,7 @@ export function MediaFormFields({ form, events, onChange }: Props) {
             className="w-4 h-4 accent-[var(--color-primary)]"
           />
           <span className="text-xs font-bold text-slate-800">
-            Pin to Homepage Bottom Strip
+            Pin First on Homepage 3D Stage
           </span>
         </label>
       </div>

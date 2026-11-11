@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 import { revalidateCacheTags } from "@/lib/cache-revalidate";
-import { mapMediaPost, sanitizeMediaWriteInput } from "@/lib/media-posts";
+import { fetchAdminMediaSnapshot, mapMediaPost, sanitizeMediaWriteInput } from "@/lib/media-posts";
 
 const EVENT_SELECT = {
   id: true,
@@ -17,15 +17,22 @@ const EVENT_SELECT = {
 export async function GET(req: NextRequest) {
   try {
     const scope = req.nextUrl.searchParams.get("scope");
-    const session = await getSession();
-    const isAdminScope = scope === "admin" && session?.role === "ADMIN";
+    if (scope === "admin") {
+      const session = await getSession();
+      if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      if (session.role !== "ADMIN") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      const snapshot = await fetchAdminMediaSnapshot();
+      return NextResponse.json(snapshot);
+    }
 
-    const rows = await prisma.mediaPost.findMany({
-      where: isAdminScope ? undefined : { status: "PUBLISHED" },
-      include: { event: { select: EVENT_SELECT } },
-      orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }],
-      take: 100,
-    });
+    const rows = await withDbRetry(() =>
+      prisma.mediaPost.findMany({
+        where: { status: "PUBLISHED" },
+        include: { event: { select: EVENT_SELECT } },
+        orderBy: [{ isFeatured: "desc" }, { publishedAt: "desc" }],
+        take: 100,
+      })
+    );
 
     return NextResponse.json(rows.map(mapMediaPost));
   } catch (err) {
@@ -48,22 +55,24 @@ export async function POST(req: NextRequest) {
     }
 
     const baseSlug = parsed.data.slug;
-    const collision = await prisma.mediaPost.findUnique({
-      where: { slug: baseSlug },
-      select: { id: true },
-    });
+    const collision = await withDbRetry(() =>
+      prisma.mediaPost.findUnique({ where: { slug: baseSlug }, select: { id: true } })
+    );
     const finalSlug = collision
       ? `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`
       : baseSlug;
 
-    const created = await prisma.mediaPost.create({
-      data: { ...parsed.data, slug: finalSlug },
-      include: { event: { select: EVENT_SELECT } },
-    });
+    const created = await withDbRetry(() =>
+      prisma.mediaPost.create({
+        data: { ...parsed.data, slug: finalSlug },
+        include: { event: { select: EVENT_SELECT } },
+      })
+    );
 
     revalidateCacheTags(CACHE_TAGS.media);
     revalidatePath("/");
     revalidatePath("/stories");
+    revalidatePath("/admin/media");
     revalidatePath(`/stories/${created.slug}`);
     if (created.event?.slug) revalidatePath(`/events/${created.event.slug}`);
     revalidatePath("/sitemap.xml");

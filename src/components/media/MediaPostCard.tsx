@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Play, ArrowUpRight, FileText, Globe, Calendar } from "lucide-react";
-import { format } from "date-fns";
 import {
   extractExternalDomain,
   resolveMediaPoster,
@@ -12,14 +11,28 @@ import {
 type Props = {
   post: MediaPostItem;
   onPlayVideo: (post: MediaPostItem) => void;
+  elevated?: boolean;
 };
 
-export function MediaPostCard({ post, onPlayVideo }: Props) {
+function formatPublicMediaDate(iso: string): string {
+  try {
+    return new Date(iso).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      timeZone: "Africa/Addis_Ababa",
+    });
+  } catch {
+    return iso;
+  }
+}
+
+export function MediaPostCard({ post, onPlayVideo, elevated = false }: Props) {
   const poster = resolveMediaPoster(post);
   const isVideo = post.kind === "VIDEO_VLOG" && Boolean(post.videoUrl);
   const isExternal = post.kind === "EXTERNAL_LINK" && Boolean(post.externalUrl);
   const externalDomain = extractExternalDomain(post.externalUrl);
-  const publishedLabel = format(new Date(post.publishedAt), "MMM d, yyyy");
+  const publishedLabel = formatPublicMediaDate(post.publishedAt);
 
   const cardInner = (
     <>
@@ -124,8 +137,11 @@ export function MediaPostCard({ post, onPlayVideo }: Props) {
     </>
   );
 
-  const cardClass =
-    "group bg-white theme-radius-card overflow-hidden border border-slate-200 hover:border-slate-300 hover:shadow-xl transition-all duration-300 flex flex-col h-full text-left";
+  const cardClass = `group bg-white theme-radius-card overflow-hidden border transition-all duration-300 flex flex-col h-full text-left ${
+    elevated
+      ? "border-slate-300 shadow-2xl"
+      : "border-slate-200 hover:border-slate-300 hover:shadow-xl shadow-xs"
+  }`;
 
   if (isVideo) {
     return (
@@ -137,12 +153,7 @@ export function MediaPostCard({ post, onPlayVideo }: Props) {
 
   if (isExternal && post.externalUrl) {
     return (
-      <a
-        href={post.externalUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cardClass}
-      >
+      <a href={post.externalUrl} target="_blank" rel="noopener noreferrer" className={cardClass}>
         {cardInner}
       </a>
     );

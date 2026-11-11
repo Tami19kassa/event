@@ -3,16 +3,15 @@
 import { useState, useEffect } from "react";
 import { X, Film, FileText, Globe, AlertCircle } from "lucide-react";
 import type { MediaKind, MediaPostItem } from "@/lib/media-types";
+import type { MediaEventOption } from "@/lib/media-admin-helpers";
 import { MediaFormFields, type MediaFormState } from "./MediaFormFields";
-
-type EventOption = { id: string; title: string };
 
 type Props = {
   isOpen: boolean;
   editing: MediaPostItem | null;
-  events: EventOption[];
+  events: MediaEventOption[];
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (msg: string, savedPost?: MediaPostItem) => void;
 };
 
 const EMPTY_FORM: MediaFormState = {
@@ -32,7 +31,7 @@ const EMPTY_FORM: MediaFormState = {
   status: "PUBLISHED",
 };
 
-const KIND_TABS: Array<{ value: MediaKind; label: string; icon: any }> = [
+const KIND_TABS: Array<{ value: MediaKind; label: string; icon: typeof Film }> = [
   { value: "VIDEO_VLOG", label: "Video / Vlog", icon: Film },
   { value: "ARTICLE", label: "Blog Story", icon: FileText },
   { value: "EXTERNAL_LINK", label: "External Link", icon: Globe },
@@ -68,6 +67,13 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
     }
   }, [isOpen, editing]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const update = <K extends keyof MediaFormState>(key: K, val: MediaFormState[K]) => {
@@ -88,7 +94,7 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save media item");
-      onSaved();
+      onSaved(editing ? `Updated "${form.title}".` : `Published "${form.title}".`, data as MediaPostItem);
       onClose();
     } catch (err: any) {
       setError(err.message || "Error saving entry");
@@ -98,19 +104,21 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white theme-radius-card border border-slate-200 w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-[2px]" onClick={onClose} aria-hidden="true" />
+      <div className="relative z-10 bg-white theme-radius-card border border-slate-200 w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div>
             <h2 className="font-display text-lg text-slate-900">
               {editing ? "Edit Media / Story" : "Publish Video, Vlog or Story"}
             </h2>
-            <p className="text-xs text-slate-500">Publishes to the /stories hub and linked event pages (separate from Expo Hero).</p>
+            <p className="text-xs text-slate-500">
+              Published stories appear in /stories, linked events, and the homepage 3D showcase.
+            </p>
           </div>
           <button
-            type="button"
-            onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+            type="button" onClick={onClose} aria-label="Close modal"
+            className="p-2 theme-radius-sm text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -118,7 +126,7 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl flex items-center gap-2 text-xs font-medium">
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 theme-radius-sm flex items-center gap-2 text-xs font-medium">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -130,10 +138,8 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
               const active = form.kind === t.value;
               return (
                 <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => update("kind", t.value)}
-                  className={`py-2.5 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-1.5 cursor-pointer transition ${
+                  key={t.value} type="button" onClick={() => update("kind", t.value)}
+                  className={`py-2.5 px-3 theme-radius-sm text-xs font-bold border flex items-center justify-center gap-1.5 cursor-pointer transition ${
                     active ? "theme-nav-active" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                   }`}
                 >
@@ -147,19 +153,11 @@ export function MediaFormModal({ isOpen, editing, events, onClose, onSaved }: Pr
           <MediaFormFields form={form} events={events} onChange={update} />
 
           <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
-            >
+            <button type="button" onClick={onClose} className="px-4 py-2.5 theme-radius-sm border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="px-6 py-2.5 text-xs font-bold theme-btn-primary cursor-pointer disabled:opacity-50"
-            >
-              {saving ? "Publishing..." : editing ? "Save Changes" : "Publish Now"}
+            <button type="submit" disabled={saving} className="px-6 py-2.5 text-xs font-bold theme-btn-primary cursor-pointer disabled:opacity-50">
+              {saving ? (editing ? "Saving..." : "Publishing...") : editing ? "Save Changes" : "Publish Now"}
             </button>
           </div>
         </form>
