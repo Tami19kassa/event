@@ -1,4 +1,5 @@
 import { prisma, withDbRetry } from "@/lib/prisma";
+import { resolveCategoryIconKey } from "@/components/ui/CategoryIcon";
 
 export interface AdminCategoryRow {
   id: string;
@@ -9,21 +10,6 @@ export interface AdminCategoryRow {
   totalCount: number;
   draftCount: number;
 }
-
-export const EVENT_TYPE_ICONS = [
-  "🎪",
-  "💻",
-  "💼",
-  "🎵",
-  "🎨",
-  "🎓",
-  "🌾",
-  "🏥",
-  "🏗️",
-  "⚽",
-  "🍷",
-  "🏛️",
-];
 
 export function slugifyCategoryName(value: string): string {
   return value
@@ -69,7 +55,7 @@ export async function fetchAdminCategories(): Promise<AdminCategoryRow[]> {
       id: cat.id,
       name: cat.name,
       slug: cat.slug,
-      icon: cat.icon || "📌",
+      icon: resolveCategoryIconKey(cat.icon),
       liveCount,
       totalCount,
       draftCount: Math.max(0, totalCount - liveCount),

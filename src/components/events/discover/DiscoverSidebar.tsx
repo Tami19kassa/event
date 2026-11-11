@@ -1,4 +1,5 @@
 import { Category } from "@/types/event";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 
 interface SidebarProps {
   categories: Category[];
@@ -39,9 +40,9 @@ export function DiscoverSidebar({
                   : "text-slate-600 hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-center gap-2">
-                <span>{cat.icon || "📌"}</span>
-                <span>{cat.name}</span>
+              <div className="flex items-center gap-2 min-w-0">
+                <CategoryIcon name={cat.icon} className="w-3.5 h-3.5 shrink-0" />
+                <span className="truncate">{cat.name}</span>
               </div>
               <span className="text-[11px] text-slate-400 font-mono">{cat.count}</span>
             </button>

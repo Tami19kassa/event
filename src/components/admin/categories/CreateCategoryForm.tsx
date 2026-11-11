@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Plus, RefreshCw, RotateCcw, Sparkles } from "lucide-react";
-import { EVENT_TYPE_ICONS, slugifyCategoryName } from "@/lib/categories-admin";
+import {
+  CategoryIcon,
+  CATEGORY_ICON_OPTIONS,
+  type CategoryIconKey,
+} from "@/components/ui/CategoryIcon";
+import { slugifyCategoryName } from "@/lib/categories-admin";
 
 interface FormProps {
   onCreated: (createdName: string) => void;
@@ -13,8 +18,11 @@ export function CreateCategoryForm({ onCreated, onError }: FormProps) {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
-  const [icon, setIcon] = useState("🎪");
+  const [icon, setIcon] = useState<CategoryIconKey>("building-2");
   const [submitting, setSubmitting] = useState(false);
+
+  const selectedLabel =
+    CATEGORY_ICON_OPTIONS.find((opt) => opt.key === icon)?.label || "General";
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -36,7 +44,7 @@ export function CreateCategoryForm({ onCreated, onError }: FormProps) {
       const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: trimmedName, slug: cleanSlug, icon: icon.trim() || "📌" }),
+        body: JSON.stringify({ name: trimmedName, slug: cleanSlug, icon }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create event type");
@@ -64,12 +72,14 @@ export function CreateCategoryForm({ onCreated, onError }: FormProps) {
         </div>
       </div>
 
-      <div className="p-4 bg-slate-50/90 border border-slate-200/80 theme-radius flex flex-col items-center justify-center text-center gap-1.5">
+      <div className="p-4 bg-slate-50/90 border border-slate-200/80 theme-radius flex flex-col items-center justify-center text-center gap-2">
         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
           <Sparkles className="w-3 h-3 text-[var(--color-accent-ink,var(--color-accent))]" />
           Public Tile Preview
         </span>
-        <span className="text-3xl leading-none mt-1">{icon || "📌"}</span>
+        <div className="w-12 h-12 theme-radius theme-icon-soft border flex items-center justify-center shadow-2xs">
+          <CategoryIcon name={icon} className="w-6 h-6" />
+        </div>
         <span className="font-bold text-slate-900 text-sm truncate max-w-full">
           {name.trim() || "Agro & Food Expo"}
         </span>
@@ -129,30 +139,25 @@ export function CreateCategoryForm({ onCreated, onError }: FormProps) {
         <div>
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-              Icon / Emoji
+              Sector Vector Icon
             </label>
-            <input
-              type="text"
-              maxLength={8}
-              value={icon}
-              onChange={(e) => setIcon(e.target.value)}
-              aria-label="Custom icon emoji"
-              className="w-14 px-2 py-1 text-center text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
+            <span className="text-[11px] font-semibold text-slate-500">{selectedLabel}</span>
           </div>
           <div className="grid grid-cols-6 gap-1.5">
-            {EVENT_TYPE_ICONS.map((ic) => (
+            {CATEGORY_ICON_OPTIONS.map((opt) => (
               <button
                 type="button"
-                key={ic}
-                onClick={() => setIcon(ic)}
-                className={`h-9 theme-radius-sm flex items-center justify-center text-base border transition cursor-pointer ${
-                  icon === ic
+                key={opt.key}
+                title={opt.label}
+                aria-label={opt.label}
+                onClick={() => setIcon(opt.key)}
+                className={`h-9 theme-radius-sm flex items-center justify-center border transition cursor-pointer ${
+                  icon === opt.key
                     ? "theme-badge shadow-2xs"
-                    : "bg-slate-50 border-slate-200/70 hover:bg-slate-100"
+                    : "bg-slate-50 border-slate-200/70 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
-                {ic}
+                <CategoryIcon name={opt.key} className="w-4 h-4" />
               </button>
             ))}
           </div>

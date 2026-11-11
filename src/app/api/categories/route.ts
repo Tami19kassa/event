@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
       data: {
         name: trimmedName.slice(0, 80),
         slug: generatedSlug,
-        icon: String(icon || "").trim() || "📌",
+        icon: String(icon || "").trim() || "tag",
       },
     });
 

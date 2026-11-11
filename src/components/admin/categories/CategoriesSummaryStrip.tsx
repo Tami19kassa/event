@@ -1,4 +1,5 @@
 import { Layers, Globe, AlertTriangle, TrendingUp } from "lucide-react";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import type { AdminCategoryRow } from "@/lib/categories-admin";
 
 interface Props {
@@ -18,28 +19,28 @@ export function CategoriesSummaryStrip({ categories }: Props) {
       label: "Event Types",
       value: categories.length.toLocaleString(),
       sub: `${activeCount} populated on catalog`,
-      icon: Layers,
+      iconEl: <Layers className="w-4 h-4" />,
       tone: "theme-icon-soft",
     },
     {
       label: "Live Categorized",
       value: totalLive.toLocaleString(),
       sub: `${totalLinked.toLocaleString()} total incl. drafts`,
-      icon: Globe,
+      iconEl: <Globe className="w-4 h-4" />,
       tone: "theme-icon-secondary",
     },
     {
       label: "Empty Categories",
       value: emptyCount.toLocaleString(),
       sub: emptyCount > 0 ? "Visible on homepage with 0 events" : "All categories have events",
-      icon: AlertTriangle,
+      iconEl: <AlertTriangle className="w-4 h-4" />,
       tone: emptyCount > 0 ? "theme-icon-accent" : "bg-emerald-50 text-emerald-700 border-emerald-200",
     },
     {
       label: "Top Category",
-      value: topType ? `${topType.icon} ${topType.name}` : "—",
+      value: topType ? topType.name : "—",
       sub: topType ? `${topType.liveCount} live (${topShare}% of catalog)` : "No data yet",
-      icon: TrendingUp,
+      iconEl: topType ? <CategoryIcon name={topType.icon} className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />,
       tone: "bg-slate-50 text-slate-700 border-slate-200",
     },
   ];
@@ -63,7 +64,7 @@ export function CategoriesSummaryStrip({ categories }: Props) {
           <div
             className={`w-9 h-9 theme-radius-sm border flex items-center justify-center shrink-0 ${t.tone}`}
           >
-            <t.icon className="w-4 h-4" />
+            {t.iconEl}
           </div>
         </div>
       ))}

@@ -102,7 +102,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
       data.slug = normalized;
     }
     if (icon !== undefined) {
-      data.icon = String(icon).trim() || "📌";
+      data.icon = String(icon).trim() || "tag";
     }
 
     const updated = await prisma.category.update({

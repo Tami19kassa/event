@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Category } from "@/types/event";
+import { CategoryIcon } from "@/components/ui/CategoryIcon";
 import { ScrollReveal } from "@/components/ui/ScrollReveal";
 
 export function CategoriesSection({ categories }: { categories: Category[] }) {
@@ -47,9 +48,9 @@ export function CategoriesSection({ categories }: { categories: Category[] }) {
               prefetch={true}
               className="group p-5 bg-white theme-radius-card border border-slate-200/90 hover:border-[var(--color-primary)] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-center flex flex-col items-center justify-center gap-2 shadow-2xs h-full active:scale-95"
             >
-              <span className="text-3xl group-hover:scale-115 transition-transform duration-300">
-                {cat.icon || "📌"}
-              </span>
+              <div className="w-12 h-12 theme-radius theme-icon-soft border flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-2xs">
+                <CategoryIcon name={cat.icon} className="w-5 h-5" />
+              </div>
               <span className="font-bold text-slate-900 text-sm group-hover:text-[var(--color-primary)] transition truncate w-full">
                 {cat.name}
               </span>

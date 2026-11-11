@@ -5,6 +5,7 @@ import { CACHE_TAGS } from "./cache-tags";
 import { Event, Category } from "@/types/event";
 import { events as mockEvents, categories as mockCategories } from "./mock-data";
 import { mapPrismaEventToUI } from "./event-mapper";
+import { resolveCategoryIconKey } from "@/components/ui/CategoryIcon";
 
 export { mapPrismaEventToUI };
 
@@ -119,7 +120,7 @@ async function readCategoriesFromDb(): Promise<Category[]> {
         id: c.id,
         name: c.name,
         slug: c.slug,
-        icon: c.icon || "📌",
+        icon: resolveCategoryIconKey(c.icon),
         count: c._count?.events || 0,
       }));
     }
