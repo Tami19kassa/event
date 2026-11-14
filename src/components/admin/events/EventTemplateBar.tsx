@@ -88,20 +88,20 @@ export function EventTemplateBar({ onApplyPreset, currency, hasCustomDetails = f
   };
 
   return (
-    <div className="bg-slate-900 text-white theme-radius-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div className="bg-white theme-radius-card border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
       <div className="flex items-center gap-2.5 text-xs">
-        <div className="w-8 h-8 theme-radius-sm bg-white/10 flex items-center justify-center shrink-0">
-          <Sparkles className="w-4 h-4" style={{ color: "var(--color-accent-on-dark, var(--color-accent))" }} />
+        <div className="w-8 h-8 theme-radius-sm theme-icon-accent border flex items-center justify-center shrink-0">
+          <Sparkles className="w-4 h-4" />
         </div>
         <div>
-          <span className="font-bold block">Quick-Start Templates</span>
-          <span className="text-slate-400">Pre-fill venue, format &amp; sample pass tiers in one click.</span>
+          <span className="font-bold text-slate-900 block">Quick-Start Templates</span>
+          <span className="text-slate-500">Pre-fill venue, format &amp; sample pass tiers in one click.</span>
         </div>
       </div>
 
       {pendingPreset ? (
-        <div className="flex flex-wrap items-center gap-2 text-xs bg-white/10 px-3 py-1.5 rounded-xl border border-white/15">
-          <span className="text-slate-200 font-medium">
+        <div className="flex flex-wrap items-center gap-2 text-xs bg-amber-50/80 px-3 py-1.5 theme-radius-sm border border-amber-200">
+          <span className="text-amber-900 font-medium">
             Replace venue &amp; tiers with <strong>{pendingPreset.label}</strong>?
           </span>
           <button
@@ -110,14 +110,14 @@ export function EventTemplateBar({ onApplyPreset, currency, hasCustomDetails = f
               onApplyPreset(pendingPreset.apply(currency), pendingPreset.label);
               setPendingPreset(null);
             }}
-            className="px-2.5 py-1 rounded-lg bg-[var(--color-primary)] text-white font-bold cursor-pointer"
+            className="px-2.5 py-1 theme-radius-sm theme-btn-primary font-bold cursor-pointer text-xs shadow-2xs"
           >
             Apply
           </button>
           <button
             type="button"
             onClick={() => setPendingPreset(null)}
-            className="px-2 py-1 rounded-lg text-slate-300 hover:text-white font-semibold cursor-pointer"
+            className="px-2 py-1 text-slate-600 hover:text-slate-900 font-semibold cursor-pointer text-xs"
           >
             Cancel
           </button>
@@ -131,9 +131,9 @@ export function EventTemplateBar({ onApplyPreset, currency, hasCustomDetails = f
                 key={preset.id}
                 type="button"
                 onClick={() => handleSelect(preset)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/15 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 theme-radius-sm border border-slate-200 transition cursor-pointer"
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5 text-slate-500" />
                 {preset.label}
               </button>
             );

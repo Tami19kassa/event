@@ -2,10 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
-import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { formatInEventTimezone } from "@/lib/event-form-types";
-import { fetchOrganizerSelectOptions } from "@/lib/events-admin";
-import { EventForm } from "@/components/admin/EventForm";
+import { fetchAdminEventsSnapshot, fetchOrganizerSelectOptions } from "@/lib/events-admin";
+import { EventsWorkspace } from "@/components/admin/events/EventsWorkspace";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +14,12 @@ interface PageProps {
 
 export default async function EditEventPage({ params }: PageProps) {
   const session = await getSession();
-  if (!session) {
-    redirect("/admin/login");
-  }
-  if (session.role !== "ADMIN" && session.role !== "ORGANIZER") {
-    redirect("/");
-  }
+  if (!session) redirect("/admin/login");
+  if (session.role !== "ADMIN" && session.role !== "ORGANIZER") redirect("/");
 
   const isAdmin = session.role === "ADMIN";
   const { id } = await params;
-  const [event, categories, payments, organizerOptions] = await Promise.all([
+  const [event, snapshot, categories, organizerOptions] = await Promise.all([
     withDbRetry(() =>
       prisma.event.findUnique({
         where: { id },
@@ -35,29 +30,21 @@ export default async function EditEventPage({ params }: PageProps) {
         },
       })
     ),
+    fetchAdminEventsSnapshot({ role: session.role, userId: session.id }),
     withDbRetry(() =>
-      prisma.category.findMany({
-        select: { id: true, name: true },
-        orderBy: { name: "asc" },
-      })
+      prisma.category.findMany({ select: { id: true, name: true }, orderBy: { name: "asc" } })
     ).catch(() => []),
-    getPublicPaymentSettings(),
     isAdmin ? fetchOrganizerSelectOptions() : Promise.resolve([]),
   ]);
 
-  if (!event) {
-    notFound();
-  }
+  if (!event) notFound();
 
   if (!isAdmin && event.organizerId !== session.id) {
     return (
       <div className="p-8 max-w-4xl mx-auto space-y-4">
         <div className="p-5 bg-rose-50 border border-rose-200 text-rose-800 theme-radius text-sm font-medium flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <span>Forbidden: You do not have permission to edit this event.</span>
-          <Link
-            href="/admin/events"
-            className="inline-flex items-center px-3.5 py-2 bg-white border border-rose-200 text-rose-700 font-bold text-xs theme-radius-sm hover:bg-rose-100/50 transition shrink-0"
-          >
+          <Link href="/admin/events" className="inline-flex items-center px-3.5 py-2 bg-white border border-rose-200 text-rose-700 font-bold text-xs theme-radius-sm hover:bg-rose-100/50 transition shrink-0">
             Back to My Events
           </Link>
         </div>
@@ -113,15 +100,13 @@ export default async function EditEventPage({ params }: PageProps) {
   };
 
   return (
-    <div className="p-5 sm:p-6 md:p-8">
-      <EventForm
-        mode="edit"
-        initialData={initialData}
-        categories={categories}
-        currency={payments.currency || "ETB"}
-        canCreateCategory={isAdmin}
-        organizerOptions={organizerOptions}
-      />
-    </div>
+    <EventsWorkspace
+      initialEvents={snapshot.events}
+      initialCurrency={snapshot.currency}
+      isAdmin={isAdmin}
+      categories={categories}
+      organizerOptions={organizerOptions}
+      initialEditingEvent={initialData}
+    />
   );
 }

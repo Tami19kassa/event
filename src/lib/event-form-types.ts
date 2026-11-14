@@ -28,6 +28,8 @@ export type AgendaItemInput = {
   description: string;
 };
 
+export type EventFormTabKey = "basics" | "schedule" | "tickets" | "speakers" | "agenda";
+
 export type EventFormData = {
   title: string;
   slug: string;

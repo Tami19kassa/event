@@ -2,8 +2,8 @@ import {
   localDateTimeToIso,
   slugifyEventTitle,
   type EventFormData,
+  type EventFormTabKey,
 } from "./event-form-types";
-import type { EventFormTabKey } from "@/components/admin/events/EventFormHeader";
 
 export function validateEventFormData(
   form: EventFormData
