@@ -1,15 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Plus, Ticket } from "lucide-react";
 import { makeClientKey, type TicketTierInput } from "@/lib/event-form-types";
-import { TicketTierCard } from "./TicketTierCard";
+import { TicketTierRow } from "./TicketTierRow";
+import { AdminTicketTierModal } from "./AdminTicketTierModal";
 
 interface Props {
   tiers: TicketTierInput[];
   currency: string;
-  mode: "create" | "edit";
-  updateTier: (index: number, field: string, value: any) => void;
-  addTier: () => void;
+  mode?: "create" | "edit";
+  updateTier?: (index: number, field: string, value: any) => void;
+  addTier?: () => void;
   removeTier: (index: number) => void;
   moveTier: (index: number, delta: -1 | 1) => void;
   replaceTiers?: (next: TicketTierInput[]) => void;
@@ -18,15 +20,36 @@ interface Props {
 export function TicketTiersSection({
   tiers,
   currency,
-  mode,
-  updateTier,
-  addTier,
   removeTier,
   moveTier,
   replaceTiers,
 }: Props) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
   const totalSeats = tiers.reduce((s, t) => s + (Number(t.quantity) || 0), 0);
   const hasSoldAny = tiers.some((t) => (t.soldCount || 0) > 0);
+
+  const handleOpenCreate = () => {
+    setEditingIndex(null);
+    setModalOpen(true);
+  };
+
+  const handleOpenEdit = (index: number) => {
+    setEditingIndex(index);
+    setModalOpen(true);
+  };
+
+  const handleSaveTier = (savedTier: TicketTierInput) => {
+    if (!replaceTiers) return;
+    if (editingIndex !== null && editingIndex >= 0 && editingIndex < tiers.length) {
+      const next = [...tiers];
+      next[editingIndex] = savedTier;
+      replaceTiers(next);
+    } else {
+      replaceTiers([...tiers, savedTier]);
+    }
+  };
 
   const applyTierPack = (pack: "free" | "standard" | "expo") => {
     if (!replaceTiers || hasSoldAny) return;
@@ -56,17 +79,18 @@ export function TicketTiersSection({
           <div>
             <h2 className="font-semibold text-slate-900 text-sm">Ticket Tiers &amp; Pricing</h2>
             <p className="text-xs text-slate-400">
-              {currency} pricing · {totalSeats.toLocaleString()} total passes across {tiers.length} tier{tiers.length === 1 ? "" : "s"}.
+              {currency} pricing · {totalSeats.toLocaleString()} total capacity across {tiers.length} tier{tiers.length === 1 ? "" : "s"}.
             </p>
           </div>
         </div>
 
         <button
           type="button"
-          onClick={addTier}
-          className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 theme-radius-sm theme-badge-secondary border cursor-pointer hover:brightness-95 transition"
+          onClick={handleOpenCreate}
+          data-add-tier-modal-trigger
+          className="inline-flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 theme-radius-sm theme-btn-primary cursor-pointer hover:brightness-105 transition shadow-2xs"
         >
-          <Plus className="w-4 h-4" /> Add Tier
+          <Plus className="w-4 h-4" /> Add Ticket Tier
         </button>
       </div>
 
@@ -99,21 +123,41 @@ export function TicketTiersSection({
         </div>
       )}
 
-      <div className="space-y-3">
-        {tiers.map((tier, i) => (
-          <TicketTierCard
-            key={tier.id || tier.clientKey || i}
-            tier={tier}
-            index={i}
-            totalCount={tiers.length}
-            currency={currency}
-            mode={mode}
-            onUpdate={updateTier}
-            onMove={moveTier}
-            onRemove={removeTier}
-          />
-        ))}
-      </div>
+      {tiers.length === 0 ? (
+        <div className="p-8 text-center bg-slate-50 border border-dashed border-slate-200 theme-radius text-xs text-slate-500 space-y-3">
+          <p>No ticket tiers created yet. Every event needs at least one ticket tier.</p>
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 theme-radius-sm theme-btn-primary text-xs font-bold cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" /> Create First Tier
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {tiers.map((tier, i) => (
+            <TicketTierRow
+              key={tier.id || tier.clientKey || i}
+              tier={tier}
+              index={i}
+              totalCount={tiers.length}
+              currency={currency}
+              onEdit={handleOpenEdit}
+              onMove={moveTier}
+              onRemove={removeTier}
+            />
+          ))}
+        </div>
+      )}
+
+      <AdminTicketTierModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        tier={editingIndex !== null ? tiers[editingIndex] : null}
+        currency={currency}
+        onSave={handleSaveTier}
+      />
     </section>
   );
 }

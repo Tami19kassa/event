@@ -121,6 +121,7 @@ export function EventFormHeader({
             <button
               key={tab.key}
               type="button"
+              data-tab-key={tab.key}
               onClick={() => onSelectTab(tab.key)}
               className={`relative flex-1 min-w-[110px] flex items-center justify-center gap-1.5 px-2.5 py-2.5 theme-radius-sm text-xs font-bold transition cursor-pointer ${
                 active ? "theme-nav-active" : "text-slate-600 hover:bg-slate-50"
