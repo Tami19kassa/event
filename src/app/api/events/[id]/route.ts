@@ -15,20 +15,22 @@ type Params = { params: Promise<{ id: string }> };
 const VALID_STATUSES = new Set(["DRAFT", "PUBLISHED", "LIVE", "ENDED", "CANCELLED"]);
 const VALID_FORMATS = new Set(["IN_PERSON", "ONLINE", "HYBRID"]);
 
+const EVENT_FULL_INCLUDE = {
+  category: true,
+  organizer: { select: { id: true, name: true, email: true } },
+  ticketTiers: { orderBy: { sortOrder: "asc" as const } },
+  speakers: { orderBy: { sortOrder: "asc" as const } },
+  agendaItems: { orderBy: { sortOrder: "asc" as const } },
+  _count: { select: { orders: true } },
+};
+
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
   try {
     const event = await withDbRetry(() =>
       prisma.event.findUnique({
         where: { id },
-        include: {
-          category: true,
-          organizer: { select: { id: true, name: true, email: true } },
-          ticketTiers: { orderBy: { sortOrder: "asc" } },
-          speakers: { orderBy: { sortOrder: "asc" } },
-          agendaItems: { orderBy: { sortOrder: "asc" } },
-          _count: { select: { orders: true } },
-        },
+        include: EVENT_FULL_INCLUDE,
       })
     );
     if (!event) return NextResponse.json({ error: "Event not found" }, { status: 404 });
@@ -136,14 +138,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const updated = await withDbRetry(() =>
       prisma.event.findUnique({
         where: { id },
-        include: {
-          ticketTiers: { orderBy: { sortOrder: "asc" } },
-          speakers: { orderBy: { sortOrder: "asc" } },
-          agendaItems: { orderBy: { sortOrder: "asc" } },
-          category: true,
-          organizer: { select: { id: true, name: true, email: true } },
-          _count: { select: { orders: true } },
-        },
+        include: EVENT_FULL_INCLUDE,
       })
     );
     return NextResponse.json(updated);

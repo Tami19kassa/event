@@ -36,16 +36,14 @@ export function CheckoutModal({
   const [checkoutError, setCheckoutError] = useState("");
   const [completedOrder, setCompletedOrder] = useState<any>(null);
 
-  // Lock background body scroll to prevent scroll bleeding & background movement
   useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
-    const originalTouchAction = document.body.style.touchAction;
+    const origOverflow = document.body.style.overflow;
+    const origTouch = document.body.style.touchAction;
     document.body.style.overflow = "hidden";
     document.body.style.touchAction = "none";
-
     return () => {
-      document.body.style.overflow = originalOverflow;
-      document.body.style.touchAction = originalTouchAction;
+      document.body.style.overflow = origOverflow;
+      document.body.style.touchAction = origTouch;
     };
   }, []);
 
@@ -59,19 +57,21 @@ export function CheckoutModal({
         .filter(([_, qty]) => qty > 0)
         .map(([tierId, qty]) => ({ ticketTierId: tierId, quantity: qty }));
 
+      const payload = {
+        eventId: event.id,
+        items: selectedItems,
+        customerEmail,
+        customerName,
+        customerPhone,
+        paymentMethod: total === 0 ? "FREE" : paymentMethod,
+        receiptUrl: total === 0 || paymentMethod === "PAY_AT_GATE" ? "" : receiptUrl,
+        promoCode: promoCode || undefined,
+      };
+
       const res = await fetch("/api/orders/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          eventId: event.id,
-          items: selectedItems,
-          customerEmail,
-          customerName,
-          customerPhone,
-          paymentMethod: total === 0 ? "FREE" : paymentMethod,
-          receiptUrl: total === 0 || paymentMethod === "PAY_AT_GATE" ? "" : receiptUrl,
-          promoCode: promoCode || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -89,9 +89,7 @@ export function CheckoutModal({
   return (
     <div
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in overscroll-none"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="bg-white theme-radius-modal max-w-xl w-full max-h-[92dvh] sm:max-h-[88vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
         {/* Mobile Pull Indicator */}
@@ -123,7 +121,7 @@ export function CheckoutModal({
           {!completedOrder ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               {checkoutError && (
-                <div className="p-3.5 text-xs bg-rose-50 border border-rose-200 text-rose-800 rounded-xl leading-relaxed flex items-start gap-2">
+                <div className="p-3.5 text-xs bg-rose-50 border border-rose-200 text-rose-800 theme-radius-sm leading-relaxed flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold block">Could not complete reservation</span>
@@ -139,7 +137,7 @@ export function CheckoutModal({
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="Full Name (e.g. Kebede Abebe)"
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 />
                 <input
                   type="tel"
@@ -147,7 +145,7 @@ export function CheckoutModal({
                   value={customerPhone}
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="Phone Number (09...)"
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                 />
               </div>
 
@@ -156,8 +154,8 @@ export function CheckoutModal({
                 required
                 value={customerEmail}
                 onChange={(e) => setCustomerEmail(e.target.value)}
-                placeholder="Email Address (for ticket pass & barcode)"
-                className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                placeholder="Email Address (for reservation confirmation & receipt)"
+                className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
               />
 
               {total > 0 && (
@@ -179,7 +177,7 @@ export function CheckoutModal({
                 {submitting ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  `Confirm & Book (ETB ${total.toLocaleString()})`
+                  `Confirm & Book (${gatewaySettings.currency || "ETB"} ${total.toLocaleString()})`
                 )}
               </button>
             </form>

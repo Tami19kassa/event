@@ -42,6 +42,15 @@ export async function PUT(req: NextRequest) {
         );
       }
     }
+    if ("promoDiscountPercent" in body && body.promoDiscountPercent !== "" && body.promoDiscountPercent !== null) {
+      const num = Number(body.promoDiscountPercent);
+      if (Number.isNaN(num) || num < 0 || num > 100) {
+        return NextResponse.json(
+          { error: "Promotional discount must be a percentage between 0 and 100." },
+          { status: 400 }
+        );
+      }
+    }
 
     const updated = await savePaymentSettings(body);
     revalidateCacheTags(CACHE_TAGS.payments);

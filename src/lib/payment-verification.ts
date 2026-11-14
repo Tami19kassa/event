@@ -1,56 +1,12 @@
 import { prisma, withDbRetry } from "./prisma";
-import { defaultPaymentSettings, type PaymentSettings } from "./payment-types";
+import {
+  defaultPaymentSettings,
+  getPaymentSettings,
+  savePaymentSettings,
+  type PaymentSettings,
+} from "./payment-settings";
 
-export { defaultPaymentSettings, type PaymentSettings };
-
-export async function getPaymentSettings(): Promise<PaymentSettings> {
-  try {
-    const setting = await withDbRetry(() =>
-      prisma.siteSetting.findUnique({ where: { key: "payment_settings" } })
-    );
-    if (setting?.value) {
-      return { ...defaultPaymentSettings, ...JSON.parse(setting.value) };
-    }
-  } catch {}
-  return defaultPaymentSettings;
-}
-
-function sanitizePaymentUpdate(
-  input: Partial<PaymentSettings>,
-  current: PaymentSettings
-): PaymentSettings {
-  const cleanStr = (val: unknown, fallback: string, maxLen: number) =>
-    typeof val === "string" && val.trim() ? val.trim().slice(0, maxLen) : fallback;
-  const rawCurrency =
-    typeof input.currency === "string"
-      ? input.currency.trim().toUpperCase().replace(/[^A-Z]/g, "").slice(0, 5)
-      : current.currency;
-
-  return {
-    cbeAccount: cleanStr(input.cbeAccount, current.cbeAccount, 40),
-    cbeAccountName: cleanStr(input.cbeAccountName, current.cbeAccountName, 120),
-    telebirrNumber: cleanStr(input.telebirrNumber, current.telebirrNumber, 40),
-    telebirrAccountName: cleanStr(input.telebirrAccountName, current.telebirrAccountName, 120),
-    allowPayAtGate:
-      typeof input.allowPayAtGate === "boolean" ? input.allowPayAtGate : current.allowPayAtGate,
-    currency: rawCurrency.length >= 3 ? rawCurrency : current.currency || "ETB",
-  };
-}
-
-export async function savePaymentSettings(
-  settings: Partial<PaymentSettings>
-): Promise<PaymentSettings> {
-  const current = await getPaymentSettings();
-  const updated = sanitizePaymentUpdate(settings, current);
-  await withDbRetry(() =>
-    prisma.siteSetting.upsert({
-      where: { key: "payment_settings" },
-      update: { value: JSON.stringify(updated) },
-      create: { key: "payment_settings", value: JSON.stringify(updated) },
-    })
-  );
-  return updated;
-}
+export { defaultPaymentSettings, getPaymentSettings, savePaymentSettings, type PaymentSettings };
 
 export type VerificationResult = {
   success: boolean;

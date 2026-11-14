@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
       request: req,
       onBeforeGenerateToken: async () => {
         const session = await getSession();
-        if (!session || session.role !== "ADMIN") {
-          throw new Error("Admin authorization required");
+        if (!session || (session.role !== "ADMIN" && session.role !== "ORGANIZER")) {
+          throw new Error("Authorization required");
         }
         return {
           allowedContentTypes: BLOB_CLIENT_MIMES,
@@ -51,7 +51,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(jsonResponse);
   } catch (err: any) {
     const message = err?.message || "Failed to authorize direct blob upload";
-    const status = message.includes("Admin authorization") ? 403 : 400;
+    const status =
+      message.includes("Authorization required") || message.includes("Admin authorization")
+        ? 403
+        : 400;
     return NextResponse.json({ error: message }, { status });
   }
 }

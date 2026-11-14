@@ -4,6 +4,7 @@ import { Users } from "lucide-react";
 import { getEventBySlug, getAllEvents } from "@/lib/events";
 import { getEventMediaPosts } from "@/lib/media-posts";
 import { getThemeSettings } from "@/lib/settings";
+import { getPublicPaymentSettings } from "@/lib/payment-settings";
 import { resolveOgImageUrl } from "@/lib/site-url";
 import { TicketSelector } from "@/components/events/TicketSelector";
 import { EventHeroBanner } from "@/components/events/detail/EventHeroBanner";
@@ -59,7 +60,10 @@ export async function generateStaticParams() {
 
 export default async function EventPage({ params }: PageProps) {
   const { slug } = await params;
-  const event = await getEventBySlug(slug);
+  const [event, paymentSettings] = await Promise.all([
+    getEventBySlug(slug),
+    getPublicPaymentSettings(),
+  ]);
 
   if (!event) {
     notFound();
@@ -80,9 +84,9 @@ export default async function EventPage({ params }: PageProps) {
 
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-4">
-              <TicketSelector event={event} />
+              <TicketSelector event={event} initialGateways={paymentSettings} />
 
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-600">
+              <div className="p-4 bg-slate-50 border border-slate-200 theme-radius-card text-xs text-slate-600">
                 <div className="flex items-center gap-2 mb-1.5 font-bold text-slate-900">
                   <Users className="w-4 h-4 text-[var(--color-primary)]" />
                   <span>{event.attendeesCount.toLocaleString()} attendees registered</span>

@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { put } from "@vercel/blob";
 import { getSession } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 import {
   ALLOWED_MEDIA_MIME_TYPES,
   MAX_UPLOAD_BYTES,
@@ -12,8 +13,16 @@ import {
 
 export async function POST(req: NextRequest) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
-    return NextResponse.json({ error: "Admin authorization required" }, { status: 403 });
+  if (!session || (session.role !== "ADMIN" && session.role !== "ORGANIZER")) {
+    return NextResponse.json({ error: "Authorization required" }, { status: 403 });
+  }
+
+  const rateCheck = checkRateLimit(`upload:${session.id}`, 30, 10 * 60 * 1000);
+  if (!rateCheck.allowed) {
+    return NextResponse.json(
+      { error: `Upload rate limit reached. Please try again in ${rateCheck.retryAfterSeconds}s.` },
+      { status: 429 }
+    );
   }
 
   try {

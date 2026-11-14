@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { prisma } from "./prisma";
+import { prisma, withDbRetry } from "./prisma";
 import bcrypt from "bcryptjs";
 import { signSession, verifySessionToken } from "./session";
 
@@ -19,7 +19,9 @@ export async function login(
 ): Promise<{ success: true; user: SessionUser } | { success: false; error: string }> {
   try {
     const normalizedEmail = email.trim().toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email: normalizedEmail } });
+    const user = await withDbRetry(() =>
+      prisma.user.findUnique({ where: { email: normalizedEmail } })
+    );
 
     if (!user || !user.passwordHash) {
       return { success: false, error: "Invalid email or password" };
@@ -73,11 +75,13 @@ export async function getSession(): Promise<SessionUser | null> {
     const user = await verifySessionToken(token);
     if (!user?.id || !user?.email) return null;
 
-    // Re-validate against DB
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { id: true, email: true, name: true, role: true },
-    });
+    // Re-validate against DB with retry for WAN connection resilience
+    const dbUser = await withDbRetry(() =>
+      prisma.user.findUnique({
+        where: { id: user.id },
+        select: { id: true, email: true, name: true, role: true },
+      })
+    );
 
     if (!dbUser || (dbUser.role !== "ADMIN" && dbUser.role !== "ORGANIZER")) {
       return null;

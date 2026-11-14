@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { getPaymentSettings } from "@/lib/payment-verification";
 import {
   calculatePromoDiscount,
@@ -53,10 +53,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Pay at Gate is not enabled for this platform." }, { status: 400 });
     }
 
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
-      include: { ticketTiers: true },
-    });
+    const event = await withDbRetry(() =>
+      prisma.event.findUnique({
+        where: { id: eventId },
+        include: { ticketTiers: true },
+      })
+    );
 
     if (!event || (event.status !== "PUBLISHED" && event.status !== "LIVE")) {
       return NextResponse.json({ error: "Event is not open for ticket booking" }, { status: 404 });
@@ -66,13 +68,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Booking has closed because this event has ended." }, { status: 400 });
     }
 
-    const openUnpaidCount = await prisma.order.count({
-      where: {
-        eventId: event.id,
-        customerEmail: normalizedEmail,
-        status: { in: ["PENDING_VERIFICATION", "RESERVED_PAY_AT_GATE"] },
-      },
-    });
+    const openUnpaidCount = await withDbRetry(() =>
+      prisma.order.count({
+        where: {
+          eventId: event.id,
+          customerEmail: normalizedEmail,
+          status: { in: ["PENDING_VERIFICATION", "RESERVED_PAY_AT_GATE"] },
+        },
+      })
+    );
     if (openUnpaidCount >= 3) {
       return NextResponse.json(
         { error: "You already have 3 pending reservations for this event. Complete or wait for verification first." },
@@ -81,7 +85,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { subtotal, totalTicketsCount, orderItems } = validateCheckoutItems(items, event.ticketTiers);
-    const { discountAmount } = calculatePromoDiscount(subtotal, promoCode);
+    const { discountAmount } = calculatePromoDiscount(subtotal, promoCode, settings);
     const totalAmount = Math.max(0, Math.round((subtotal - discountAmount) * 100) / 100);
 
     const paymentResult = await resolvePaymentVerification({

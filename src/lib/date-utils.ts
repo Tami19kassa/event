@@ -5,13 +5,33 @@ export interface DaysLeftInfo {
   colorClass: string;
 }
 
+const EAST_AFRICA_TZ = "Africa/Addis_Ababa";
+
+function getZonedYmd(date: Date): { year: number; month: number; day: number } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: EAST_AFRICA_TZ,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(date);
+
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  return {
+    year: parseInt(map.year, 10),
+    month: parseInt(map.month, 10) - 1,
+    day: parseInt(map.day, 10),
+  };
+}
+
 export function calculateDaysLeft(dateStr: string): DaysLeftInfo {
   const now = new Date();
   const target = new Date(dateStr);
 
-  // Normalize to local midnight for accurate calendar day count
-  const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const targetDateOnly = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
+  const nowZoned = getZonedYmd(now);
+  const targetZoned = getZonedYmd(target);
+
+  const nowDateOnly = Date.UTC(nowZoned.year, nowZoned.month, nowZoned.day);
+  const targetDateOnly = Date.UTC(targetZoned.year, targetZoned.month, targetZoned.day);
 
   const diffMs = targetDateOnly - nowDateOnly;
   const days = Math.round(diffMs / (1000 * 60 * 60 * 24));
@@ -62,14 +82,26 @@ export function calculateDaysLeft(dateStr: string): DaysLeftInfo {
 
 export function formatEventDateBlock(dateStr: string) {
   const date = new Date(dateStr);
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: EAST_AFRICA_TZ,
+    month: "short",
+    day: "2-digit",
+    weekday: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).formatToParts(date);
+
+  const map = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+  const period = map.dayPeriod ? ` ${map.dayPeriod.toUpperCase()}` : "";
 
   return {
-    month: months[date.getMonth()] || "NOV",
-    day: String(date.getDate()).padStart(2, "0"),
-    weekday: weekdays[date.getDay()] || "Day",
-    year: String(date.getFullYear()),
-    time: date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }),
+    month: (map.month || "NOV").toUpperCase(),
+    day: map.day || "01",
+    weekday: map.weekday || "Day",
+    year: map.year || "2026",
+    time: `${map.hour || "12"}:${map.minute || "00"}${period}`,
   };
 }

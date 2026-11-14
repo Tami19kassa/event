@@ -5,6 +5,8 @@ export type PaymentSettings = {
   telebirrAccountName: string;
   allowPayAtGate: boolean;
   currency: string;
+  promoCode?: string;
+  promoDiscountPercent?: number;
 };
 
 export const defaultPaymentSettings: PaymentSettings = {
@@ -14,4 +16,6 @@ export const defaultPaymentSettings: PaymentSettings = {
   telebirrAccountName: "Utopia Events",
   allowPayAtGate: true,
   currency: "ETB",
+  promoCode: "SAVE10",
+  promoDiscountPercent: 10,
 };

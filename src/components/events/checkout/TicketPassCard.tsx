@@ -11,6 +11,7 @@ interface TicketPassCardProps {
     customerName?: string | null;
     status: string;
     totalAmount: number;
+    currency?: string;
   };
 }
 
@@ -86,7 +87,7 @@ export function TicketPassCard({ event, order }: TicketPassCardProps) {
                 {isGate ? "TO PAY AT DOOR" : "TOTAL AMOUNT"}
               </span>
               <span className="font-extrabold text-emerald-400">
-                ETB {order.totalAmount?.toLocaleString()}
+                {order.currency || "ETB"} {order.totalAmount?.toLocaleString()}
               </span>
             </div>
           </div>

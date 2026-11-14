@@ -50,17 +50,17 @@ export function AdminLoginForm({ siteName, logoUrl }: Props) {
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <BrandLogo siteName={siteName} logoUrl={logoUrl} subtitle="Admin Portal" />
+          <BrandLogo siteName={siteName} logoUrl={logoUrl} subtitle="Portal Sign In" />
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <div className="bg-white theme-radius-card border border-slate-200 shadow-sm p-8">
           <h1 className="text-xl font-bold text-slate-900 mb-1">Sign in</h1>
           <p className="text-sm text-slate-500 mb-6">
             Enter your credentials to access {siteName} management
           </p>
 
           {error && (
-            <div className="mb-4 flex items-center gap-2 p-3 bg-rose-50 border border-rose-100 rounded-xl text-sm text-rose-700">
+            <div className="mb-4 flex items-center gap-2 p-3 bg-rose-50 border border-rose-100 theme-radius-sm text-sm text-rose-700">
               <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </div>
@@ -76,7 +76,7 @@ export function AdminLoginForm({ siteName, logoUrl }: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                   placeholder="name@organization.com"
                 />
               </div>
@@ -91,7 +91,7 @@ export function AdminLoginForm({ siteName, logoUrl }: Props) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="w-full pl-10 pr-10 py-2.5 border border-slate-200 theme-radius-sm text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
                   placeholder="••••••••"
                 />
                 <button

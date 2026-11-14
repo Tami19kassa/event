@@ -20,17 +20,8 @@ interface RowProps {
 }
 
 export function AdminEventTableRow({
-  evt,
-  currency,
-  rowBusy,
-  confirmingDelete,
-  showOrganizer = false,
-  onToggleStatus,
-  onToggleFeatured,
-  onDuplicate,
-  onRequestDelete,
-  onCancelDelete,
-  onConfirmDelete,
+  evt, currency, rowBusy, confirmingDelete, showOrganizer = false,
+  onToggleStatus, onToggleFeatured, onDuplicate, onRequestDelete, onCancelDelete, onConfirmDelete,
 }: RowProps) {
   const pill = getEventStatusPill(evt.status);
   const { totalQty, soldCount, fillPct, barColor, minPrice, orderCount } = computeEventRowStats(evt);
@@ -42,11 +33,7 @@ export function AdminEventTableRow({
         <div className="flex items-center gap-3.5 min-w-0">
           {evt.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={evt.imageUrl}
-              alt={evt.title}
-              className="w-12 h-10 object-cover theme-radius-sm border border-slate-200 bg-slate-100 shrink-0"
-            />
+            <img src={evt.imageUrl} alt={evt.title} className="w-12 h-10 object-cover theme-radius-sm border border-slate-200 bg-slate-100 shrink-0" />
           ) : (
             <div className="w-12 h-10 theme-radius-sm bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
               <Calendar className="w-4 h-4" />

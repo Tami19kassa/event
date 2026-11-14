@@ -20,11 +20,9 @@ export function EventCalendarDeck({ events, onSelect }: Props) {
   const progressLabelRef = useRef<HTMLSpanElement>(null);
   const reducedStripRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
-
   const [fanned, setFanned] = useState(false);
   const [stageWidth, setStageWidth] = useState(1024);
   const [reducedMotion, setReducedMotion] = useState(false);
-
   const total = events.length;
 
   useEffect(() => {

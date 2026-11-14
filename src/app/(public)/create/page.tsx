@@ -4,11 +4,11 @@ import { getSession } from "@/lib/auth";
 export default async function CreatePage() {
   const session = await getSession();
 
-  // If logged in as admin, send directly to the Admin Event Studio
-  if (session && session.role === "ADMIN") {
+  // If logged in as admin or organizer, send directly to the Event Studio
+  if (session && (session.role === "ADMIN" || session.role === "ORGANIZER")) {
     redirect("/admin/events/new");
   }
 
-  // Otherwise, only admins can create events
-  redirect("/discover");
+  // If not logged in as admin/organizer, guide to login with redirect back to studio
+  redirect("/admin/login?redirect=/admin/events/new");
 }

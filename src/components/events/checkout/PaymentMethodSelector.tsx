@@ -10,6 +10,8 @@ export type PaymentGatewayInfo = {
   telebirrAccountName: string;
   allowPayAtGate: boolean;
   currency: string;
+  promoCode?: string;
+  promoDiscountPercent?: number;
 };
 
 interface PaymentSelectorProps {
@@ -46,7 +48,7 @@ export function PaymentMethodSelector({
         <button
           type="button"
           onClick={() => onMethodChange("TELEBIRR")}
-          className={`p-3 rounded-2xl border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
+          className={`p-3 theme-radius-card border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
             method === "TELEBIRR"
               ? "border-emerald-500 bg-emerald-50/70 text-emerald-900 shadow-xs"
               : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -59,7 +61,7 @@ export function PaymentMethodSelector({
         <button
           type="button"
           onClick={() => onMethodChange("CBE")}
-          className={`p-3 rounded-2xl border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
+          className={`p-3 theme-radius-card border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
             method === "CBE"
               ? "border-amber-500 bg-amber-50/70 text-amber-900 shadow-xs"
               : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -73,7 +75,7 @@ export function PaymentMethodSelector({
           <button
             type="button"
             onClick={() => onMethodChange("PAY_AT_GATE")}
-            className={`p-3 rounded-2xl border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
+            className={`p-3 theme-radius-card border text-left flex flex-col items-center justify-center gap-1.5 transition cursor-pointer ${
               method === "PAY_AT_GATE"
                 ? "theme-badge shadow-xs"
                 : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
@@ -87,7 +89,7 @@ export function PaymentMethodSelector({
 
       {/* Telebirr Details */}
       {method === "TELEBIRR" && (
-        <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 space-y-3">
+        <div className="bg-emerald-50/50 border border-emerald-200 theme-radius-card p-4 space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-emerald-800 font-medium">Telebirr Receiver Number:</span>
             <div className="flex items-center gap-1.5">
@@ -116,7 +118,7 @@ export function PaymentMethodSelector({
               value={receiptUrl}
               onChange={(e) => onReceiptUrlChange(e.target.value)}
               placeholder="e.g. https://transactioninfo.ethiotelecom.et/receipt/DK90W608P4"
-              className="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full px-3 py-2 bg-white border border-emerald-300 theme-radius-sm text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
         </div>
@@ -124,7 +126,7 @@ export function PaymentMethodSelector({
 
       {/* CBE Details */}
       {method === "CBE" && (
-        <div className="bg-amber-50/50 border border-amber-200 rounded-2xl p-4 space-y-3">
+        <div className="bg-amber-50/50 border border-amber-200 theme-radius-card p-4 space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-amber-800 font-medium">CBE Account Number:</span>
             <div className="flex items-center gap-1.5">
@@ -153,7 +155,7 @@ export function PaymentMethodSelector({
               value={receiptUrl}
               onChange={(e) => onReceiptUrlChange(e.target.value)}
               placeholder="e.g. https://mbreciept.cbe.com.et/v2-hfHCxNV6JF7DhAbgHI8i"
-              className="w-full px-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2 bg-white border border-amber-300 theme-radius-sm text-xs font-mono focus:outline-none focus:ring-2 focus:ring-amber-500"
             />
           </div>
         </div>
@@ -161,12 +163,12 @@ export function PaymentMethodSelector({
 
       {/* Pay at Gate */}
       {method === "PAY_AT_GATE" && (
-        <div className="theme-badge border rounded-2xl p-4 text-xs space-y-2">
+        <div className="theme-badge border theme-radius-card p-4 text-xs space-y-2">
           <div className="flex items-center gap-2 font-bold">
             <DoorOpen className="w-4 h-4 text-[var(--color-primary)]" /> Pay on Arrival at the Venue
           </div>
           <p className="text-[11px] leading-relaxed text-slate-700">
-            Your reservation will be confirmed. Settle <span className="font-bold">ETB {total.toLocaleString()}</span> at the entrance desk via cash or Birr upon arrival.
+            Your reservation will be confirmed. Settle <span className="font-bold">{gatewaySettings.currency || "ETB"} {total.toLocaleString()}</span> at the entrance desk via cash or Birr upon arrival.
           </p>
         </div>
       )}

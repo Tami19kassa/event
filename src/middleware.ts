@@ -14,6 +14,19 @@ const ADMIN_ONLY_PREFIXES = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/create") {
+    const sessionCookie = request.cookies.get(SESSION_COOKIE)?.value;
+    const verifiedUser = sessionCookie ? await verifySessionToken(sessionCookie) : null;
+    const canCreate =
+      verifiedUser && (verifiedUser.role === "ADMIN" || verifiedUser.role === "ORGANIZER");
+    if (canCreate) {
+      return NextResponse.redirect(new URL("/admin/events/new", request.url));
+    }
+    const loginUrl = new URL("/admin/login", request.url);
+    loginUrl.searchParams.set("redirect", "/admin/events/new");
+    return NextResponse.redirect(loginUrl);
+  }
+
   if (!pathname.startsWith("/admin")) {
     return NextResponse.next();
   }
@@ -47,5 +60,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/create"],
 };

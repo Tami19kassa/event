@@ -1,6 +1,6 @@
 import { verifyPaymentReceipt } from "./payment-verification";
 
-const SERVER_PROMO_CODES: Record<string, number> = {
+const DEFAULT_SERVER_PROMO_CODES: Record<string, number> = {
   SAVE10: 0.1,
 };
 
@@ -19,13 +19,31 @@ export function generateOrderNumber(): string {
 
 export function calculatePromoDiscount(
   subtotal: number,
-  promoCode?: string
+  promoCode?: string,
+  settings?: { promoCode?: string; promoDiscountPercent?: number }
 ): { discountAmount: number; appliedPromo: string | null } {
   const code = (promoCode || "").trim().toUpperCase();
-  const rate = SERVER_PROMO_CODES[code];
-  if (!code || !rate || subtotal <= 0) {
+  if (!code || subtotal <= 0) {
     return { discountAmount: 0, appliedPromo: null };
   }
+
+  let rate = 0;
+  if (settings) {
+    const validCode = (settings.promoCode || "").trim().toUpperCase();
+    if (validCode && code === validCode) {
+      rate =
+        typeof settings.promoDiscountPercent === "number"
+          ? Math.max(0, Math.min(100, settings.promoDiscountPercent)) / 100
+          : 0.1;
+    }
+  } else {
+    rate = DEFAULT_SERVER_PROMO_CODES[code] || 0;
+  }
+
+  if (rate <= 0) {
+    return { discountAmount: 0, appliedPromo: null };
+  }
+
   const discountAmount = Math.round(subtotal * rate * 100) / 100;
   return { discountAmount, appliedPromo: code };
 }
