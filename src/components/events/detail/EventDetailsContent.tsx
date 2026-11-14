@@ -1,110 +1,110 @@
-import Image from "next/image";
-import Link from "next/link";
-import { CheckCircle2, ExternalLink } from "lucide-react";
-import { Event } from "@/types/event";
+"use client";
+
+import { useState } from "react";
+import { CheckCircle2, ChevronDown, ChevronUp, Users } from "lucide-react";
+import { Event, Speaker } from "@/types/event";
+import { SpeakerCard } from "./SpeakerCard";
+import { SpeakerBioModal } from "./SpeakerBioModal";
+import { AgendaSection } from "./AgendaSection";
+import { VenueSection } from "./VenueSection";
 
 export function EventDetailsContent({ event }: { event: Event }) {
+  const [activeSpeaker, setActiveSpeaker] = useState<Speaker | null>(null);
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  const isLongDesc = (event.description || "").length > 420;
+  const displayDescription =
+    isLongDesc && !descExpanded
+      ? `${event.description.slice(0, 420).trim()}...`
+      : event.description;
+
   return (
     <div className="space-y-10">
-      {/* About */}
+      {/* About Section */}
       <section>
         <h2 className="text-xl font-display text-slate-900 mb-3">About this event</h2>
         <div className="prose prose-slate max-w-none whitespace-pre-line text-slate-600 leading-relaxed text-sm md:text-base">
-          {event.description}
+          {displayDescription}
         </div>
+        {isLongDesc && (
+          <button
+            type="button"
+            onClick={() => setDescExpanded((v) => !v)}
+            className="mt-3 text-xs font-bold text-[var(--color-primary)] hover:underline inline-flex items-center gap-1 cursor-pointer"
+          >
+            <span>{descExpanded ? "Show less" : "Read full description"}</span>
+            {descExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+        )}
       </section>
 
-      {/* Agenda */}
+      {/* Agenda Section with Modal */}
       {event.agenda && event.agenda.length > 0 && (
-        <section>
-          <h2 className="text-xl font-display text-slate-900 mb-4">Agenda Schedule</h2>
-          <div className="space-y-3">
-            {event.agenda.map((item, i) => (
-              <div key={i} className="flex gap-4 p-4 bg-slate-50 border border-slate-200/70 theme-radius-card">
-                <div className="text-xs font-bold theme-text-secondary w-20 shrink-0 uppercase tracking-wider">
-                  {item.time}
-                </div>
-                <div>
-                  <div className="font-bold text-slate-900 text-sm">{item.title}</div>
-                  {item.description && (
-                    <p className="text-xs text-slate-500 mt-1">{item.description}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        <AgendaSection
+          agenda={event.agenda}
+          eventTitle={event.title}
+          speakers={event.speakers}
+          onSelectSpeaker={(speaker) => setActiveSpeaker(speaker)}
+        />
       )}
 
-      {/* Speakers */}
+      {/* Speakers Section with Bio Modal */}
       {event.speakers.length > 0 && (
         <section>
-          <h2 className="text-xl font-display text-slate-900 mb-4">Featured Speakers</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 className="text-xl font-display text-slate-900">Featured Speakers</h2>
+              <p className="text-xs text-slate-400">Industry leaders &amp; keynote presenters</p>
+            </div>
+            <span className="text-xs font-bold theme-badge border px-2.5 py-1 rounded-full">
+              {event.speakers.length} {event.speakers.length === 1 ? "speaker" : "speakers"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {event.speakers.map((speaker) => (
-              <div key={speaker.id} className="flex gap-4 p-4 border border-slate-200 theme-radius-card bg-white shadow-2xs">
-                <Image
-                  src={speaker.imageUrl}
-                  alt={speaker.name}
-                  width={64}
-                  height={64}
-                  className="theme-radius-sm object-cover w-16 h-16 shrink-0"
-                />
-                <div>
-                  <div className="font-bold text-slate-900 text-sm">{speaker.name}</div>
-                  <div className="text-xs text-[var(--color-primary)] font-semibold mt-0.5">
-                    {speaker.title}{speaker.company && ` · ${speaker.company}`}
-                  </div>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">{speaker.bio}</p>
-                </div>
-              </div>
+              <SpeakerCard
+                key={speaker.id}
+                speaker={speaker}
+                onSelect={(s) => setActiveSpeaker(s)}
+              />
             ))}
           </div>
         </section>
       )}
 
-      {/* Venue Location */}
+      {/* Venue Location Section */}
+      <VenueSection
+        location={event.location}
+        isOnline={event.format === "online"}
+      />
+
+      {/* Organizer Section */}
       <section>
-        <h2 className="text-xl font-display text-slate-900 mb-3">Venue & Hall</h2>
-        <div className="p-5 border border-slate-200 theme-radius-card bg-white shadow-2xs">
-          <div className="font-bold text-slate-900 text-base">{event.location.name}</div>
-          {event.location.address && (
-            <div className="text-xs text-slate-500 mt-1">{event.location.address}</div>
-          )}
-          <div className="text-xs theme-text-secondary font-medium mt-0.5">
-            {event.location.city}, {event.location.country}
+        <h2 className="text-xl font-display text-slate-900 mb-3">Official Organizer</h2>
+        <div className="flex items-center justify-between gap-4 p-4 border border-slate-200 theme-radius-card bg-white shadow-2xs">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 theme-radius-sm theme-badge border flex items-center justify-center font-display text-lg font-bold">
+              {event.organizer.name.charAt(0)}
+            </div>
+            <div>
+              <div className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
+                <span>{event.organizer.name}</span>
+                {event.organizer.verified && (
+                  <CheckCircle2 className="w-4 h-4 text-[var(--color-primary)]" />
+                )}
+              </div>
+              <span className="text-xs text-slate-400">Verified Platform Host</span>
+            </div>
           </div>
-          {event.format !== "online" && (
-            <a
-              href={`https://maps.google.com/?q=${encodeURIComponent(`${event.location.name} ${event.location.city}`)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-primary)] hover:opacity-80 mt-3"
-            >
-              Open in Google Maps <ExternalLink className="w-3.5 h-3.5" />
-            </a>
-          )}
         </div>
       </section>
 
-      {/* Organizer */}
-      <section>
-        <h2 className="text-xl font-display text-slate-900 mb-3">Official Organizer</h2>
-        <div className="flex items-center gap-3 p-4 border border-slate-200 theme-radius-card bg-white shadow-2xs">
-          <div className="w-12 h-12 theme-radius-sm theme-badge border flex items-center justify-center font-display text-lg">
-            {event.organizer.name.charAt(0)}
-          </div>
-          <div>
-            <div className="font-bold text-slate-900 flex items-center gap-1.5 text-sm">
-              {event.organizer.name}
-              {event.organizer.verified && (
-                <CheckCircle2 className="w-4 h-4 text-[var(--color-primary)]" />
-              )}
-            </div>
-            <span className="text-xs text-slate-400">Verified Platform Host</span>
-          </div>
-        </div>
-      </section>
+      {/* Speaker Bio Modal */}
+      <SpeakerBioModal
+        speaker={activeSpeaker}
+        onClose={() => setActiveSpeaker(null)}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import { resolveOgImageUrl } from "@/lib/site-url";
 import { TicketSelector } from "@/components/events/TicketSelector";
 import { EventHeroBanner } from "@/components/events/detail/EventHeroBanner";
 import { EventDetailsContent } from "@/components/events/detail/EventDetailsContent";
+import { MobileBookingBar } from "@/components/events/detail/MobileBookingBar";
 import { EventMediaStrip } from "@/components/media/EventMediaStrip";
 
 export const revalidate = 60;
@@ -83,7 +84,7 @@ export default async function EventPage({ params }: PageProps) {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="sticky top-24 space-y-4">
+            <div id="tickets-pricing-section" className="sticky top-24 space-y-4">
               <TicketSelector event={event} initialGateways={paymentSettings} />
 
               <div className="p-4 bg-slate-50 border border-slate-200 theme-radius-card text-xs text-slate-600">
@@ -99,6 +100,11 @@ export default async function EventPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      <MobileBookingBar
+        ticketTiers={event.ticketTiers}
+        currency={paymentSettings.currency}
+      />
     </div>
   );
 }
